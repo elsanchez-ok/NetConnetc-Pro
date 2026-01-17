@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetConnect Pro | Internet y Cable 5G</title>
+    <!-- METADATOS MEJORADOS -->
+    <title>NetConnect Pro | Internet y Cable 5G en Honduras</title>
+    <meta name="description" content="NetConnect Pro ofrece internet 5G y cable de alta velocidad en Honduras. Planes desde L 699/mes con fibra óptica, WiFi 6E y soporte 24/7.">
+    <meta name="keywords" content="internet Honduras, cable TV, fibra óptica, 5G, WiFi 6E, planes internet, NetConnect Pro">
+    <meta name="author" content="NetConnect Pro">
+    <meta property="og:title" content="NetConnect Pro - Internet y Cable 5G">
+    <meta property="og:description" content="Internet más rápido para todo Honduras. Experimenta la verdadera velocidad de fibra óptica.">
+    <meta property="og:type" content="website">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
@@ -107,6 +115,28 @@
             overflow-x: hidden;
             min-height: 100vh;
             transition: var(--transition-smooth);
+        }
+
+        /* Mejoras de accesibilidad */
+        :focus-visible {
+            outline: 3px solid var(--color-accent);
+            outline-offset: 2px;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--color-accent);
+            color: var(--color-dark);
+            padding: var(--space-sm);
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 9999;
+        }
+
+        .skip-link:focus {
+            top: 0;
         }
 
         /* Tipografía mejorada */
@@ -522,7 +552,7 @@
         }
 
         .hero-title {
-            font-size: 3.8rem;
+            font-size: clamp(2rem, 5vw, 3.8rem); /* Mejor responsividad */
             font-weight: 900;
             line-height: 1.1;
             margin-bottom: var(--space-lg);
@@ -538,26 +568,8 @@
             background-clip: text;
         }
 
-        @media (max-width: 1200px) {
-            .hero-title {
-                font-size: 3.2rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero-title {
-                font-size: 2rem;
-            }
-        }
-
         .hero-description {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 2vw, 1.2rem);
             color: var(--color-text-lighter);
             margin-bottom: var(--space-xl);
             max-width: 500px;
@@ -566,12 +578,6 @@
         @media (max-width: 992px) {
             .hero-description {
                 margin: 0 auto var(--space-xl);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .hero-description {
-                font-size: 1.1rem;
             }
         }
 
@@ -661,7 +667,7 @@
             border: 1px solid var(--color-border-light);
             animation: float 3s ease-in-out infinite;
             animation-delay: calc(var(--i) * 0.5s);
-            width: 280px;
+            width: min(280px, 90%);
             transition: var(--transition-smooth);
         }
 
@@ -679,14 +685,14 @@
         .floating-card:nth-child(2) {
             bottom: 60px;
             left: -30px;
-            width: 250px;
+            width: min(250px, 85%);
             --i: 2;
         }
 
         .floating-card:nth-child(3) {
             bottom: -30px;
             right: 80px;
-            width: 220px;
+            width: min(220px, 80%);
             --i: 3;
         }
 
@@ -727,27 +733,26 @@
             }
             
             .floating-card {
-                width: 250px;
+                width: min(250px, 90%);
                 padding: var(--space-md);
+                position: relative !important;
+                margin: 0 auto 20px !important;
+                top: auto !important;
+                bottom: auto !important;
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%) !important;
+                animation: floatMobile 3s ease-in-out infinite;
             }
             
-            .floating-card:nth-child(1) {
-                top: 10px;
-                right: 20px;
-                width: 240px;
-            }
-            
-            .floating-card:nth-child(2) {
-                bottom: 120px;
-                left: 20px;
-                width: 220px;
-            }
-            
-            .floating-card:nth-child(3) {
-                bottom: 20px;
-                right: 20px;
-                width: 200px;
-            }
+            .floating-card:nth-child(1) { --i: 1; }
+            .floating-card:nth-child(2) { --i: 2; }
+            .floating-card:nth-child(3) { --i: 3; }
+        }
+
+        @keyframes floatMobile {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
         }
 
         .floating-card i {
@@ -811,7 +816,7 @@
         }
 
         .section-title {
-            font-size: 3rem;
+            font-size: clamp(1.8rem, 4vw, 3rem);
             font-weight: 900;
             margin-bottom: var(--space-md);
             background: linear-gradient(to right, var(--color-text), var(--color-accent));
@@ -826,41 +831,22 @@
             background-clip: text;
         }
 
-        @media (max-width: 768px) {
-            .section-title {
-                font-size: 2.2rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .section-title {
-                font-size: 1.8rem;
-            }
-        }
-
         .section-description {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 2vw, 1.2rem);
             color: var(--color-text-light);
             max-width: 600px;
             margin: 0 auto;
         }
 
-        @media (max-width: 768px) {
-            .section-description {
-                font-size: 1.1rem;
-            }
-        }
-
         /* Features mejorado y responsive */
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
             gap: var(--space-xl);
         }
 
         @media (max-width: 768px) {
             .features-grid {
-                grid-template-columns: 1fr;
                 gap: var(--space-lg);
             }
         }
@@ -937,14 +923,13 @@
         /* Plans mejorado y responsive */
         .plans-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
             gap: var(--space-xl);
             margin-top: var(--space-xl);
         }
 
         @media (max-width: 768px) {
             .plans-grid {
-                grid-template-columns: 1fr;
                 gap: var(--space-lg);
             }
         }
@@ -997,7 +982,7 @@
         }
 
         .plan-price {
-            font-size: 3.5rem;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
             font-weight: 900;
             color: var(--color-accent);
             line-height: 1;
@@ -1096,6 +1081,22 @@
             box-shadow: 0 0 0 3px var(--color-accent-glow);
         }
 
+        /* Estilos para validación */
+        .form-control.error {
+            border-color: var(--color-danger);
+        }
+
+        .error-message {
+            color: var(--color-danger);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-control.error + .error-message {
+            display: block;
+        }
+
         .contact-info {
             display: flex;
             flex-direction: column;
@@ -1110,7 +1111,7 @@
             
             .info-card {
                 flex: 1;
-                min-width: 300px;
+                min-width: min(300px, 100%);
             }
         }
 
@@ -1390,7 +1391,8 @@
             display: block;
         }
 
-        .mobile-nav a:hover {
+        .mobile-nav a:hover,
+        .mobile-nav a:focus {
             background: rgba(0,210,255,0.1);
             color: var(--color-accent);
         }
@@ -1416,6 +1418,7 @@
             transform: translateY(20px);
             z-index: 999;
             box-shadow: var(--shadow-button);
+            border: none;
         }
 
         .scroll-top.active {
@@ -1444,6 +1447,56 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Notificaciones */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: var(--color-info);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 10000;
+            animation: slideInRight 0.3s ease;
+            max-width: min(400px, 90vw);
+        }
+
+        .notification-error {
+            background: var(--color-danger);
+        }
+
+        .notification-success {
+            background: var(--color-success);
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            margin-left: auto;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
         /* Accessibility improvements */
         .sr-only {
             position: absolute;
@@ -1459,6 +1512,9 @@
     </style>
 </head>
 <body>
+    <!-- Skip link para accesibilidad -->
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
     <!-- Botón de cambio de tema -->
     <div class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
         <i class="fas fa-sun theme-icon sun"></i>
@@ -1498,7 +1554,7 @@
                 </div>
             </nav>
 
-            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menú">
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menú" aria-expanded="false">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
@@ -1725,35 +1781,40 @@
             
             <div class="contact-container animate__animated animate__fadeInUp">
                 <div class="contact-form">
-                    <form id="installationForm">
+                    <form id="installationForm" novalidate>
                         <div class="form-group">
-                            <label class="form-label">Nombre Completo</label>
+                            <label class="form-label">Nombre Completo *</label>
                             <input type="text" class="form-control" placeholder="Ingresa tu nombre" required>
+                            <div class="error-message">Por favor, ingresa tu nombre completo</div>
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label">Correo Electrónico</label>
+                            <label class="form-label">Correo Electrónico *</label>
                             <input type="email" class="form-control" placeholder="ejemplo@correo.com" required>
+                            <div class="error-message">Por favor, ingresa un correo válido</div>
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label">Teléfono</label>
-                            <input type="tel" class="form-control" placeholder="+504 XXXX-XXXX" required>
+                            <label class="form-label">Teléfono *</label>
+                            <input type="tel" class="form-control" placeholder="+504 XXXX-XXXX" required pattern="^\+504\s?\d{4}-?\d{4}$">
+                            <div class="error-message">Formato: +504 XXXX-XXXX</div>
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label">Dirección</label>
+                            <label class="form-label">Dirección *</label>
                             <input type="text" class="form-control" placeholder="Dirección de instalación" required>
+                            <div class="error-message">Por favor, ingresa tu dirección</div>
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label">Plan de Interés</label>
+                            <label class="form-label">Plan de Interés *</label>
                             <select class="form-control" required>
                                 <option value="" disabled selected>Selecciona un plan</option>
                                 <option value="699">Plan Básico - L 699/mes</option>
                                 <option value="1199">Plan Familiar Pro - L 1,199/mes</option>
                                 <option value="1999">Plan Premium Ultra - L 1,999/mes</option>
                             </select>
+                            <div class="error-message">Por favor, selecciona un plan</div>
                         </div>
                         
                         <button type="submit" class="btn btn-primary" style="width: 100%; padding: 18px;">
@@ -1905,6 +1966,7 @@
             e.stopPropagation();
             menuOpen = !menuOpen;
             mobileMenu.classList.toggle('active');
+            mobileMenuBtn.setAttribute('aria-expanded', menuOpen);
             
             const icon = mobileMenuBtn.querySelector('i');
             icon.classList.toggle('fa-bars');
@@ -1919,6 +1981,7 @@
             if (menuOpen && !mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
                 menuOpen = false;
                 mobileMenu.classList.remove('active');
+                mobileMenuBtn.setAttribute('aria-expanded', false);
                 const icon = mobileMenuBtn.querySelector('i');
                 icon.classList.remove('fa-times');
                 icon.classList.add('fa-bars');
@@ -1931,6 +1994,7 @@
             link.addEventListener('click', () => {
                 menuOpen = false;
                 mobileMenu.classList.remove('active');
+                mobileMenuBtn.setAttribute('aria-expanded', false);
                 const icon = mobileMenuBtn.querySelector('i');
                 icon.classList.remove('fa-times');
                 icon.classList.add('fa-bars');
@@ -1938,11 +2002,61 @@
             });
         });
         
-        // Formulario de contacto mejorado
+        // Validación de formulario mejorada
         const installationForm = document.getElementById('installationForm');
         if (installationForm) {
+            // Validación en tiempo real
+            const inputs = installationForm.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('blur', validateField);
+                input.addEventListener('input', clearError);
+            });
+            
+            function validateField(e) {
+                const field = e.target;
+                const errorMessage = field.parentElement.querySelector('.error-message');
+                
+                if (field.validity.valid) {
+                    field.classList.remove('error');
+                    errorMessage.style.display = 'none';
+                } else {
+                    field.classList.add('error');
+                    errorMessage.style.display = 'block';
+                    
+                    if (field.type === 'email') {
+                        errorMessage.textContent = field.value ? 'Correo electrónico inválido' : 'Correo electrónico requerido';
+                    } else if (field.type === 'tel') {
+                        errorMessage.textContent = 'Formato: +504 XXXX-XXXX';
+                    } else {
+                        errorMessage.textContent = field.validationMessage || 'Campo requerido';
+                    }
+                }
+            }
+            
+            function clearError(e) {
+                const field = e.target;
+                field.classList.remove('error');
+                const errorMessage = field.parentElement.querySelector('.error-message');
+                errorMessage.style.display = 'none';
+            }
+            
             installationForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
+                
+                // Validar todos los campos
+                let isValid = true;
+                inputs.forEach(input => {
+                    if (!input.validity.valid) {
+                        isValid = false;
+                        const event = new Event('blur');
+                        input.dispatchEvent(event);
+                    }
+                });
+                
+                if (!isValid) {
+                    showNotification('Por favor, corrige los errores en el formulario', 'error');
+                    return;
+                }
                 
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const originalText = submitBtn.innerHTML;
@@ -1954,12 +2068,12 @@
                 submitBtn.disabled = true;
                 
                 try {
-                    // Simular envío de datos (en un caso real, sería una petición fetch)
+                    // Simular envío de datos
                     await new Promise(resolve => setTimeout(resolve, 1500));
                     
                     // Mostrar mensaje de éxito
                     submitBtn.innerHTML = '<i class="fas fa-check"></i> ¡Enviado!';
-                    submitBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #34d399 100%)';
+                    submitBtn.style.background = 'var(--color-success)';
                     
                     // Mostrar notificación
                     showNotification('¡Solicitud enviada con éxito! Un asesor se comunicará contigo pronto.', 'success');
@@ -1967,6 +2081,7 @@
                     // Resetear formulario después de un momento
                     setTimeout(() => {
                         installationForm.reset();
+                        inputs.forEach(input => input.classList.remove('error'));
                         submitBtn.innerHTML = originalText;
                         submitBtn.style.background = '';
                         submitBtn.disabled = false;
@@ -1974,7 +2089,7 @@
                     
                 } catch (error) {
                     submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
-                    submitBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)';
+                    submitBtn.style.background = 'var(--color-danger)';
                     showNotification('Error al enviar la solicitud. Por favor, inténtalo de nuevo.', 'error');
                     
                     setTimeout(() => {
@@ -1988,30 +2103,18 @@
         
         // Función para mostrar notificaciones
         function showNotification(message, type = 'info') {
+            // Remover notificaciones existentes
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => {
+                notification.remove();
+            });
+            
             const notification = document.createElement('div');
             notification.className = `notification notification-${type}`;
             notification.innerHTML = `
                 <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
                 <span>${message}</span>
-                <button class="notification-close"><i class="fas fa-times"></i></button>
-            `;
-            
-            // Estilos para la notificación
-            notification.style.cssText = `
-                position: fixed;
-                top: 100px;
-                right: 20px;
-                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
-                color: white;
-                padding: 16px 20px;
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-                z-index: 10000;
-                animation: slideInRight 0.3s ease;
-                max-width: 400px;
+                <button class="notification-close" aria-label="Cerrar notificación"><i class="fas fa-times"></i></button>
             `;
             
             document.body.appendChild(notification);
@@ -2029,35 +2132,6 @@
                     setTimeout(() => notification.remove(), 300);
                 }
             }, 5000);
-            
-            // Añadir keyframes para la animación
-            if (!document.querySelector('#notification-styles')) {
-                const style = document.createElement('style');
-                style.id = 'notification-styles';
-                style.textContent = `
-                    @keyframes slideInRight {
-                        from { transform: translateX(100%); opacity: 0; }
-                        to { transform: translateX(0); opacity: 1; }
-                    }
-                    @keyframes slideOutRight {
-                        from { transform: translateX(0); opacity: 1; }
-                        to { transform: translateX(100%); opacity: 0; }
-                    }
-                    .notification-close {
-                        background: none;
-                        border: none;
-                        color: white;
-                        cursor: pointer;
-                        opacity: 0.7;
-                        transition: opacity 0.2s;
-                        margin-left: auto;
-                    }
-                    .notification-close:hover {
-                        opacity: 1;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
         }
         
         // Botón para subir al inicio
@@ -2081,7 +2155,7 @@
         // Animación al hacer scroll mejorada
         const observerOptions = {
             threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
+            rootMargin: '0px 0px 0px 0px'
         };
         
         const observer = new IntersectionObserver((entries) => {
@@ -2097,28 +2171,29 @@
             observer.observe(el);
         });
         
-        // Efecto de partículas mejorado
+        // Efecto de partículas optimizado
         const heroBg = document.querySelector('.hero-bg');
-        if (heroBg) {
-            for (let i = 0; i < 25; i++) {
+        if (heroBg && window.innerWidth > 768) { // Solo en desktop
+            for (let i = 0; i < 15; i++) { // Reducido de 25 a 15
                 createParticle(heroBg);
             }
         }
         
         function createParticle(container) {
             const particle = document.createElement('div');
-            const size = Math.random() * 4 + 2;
+            const size = Math.random() * 3 + 1; // Reducido tamaño
             
             particle.style.cssText = `
                 position: absolute;
                 width: ${size}px;
                 height: ${size}px;
-                background: rgba(0,210,255,${Math.random() * 0.3 + 0.1});
+                background: rgba(0,210,255,${Math.random() * 0.2 + 0.1});
                 border-radius: 50%;
                 top: ${Math.random() * 100}%;
                 left: ${Math.random() * 100}%;
-                animation: floatParticle ${Math.random() * 15 + 10}s linear infinite;
+                animation: floatParticle ${Math.random() * 10 + 5}s linear infinite;
                 animation-delay: ${Math.random() * 5}s;
+                will-change: transform, opacity;
             `;
             
             container.appendChild(particle);
@@ -2132,19 +2207,19 @@
                 @keyframes floatParticle {
                     0%, 100% { 
                         transform: translate(0, 0) rotate(0deg); 
-                        opacity: ${Math.random() * 0.3 + 0.1}; 
+                        opacity: 0.1; 
                     }
                     25% { 
-                        transform: translate(${Math.random() * 40 - 20}px, ${Math.random() * 40 - 20}px) rotate(90deg); 
-                        opacity: ${Math.random() * 0.6 + 0.2}; 
+                        transform: translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px) rotate(90deg); 
+                        opacity: 0.3; 
                     }
                     50% { 
-                        transform: translate(${Math.random() * 40 - 20}px, ${Math.random() * 40 - 20}px) rotate(180deg); 
-                        opacity: ${Math.random() * 0.3 + 0.1}; 
+                        transform: translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px) rotate(180deg); 
+                        opacity: 0.1; 
                     }
                     75% { 
-                        transform: translate(${Math.random() * 40 - 20}px, ${Math.random() * 40 - 20}px) rotate(270deg); 
-                        opacity: ${Math.random() * 0.6 + 0.2}; 
+                        transform: translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px) rotate(270deg); 
+                        opacity: 0.3; 
                     }
                 }
             `;
@@ -2166,14 +2241,16 @@
                     if (menuOpen) {
                         menuOpen = false;
                         mobileMenu.classList.remove('active');
+                        mobileMenuBtn.setAttribute('aria-expanded', false);
                         const icon = mobileMenuBtn.querySelector('i');
                         icon.classList.remove('fa-times');
                         icon.classList.add('fa-bars');
                         document.body.style.overflow = '';
                     }
                     
+                    const headerHeight = document.querySelector('header').offsetHeight;
                     window.scrollTo({
-                        top: targetElement.offsetTop - 100,
+                        top: targetElement.offsetTop - headerHeight,
                         behavior: 'smooth'
                     });
                 }
@@ -2187,6 +2264,28 @@
                 body.setAttribute('data-theme', newTheme);
                 updateThemeIcon(newTheme);
             }
+        });
+        
+        // Mejorar rendimiento en scroll
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    // Aquí puedes agregar efectos de parallax si los necesitas
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+        
+        // Preload de imágenes críticas
+        const criticalImages = [
+            'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80'
+        ];
+        
+        criticalImages.forEach(src => {
+            const img = new Image();
+            img.src = src;
         });
     </script>
 </body>
