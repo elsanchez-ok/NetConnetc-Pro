@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetConnect Pro | Nuevo Cliente</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Variables de tema */
+        :root {
+            --gradient-primary: linear-gradient(135deg, #0a0f2d 0%, #1a237e 30%, #283593 60%, #3949ab 100%);
+            --gradient-secondary: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --gradient-accent: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            --gradient-admin: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+            --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.98) 0%, rgba(248,250,255,0.98) 100%);
+            --gradient-sidebar: linear-gradient(180deg, #0a0f2d 0%, #1a237e 100%);
+            
+            --color-primary: #1a237e;
+            --color-secondary: #3949ab;
+            --color-accent: #00d2ff;
+            --color-admin: #7c3aed;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-dark: #0a0f2d;
+            --color-light: #f8faff;
+            --color-white: #ffffff;
+            --color-text: #1a202c;
+            --color-text-light: #4a5568;
+            --color-text-lighter: #718096;
+            --color-border: #e2e8f0;
+            --color-sidebar: #0a0f2d;
+            --color-sidebar-hover: #1a237e;
+            
+            --shadow-card: 0 10px 25px rgba(0, 0, 0, 0.08), 0 5px 15px rgba(0, 0, 0, 0.04);
+            --shadow-card-hover: 0 20px 40px rgba(0, 0, 0, 0.12), 0 10px 20px rgba(0, 0, 0, 0.08);
+            --shadow-button: 0 8px 20px rgba(124, 58, 237, 0.25);
+            --shadow-nav: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-sidebar: 5px 0 25px rgba(0, 0, 0, 0.1);
+            --shadow-input: 0 5px 15px rgba(0, 0, 0, 0.05);
+            
+            --radius-card: 20px;
+            --radius-button: 12px;
+            --radius-input: 10px;
+            --radius-full: 50px;
+            
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            
+            --sidebar-width: 280px;
+            --sidebar-collapsed: 80px;
+            --header-height: 80px;
+        }
+
+        [data-theme="dark"] {
+            --gradient-card: linear-gradient(145deg, rgba(30,30,50,0.95) 0%, rgba(26,26,46,0.98) 100%);
+            --gradient-sidebar: linear-gradient(180deg, #0a0a1a 0%, #12122e 100%);
+            
+            --color-primary: #242454;
+            --color-secondary: #39396b;
+            --color-dark: #0a0a1a;
+            --color-light: #12122e;
+            --color-white: #1a1a3e;
+            --color-text: #f7fafc;
+            --color-text-light: #e2e8f0;
+            --color-text-lighter: #cbd5e0;
+            --color-border: rgba(255,255,255,0.1);
+            --color-sidebar: #0a0a1a;
+            --color-sidebar-hover: #12122e;
+            
+            --shadow-card: 0 10px 25px rgba(0, 0, 0, 0.25), 0 5px 15px rgba(0, 0, 0, 0.15);
+            --shadow-card-hover: 0 20px 40px rgba(0, 0, 0, 0.35), 0 10px 20px rgba(0, 0, 0, 0.25);
+            --shadow-sidebar: 5px 0 25px rgba(0, 0, 0, 0.25);
+            --shadow-input: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Reset y estilos base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--color-light);
+            color: var(--color-text);
+            line-height: 1.6;
+            transition: var(--transition-smooth);
+            overflow-x: hidden;
+        }
+
+        /* Layout principal */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar (Mismo que las otras páginas) */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--gradient-sidebar);
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 1000;
+            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-sidebar);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-mini {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-accent);
+            border-radius: 12px;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.3);
+        }
+
+        .sidebar-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(180deg);
+        }
+
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .sidebar-toggle span {
+            display: none;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            list-style: none;
+        }
+
+        .menu-item {
+            margin-bottom: 5px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .menu-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            padding-left: 30px;
+        }
+
+        .menu-link.active {
+            background: var(--color-admin);
+            color: white;
+            box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3);
+        }
+
+        .menu-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--color-accent);
+        }
+
+        .menu-icon {
+            font-size: 20px;
+            margin-right: 15px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .sidebar.collapsed .menu-text {
+            display: none;
+        }
+
+        .menu-badge {
+            margin-left: auto;
+            background: var(--color-danger);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-admin);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .user-role {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+        }
+
+        .sidebar.collapsed .user-details {
+            display: none;
+        }
+
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--transition-smooth);
+            min-height: 100vh;
+        }
+
+        .sidebar.collapsed ~ .main-content {
+            margin-left: var(--sidebar-collapsed);
+        }
+
+        /* Header */
+        .main-header {
+            background: var(--gradient-card);
+            padding: 0 30px;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-nav);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--color-text);
+        }
+
+        .header-left p {
+            color: var(--color-text-light);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .header-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: var(--radius-button);
+            background: var(--color-white);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        [data-theme="dark"] .header-btn {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .header-btn:hover {
+            background: var(--color-admin);
+            color: white;
+            border-color: var(--color-admin);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-button);
+        }
+
+        .theme-toggle {
+            background: var(--gradient-admin);
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: var(--radius-button);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(30deg) scale(1.1);
+            box-shadow: var(--shadow-button);
+        }
+
+        /* Contenido específico de nuevo cliente */
+        .content-wrapper {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Encabezado del formulario */
+        .form-header {
+            background: var(--gradient-card);
+            border-radius: var(--radius-card);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--color-border);
+            text-align: center;
+        }
+
+        .form-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--color-text);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .form-header p {
+            color: var(--color-text-light);
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Formulario principal */
+        .new-client-form {
+            background: var(--gradient-card);
+            border-radius: var(--radius-card);
+            padding: 40px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--color-border);
+            margin-bottom: 30px;
+        }
+
+        /* Secciones del formulario */
+        .form-section {
+            margin-bottom: 40px;
+            padding-bottom: 40px;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .section-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-admin);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: var(--shadow-button);
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--color-text);
+        }
+
+        .section-description {
+            color: var(--color-text-light);
+            font-size: 15px;
+            margin-top: 8px;
+        }
+
+        /* Grid del formulario */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-label {
+            font-weight: 700;
+            color: var(--color-text);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label .required {
+            color: var(--color-danger);
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .form-input {
+            padding: 16px 20px;
+            background: var(--color-white);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-input);
+            color: var(--color-text);
+            font-size: 16px;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-input);
+            width: 100%;
+        }
+
+        [data-theme="dark"] .form-input {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-admin);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
+        }
+
+        .form-input::placeholder {
+            color: var(--color-text-lighter);
+        }
+
+        /* Upload de foto de perfil */
+        .photo-upload {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .photo-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            background: var(--color-light);
+            border: 3px dashed var(--color-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .photo-preview:hover {
+            border-color: var(--color-admin);
+            background: rgba(124, 58, 237, 0.05);
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .photo-preview.has-image img {
+            display: block;
+        }
+
+        .photo-preview.has-image .upload-icon,
+        .photo-preview.has-image .upload-text {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            color: var(--color-admin);
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: var(--color-text-light);
+            text-align: center;
+            max-width: 100px;
+        }
+
+        .photo-info {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .photo-info h4 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--color-text);
+            margin-bottom: 10px;
+        }
+
+        .photo-info p {
+            color: var(--color-text-light);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--gradient-admin);
+            color: white;
+            padding: 12px 25px;
+            border-radius: var(--radius-button);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: none;
+            font-size: 15px;
+            box-shadow: var(--shadow-button);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(124, 58, 237, 0.3);
+        }
+
+        .remove-photo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: var(--color-danger);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition-smooth);
+            z-index: 2;
+        }
+
+        .photo-preview.has-image:hover .remove-photo {
+            opacity: 1;
+        }
+
+        /* Cards de planes */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .plan-card {
+            background: var(--color-white);
+            border: 3px solid var(--color-border);
+            border-radius: var(--radius-card);
+            padding: 30px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] .plan-card {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .plan-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-card-hover);
+        }
+
+        .plan-card.selected {
+            border-color: var(--color-admin);
+            background: rgba(124, 58, 237, 0.05);
+            box-shadow: 0 15px 30px rgba(124, 58, 237, 0.1);
+        }
+
+        .plan-card .selected-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--gradient-admin);
+            color: white;
+            padding: 5px 15px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 800;
+            display: none;
+        }
+
+        .plan-card.selected .selected-badge {
+            display: block;
+        }
+
+        .plan-header {
+            margin-bottom: 20px;
+        }
+
+        .plan-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--color-text);
+            margin-bottom: 10px;
+        }
+
+        .plan-price {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--color-admin);
+            line-height: 1;
+        }
+
+        .plan-price span {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-text-light);
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .plan-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--color-text);
+        }
+
+        .plan-features li i {
+            color: var(--color-success);
+            font-size: 16px;
+            min-width: 20px;
+        }
+
+        .plan-select-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--color-admin);
+            color: white;
+            border: none;
+            border-radius: var(--radius-button);
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .plan-card.selected .plan-select-btn {
+            background: var(--gradient-success);
+        }
+
+        .plan-select-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-button);
+        }
+
+        /* Resumen del plan seleccionado */
+        .plan-summary {
+            background: var(--color-white);
+            border-radius: var(--radius-card);
+            padding: 30px;
+            margin-top: 30px;
+            border: 2px solid var(--color-admin);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.1);
+            display: none;
+        }
+
+        [data-theme="dark"] .plan-summary {
+            background: rgba(124, 58, 237, 0.05);
+        }
+
+        .plan-summary.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .summary-header h3 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .summary-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--color-text);
+        }
+
+        .summary-value.price {
+            font-size: 28px;
+            color: var(--color-admin);
+        }
+
+        /* Fecha de inicio y notas */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .notes-group {
+            grid-column: 1 / -1;
+        }
+
+        .notes-input {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+            line-height: 1.6;
+        }
+
+        /* Acciones del formulario */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 40px;
+            border-top: 2px solid var(--color-border);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 16px 35px;
+            border-radius: var(--radius-button);
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: none;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            min-width: 160px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-success);
+            color: white;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--color-text);
+            border: 2px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(124, 58, 237, 0.05);
+            border-color: var(--color-admin);
+            transform: translateY(-5px);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: var(--color-danger);
+            border: 2px solid var(--color-danger);
+        }
+
+        .btn-cancel:hover {
+            background: rgba(239, 68, 68, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .form-help {
+            color: var(--color-text-light);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-help i {
+            color: var(--color-admin);
+            font-size: 18px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .content-wrapper {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 300px;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-btn {
+                display: flex;
+            }
+            
+            .new-client-form {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-header {
+                padding: 25px 20px;
+            }
+            
+            .form-header h2 {
+                font-size: 24px;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .form-grid,
+            .plans-grid,
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .photo-upload {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .form-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .summary-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header-right {
+                gap: 10px;
+            }
+            
+            .header-btn, .theme-toggle {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .content-wrapper {
+                padding: 15px;
+            }
+            
+            .new-client-form {
+                padding: 25px 20px;
+            }
+            
+            .form-section {
+                padding-bottom: 30px;
+                margin-bottom: 30px;
+            }
+            
+            .plan-card {
+                padding: 25px 20px;
+            }
+            
+            .plan-summary {
+                padding: 25px 20px;
+            }
+        }
+
+        /* Mobile menu button */
+        .mobile-menu-btn {
+            display: none;
+            background: var(--color-admin);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-button);
+            font-size: 22px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 999;
+            box-shadow: var(--shadow-button);
+        }
+
+        @media (max-width: 992px) {
+            .mobile-menu-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        .mobile-menu-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        /* Overlay para móviles */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            backdrop-filter: blur(5px);
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        /* Animaciones */
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+
+        /* Scroll personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-admin);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-primary);
+        }
+
+        /* Notificaciones */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 20px 25px;
+            border-radius: 15px;
+            box-shadow: var(--shadow-card);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideInRight 0.3s ease;
+            max-width: 400px;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification.success {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .notification.error {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        .notification.warning {
+            background: var(--gradient-warning);
+            color: white;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            margin-left: auto;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Botón de menú móvil -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Overlay para móviles -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-mini">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="logo-text">
+                    <span style="color: white; font-weight: 800; font-size: 18px;">NETCONNECT PRO</span>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li class="menu-item">
+                    <a href="admin-dashboard.html" class="menu-link">
+                        <i class="fas fa-tachometer-alt menu-icon"></i>
+                        <span class="menu-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="clientes.html" class="menu-link">
+                        <i class="fas fa-users menu-icon"></i>
+                        <span class="menu-text">Clientes</span>
+                        <span class="menu-badge">24</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="pagos.html" class="menu-link">
+                        <i class="fas fa-credit-card menu-icon"></i>
+                        <span class="menu-text">Pagos</span>
+                        <span class="menu-badge">5</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="planes.html" class="menu-link">
+                        <i class="fas fa-tv menu-icon"></i>
+                        <span class="menu-text">Planes</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="reportes.html" class="menu-link">
+                        <i class="fas fa-chart-bar menu-icon"></i>
+                        <span class="menu-text">Reportes</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="soporte.html" class="menu-link">
+                        <i class="fas fa-headset menu-icon"></i>
+                        <span class="menu-text">Soporte</span>
+                        <span class="menu-badge">3</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="configuracion.html" class="menu-link">
+                        <i class="fas fa-cog menu-icon"></i>
+                        <span class="menu-text">Configuración</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link active">
+                        <i class="fas fa-user-plus menu-icon"></i>
+                        <span class="menu-text">Nuevo Cliente</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">JP</div>
+                    <div class="user-details">
+                        <div class="user-name">Juan Pérez</div>
+                        <div class="user-role">Administrador Principal</div>
+                    </div>
+                    <a href="login_empresarial.html" class="logout-btn" style="color: rgba(255,255,255,0.6);">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h1>Nuevo Cliente</h1>
+                    <p>Registra un nuevo cliente en el sistema de NetConnect Pro</p>
+                </div>
+                
+                <div class="header-right">
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-sun"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Contenido -->
+            <div class="content-wrapper">
+                <!-- Encabezado del formulario -->
+                <div class="form-header animate-fade-in">
+                    <h2><i class="fas fa-user-plus"></i> Registro de Nuevo Cliente</h2>
+                    <p>Completa todos los campos requeridos para registrar un nuevo cliente en el sistema. Todos los campos marcados con <span style="color: #ef4444;">*</span> son obligatorios.</p>
+                </div>
+
+                <!-- Formulario principal -->
+                <form class="new-client-form animate-fade-in delay-1" id="newClientForm">
+                    <!-- Sección 1: Foto de Perfil -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <div>
+                                <div class="section-title">Foto de Perfil</div>
+                                <div class="section-description">Sube una foto del cliente (opcional, pero recomendado)</div>
+                            </div>
+                        </div>
+                        
+                        <div class="photo-upload">
+                            <div class="photo-preview" id="photoPreview">
+                                <div class="upload-icon">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <div class="upload-text">
+                                    Hacer clic para subir foto
+                                </div>
+                                <img id="previewImage" src="" alt="Preview">
+                                <div class="remove-photo" id="removePhoto">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="photo-info">
+                                <h4>Recomendaciones para la foto</h4>
+                                <p>• Formato: JPG, PNG o GIF (máx. 5MB)<br>
+                                   • Tamaño recomendado: 500x500 px<br>
+                                   • La foto debe ser clara y profesional<br>
+                                   • Se aceptan fotos de perfil o logotipos</p>
+                                <input type="file" id="photoUpload" accept="image/*" style="display: none;">
+                                <button type="button" class="upload-btn" id="uploadBtn">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    Subir Foto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección 2: Información Personal -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <div>
+                                <div class="section-title">Información Personal</div>
+                                <div class="section-description">Datos personales básicos del cliente</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Primer Nombre
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" id="firstName" placeholder="Ej: Juan" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Segundo Nombre
+                                </label>
+                                <input type="text" class="form-input" id="secondName" placeholder="Ej: Carlos">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Primer Apellido
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" id="firstLastName" placeholder="Ej: Pérez" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Segundo Apellido
+                                </label>
+                                <input type="text" class="form-input" id="secondLastName" placeholder="Ej: García">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Correo Electrónico
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="email" class="form-input" id="email" placeholder="cliente@ejemplo.com" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Teléfono
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="tel" class="form-input" id="phone" placeholder="+504 XXXX-XXXX" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Dirección Completa
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" id="address" placeholder="Colonia, ciudad, departamento" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección 3: Información del Servicio -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <i class="fas fa-tv"></i>
+                            </div>
+                            <div>
+                                <div class="section-title">Información del Servicio</div>
+                                <div class="section-description">Selecciona el plan y configura el servicio del cliente</div>
+                            </div>
+                        </div>
+                        
+                        <div class="plans-grid" id="plansContainer">
+                            <!-- Plan Básico -->
+                            <div class="plan-card" data-plan="basic">
+                                <div class="selected-badge">
+                                    <i class="fas fa-check"></i> SELECCIONADO
+                                </div>
+                                <div class="plan-header">
+                                    <div class="plan-name">Plan Básico</div>
+                                    <div class="plan-price">L 699<span>/mes</span></div>
+                                </div>
+                                <ul class="plan-features">
+                                    <li><i class="fas fa-check"></i> 100 Mbps Simétricos</li>
+                                    <li><i class="fas fa-check"></i> 120 Canales HD</li>
+                                    <li><i class="fas fa-check"></i> WiFi 6 Router</li>
+                                    <li><i class="fas fa-check"></i> 1 Decodificador 4K</li>
+                                    <li><i class="fas fa-check"></i> Soporte Básico</li>
+                                </ul>
+                                <button type="button" class="plan-select-btn">
+                                    Seleccionar Plan
+                                </button>
+                            </div>
+                            
+                            <!-- Plan Familiar Pro -->
+                            <div class="plan-card" data-plan="family">
+                                <div class="selected-badge">
+                                    <i class="fas fa-check"></i> SELECCIONADO
+                                </div>
+                                <div class="plan-header">
+                                    <div class="plan-name">Plan Familiar Pro</div>
+                                    <div class="plan-price">L 1,199<span>/mes</span></div>
+                                </div>
+                                <ul class="plan-features">
+                                    <li><i class="fas fa-check"></i> 300 Mbps Simétricos</li>
+                                    <li><i class="fas fa-check"></i> 180 Canales HD/4K</li>
+                                    <li><i class="fas fa-check"></i> WiFi Mesh System</li>
+                                    <li><i class="fas fa-check"></i> 3 Decodificadores 4K</li>
+                                    <li><i class="fas fa-check"></i> Netflix & Disney+</li>
+                                </ul>
+                                <button type="button" class="plan-select-btn">
+                                    Seleccionar Plan
+                                </button>
+                            </div>
+                            
+                            <!-- Plan Premium Ultra -->
+                            <div class="plan-card" data-plan="premium">
+                                <div class="selected-badge">
+                                    <i class="fas fa-check"></i> SELECCIONADO
+                                </div>
+                                <div class="plan-header">
+                                    <div class="plan-name">Plan Premium Ultra</div>
+                                    <div class="plan-price">L 1,999<span>/mes</span></div>
+                                </div>
+                                <ul class="plan-features">
+                                    <li><i class="fas fa-check"></i> 1 Gbps Simétricos</li>
+                                    <li><i class="fas fa-check"></i> 220 Canales 4K</li>
+                                    <li><i class="fas fa-check"></i> WiFi 6E Mesh Pro</li>
+                                    <li><i class="fas fa-check"></i> 4 Decodificadores 8K</li>
+                                    <li><i class="fas fa-check"></i> Prioridad Gaming</li>
+                                </ul>
+                                <button type="button" class="plan-select-btn">
+                                    Seleccionar Plan
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Resumen del Plan Seleccionado -->
+                        <div class="plan-summary" id="planSummary">
+                            <div class="summary-header">
+                                <h3><i class="fas fa-file-invoice-dollar"></i> Resumen del Plan Seleccionado</h3>
+                                <div class="plan-price" id="summaryPrice">L 699<span>/mes</span></div>
+                            </div>
+                            
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <div class="summary-label">Plan Contratado</div>
+                                    <div class="summary-value" id="summaryPlan">Plan Básico</div>
+                                </div>
+                                
+                                <div class="summary-item">
+                                    <div class="summary-label">Mensualidad</div>
+                                    <div class="summary-value price" id="summaryMonthly">L 699.00</div>
+                                </div>
+                                
+                                <div class="summary-item">
+                                    <div class="summary-label">Valor en Lempiras</div>
+                                    <div class="summary-value" id="summaryLempiras">Setecientos Lempiras</div>
+                                </div>
+                                
+                                <div class="summary-item">
+                                    <div class="summary-label">Fecha de Inicio</div>
+                                    <div class="summary-value" id="summaryStartDate">Hoy</div>
+                                </div>
+                                
+                                <div class="summary-item">
+                                    <div class="summary-label">Fecha de Vencimiento</div>
+                                    <div class="summary-value" id="summaryDueDate">Próximo mes</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Fecha de inicio y notas -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Fecha de Inicio del Plan
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="date" class="form-input" id="startDate" required>
+                            </div>
+                            
+                            <div class="form-group notes-group">
+                                <label class="form-label">
+                                    Notas Adicionales
+                                </label>
+                                <textarea class="form-input notes-input" id="notes" placeholder="Notas importantes sobre el cliente o instalación..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acciones del formulario -->
+                    <div class="form-actions">
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Revise cuidadosamente la información antes de guardar</span>
+                        </div>
+                        
+                        <div class="form-buttons">
+                            <button type="button" class="btn btn-cancel" id="cancelBtn">
+                                <i class="fas fa-times"></i>
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="saveBtn">
+                                <i class="fas fa-save"></i>
+                                Guardar Cliente
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Sistema de cambio de tema
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // Verificar tema guardado
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        body.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+            
+            // Efecto de transición
+            themeToggle.style.transform = 'rotate(180deg) scale(1.1)';
+            setTimeout(() => {
+                themeToggle.style.transform = 'rotate(0) scale(1)';
+            }, 300);
+        });
+        
+        function updateThemeIcon(theme) {
+            const icon = themeToggle.querySelector('i');
+            if (theme === 'dark') {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            } else {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        }
+        
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            
+            // Cambiar icono
+            const icon = sidebarToggle.querySelector('i');
+            if (sidebar.classList.contains('collapsed')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+        
+        // Menú móvil
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            sidebarOverlay.classList.add('active');
+        });
+        
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+        
+        // Cerrar sidebar al hacer clic en un enlace (móviles)
+        document.querySelectorAll('.menu-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 992) {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                }
+            });
+        });
+        
+        // Datos de planes
+        const plansData = {
+            basic: {
+                name: "Plan Básico",
+                price: "L 699.00",
+                monthly: "699.00",
+                lempiras: "Setecientos Lempiras",
+                features: [
+                    "100 Mbps Simétricos",
+                    "120 Canales HD",
+                    "WiFi 6 Router",
+                    "1 Decodificador 4K",
+                    "Soporte Básico"
+                ]
+            },
+            family: {
+                name: "Plan Familiar Pro",
+                price: "L 1,199.00",
+                monthly: "1,199.00",
+                lempiras: "Mil ciento noventa y nueve Lempiras",
+                features: [
+                    "300 Mbps Simétricos",
+                    "180 Canales HD/4K",
+                    "WiFi Mesh System",
+                    "3 Decodificadores 4K",
+                    "Netflix & Disney+"
+                ]
+            },
+            premium: {
+                name: "Plan Premium Ultra",
+                price: "L 1,999.00",
+                monthly: "1,999.00",
+                lempiras: "Mil novecientos noventa y nueve Lempiras",
+                features: [
+                    "1 Gbps Simétricos",
+                    "220 Canales 4K",
+                    "WiFi 6E Mesh Pro",
+                    "4 Decodificadores 8K",
+                    "Prioridad Gaming"
+                ]
+            }
+        };
+        
+        // Variables para el plan seleccionado
+        let selectedPlan = 'basic';
+        let uploadedPhoto = null;
+        
+        // Inicializar fecha de inicio con hoy
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('startDate').value = formattedDate;
+            updatePlanSummary();
+            
+            // Añadir animaciones
+            const animatedElements = document.querySelectorAll('.animate-fade-in');
+            animatedElements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+        
+        // Gestión de foto de perfil
+        const photoPreview = document.getElementById('photoPreview');
+        const photoUpload = document.getElementById('photoUpload');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const previewImage = document.getElementById('previewImage');
+        const removePhoto = document.getElementById('removePhoto');
+        
+        uploadBtn.addEventListener('click', () => {
+            photoUpload.click();
+        });
+        
+        photoPreview.addEventListener('click', () => {
+            photoUpload.click();
+        });
+        
+        photoUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) { // 5MB
+                    showNotification('El archivo es demasiado grande. Máximo 5MB.', 'error');
+                    return;
+                }
+                
+                if (!file.type.match('image.*')) {
+                    showNotification('Por favor, selecciona una imagen válida.', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    photoPreview.classList.add('has-image');
+                    uploadedPhoto = file;
+                    showNotification('Foto cargada exitosamente', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        removePhoto.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evitar que se active el click del contenedor
+            previewImage.src = '';
+            photoPreview.classList.remove('has-image');
+            photoUpload.value = '';
+            uploadedPhoto = null;
+            showNotification('Foto eliminada', 'warning');
+        });
+        
+        // Selección de plan
+        document.querySelectorAll('.plan-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const planType = this.getAttribute('data-plan');
+                
+                // Remover clase selected de todos los planes
+                document.querySelectorAll('.plan-card').forEach(c => {
+                    c.classList.remove('selected');
+                });
+                
+                // Agregar clase selected al plan clickeado
+                this.classList.add('selected');
+                
+                // Actualizar plan seleccionado
+                selectedPlan = planType;
+                
+                // Actualizar resumen
+                updatePlanSummary();
+            });
+        });
+        
+        // Función para actualizar el resumen del plan
+        function updatePlanSummary() {
+            const plan = plansData[selectedPlan];
+            const startDateInput = document.getElementById('startDate');
+            const startDate = new Date(startDateInput.value);
+            
+            // Calcular fecha de vencimiento (1 mes después)
+            const dueDate = new Date(startDate);
+            dueDate.setMonth(dueDate.getMonth() + 1);
+            
+            // Actualizar elementos del resumen
+            document.getElementById('summaryPlan').textContent = plan.name;
+            document.getElementById('summaryPrice').innerHTML = `${plan.price}<span>/mes</span>`;
+            document.getElementById('summaryMonthly').textContent = plan.price;
+            document.getElementById('summaryLempiras').textContent = plan.lempiras;
+            document.getElementById('summaryStartDate').textContent = formatDate(startDate);
+            document.getElementById('summaryDueDate').textContent = formatDate(dueDate);
+            
+            // Mostrar resumen
+            document.getElementById('planSummary').classList.add('visible');
+        }
+        
+        // Función para formatear fecha
+        function formatDate(date) {
+            if (!(date instanceof Date) || isNaN(date)) {
+                return 'Fecha inválida';
+            }
+            
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                weekday: 'long'
+            };
+            
+            return date.toLocaleDateString('es-HN', options);
+        }
+        
+        // Actualizar resumen cuando cambia la fecha
+        document.getElementById('startDate').addEventListener('change', updatePlanSummary);
+        
+        // Validación del formulario
+        const newClientForm = document.getElementById('newClientForm');
+        const saveBtn = document.getElementById('saveBtn');
+        
+        newClientForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validar campos requeridos
+            const firstName = document.getElementById('firstName').value.trim();
+            const firstLastName = document.getElementById('firstLastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const startDate = document.getElementById('startDate').value;
+            
+            if (!firstName || !firstLastName || !email || !phone || !address || !startDate) {
+                showNotification('Por favor, complete todos los campos requeridos.', 'error');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showNotification('Por favor, ingrese un correo electrónico válido.', 'error');
+                return;
+            }
+            
+            if (!validatePhone(phone)) {
+                showNotification('Por favor, ingrese un número de teléfono válido.', 'error');
+                return;
+            }
+            
+            // Mostrar estado de carga
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<span class="loading"></span> Guardando...';
+            saveBtn.disabled = true;
+            
+            try {
+                // Simular guardado en servidor
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Obtener datos del formulario
+                const formData = {
+                    photo: uploadedPhoto ? uploadedPhoto.name : null,
+                    personalInfo: {
+                        firstName: firstName,
+                        secondName: document.getElementById('secondName').value.trim(),
+                        firstLastName: firstLastName,
+                        secondLastName: document.getElementById('secondLastName').value.trim(),
+                        email: email,
+                        phone: phone,
+                        address: address
+                    },
+                    serviceInfo: {
+                        plan: selectedPlan,
+                        planName: plansData[selectedPlan].name,
+                        monthlyPrice: plansData[selectedPlan].monthly,
+                        startDate: startDate,
+                        notes: document.getElementById('notes').value.trim()
+                    },
+                    registrationDate: new Date().toISOString().split('T')[0]
+                };
+                
+                // Mostrar éxito
+                showNotification('¡Cliente registrado exitosamente!', 'success');
+                
+                // Simular redirección después de un momento
+                setTimeout(() => {
+                    alert(`Cliente ${firstName} ${firstLastName} registrado exitosamente.\n\nPlan: ${plansData[selectedPlan].name}\nMensualidad: ${plansData[selectedPlan].price}\nFecha de inicio: ${formatDate(new Date(startDate))}`);
+                    
+                    // Redirigir a la lista de clientes
+                    window.location.href = 'clientes.html';
+                }, 1000);
+                
+            } catch (error) {
+                showNotification('Error al guardar el cliente. Inténtalo de nuevo.', 'error');
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+            }
+        });
+        
+        // Validación de email
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        // Validación de teléfono (simple para Honduras)
+        function validatePhone(phone) {
+            // Acepta formatos: +504 XXXX-XXXX, XXXX-XXXX, XXXXXXXXX
+            const re = /^(\+504\s?)?\d{4}[\s-]?\d{4}$/;
+            return re.test(phone);
+        }
+        
+        // Botón de cancelar
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            if (confirm('¿Estás seguro de cancelar? Se perderán todos los datos ingresados.')) {
+                window.location.href = 'clientes.html';
+            }
+        });
+        
+        // Función para mostrar notificaciones
+        function showNotification(message, type = 'info') {
+            // Remover notificaciones existentes
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => {
+                notification.remove();
+            });
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+                <button class="notification-close"><i class="fas fa-times"></i></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Botón para cerrar
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            });
+            
+            // Auto cerrar después de 5 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 5000);
+            
+            // Añadir keyframes para la animación de salida
+            if (!document.querySelector('#notification-out-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-out-styles';
+                style.textContent = `
+                    @keyframes slideOutRight {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        // Generar avatar automático basado en nombre
+        document.getElementById('firstName').addEventListener('blur', function() {
+            const firstName = this.value.trim();
+            const lastName = document.getElementById('firstLastName').value.trim();
+            
+            if (firstName && lastName) {
+                const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+                
+                // Si no hay foto cargada, mostrar las iniciales
+                if (!uploadedPhoto) {
+                    const photoPreview = document.getElementById('photoPreview');
+                    const uploadIcon = photoPreview.querySelector('.upload-icon');
+                    const uploadText = photoPreview.querySelector('.upload-text');
+                    
+                    uploadIcon.innerHTML = `<span style="font-size: 24px; font-weight: bold;">${initials}</span>`;
+                    uploadText.textContent = `${firstName} ${lastName}`;
+                }
+            }
+        });
+        
+        document.getElementById('firstLastName').addEventListener('blur', function() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = this.value.trim();
+            
+            if (firstName && lastName) {
+                const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+                
+                // Si no hay foto cargada, mostrar las iniciales
+                if (!uploadedPhoto) {
+                    const photoPreview = document.getElementById('photoPreview');
+                    const uploadIcon = photoPreview.querySelector('.upload-icon');
+                    const uploadText = photoPreview.querySelector('.upload-text');
+                    
+                    uploadIcon.innerHTML = `<span style="font-size: 24px; font-weight: bold;">${initials}</span>`;
+                    uploadText.textContent = `${firstName} ${lastName}`;
+                }
+            }
+        });
+        
+        // Detectar cambios en el tamaño de la ventana
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 992) {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            }
+        });
+        
+        // Loading animation style
+        if (!document.querySelector('#loading-styles')) {
+            const style = document.createElement('style');
+            style.id = 'loading-styles';
+            style.textContent = `
+                .loading {
+                    display: inline-block;
+                    width: 20px;
+                    height: 20px;
+                    border: 3px solid rgba(255,255,255,0.3);
+                    border-radius: 50%;
+                    border-top-color: white;
+                    animation: spin 1s ease-in-out infinite;
+                }
+                
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    </script>
+</body>
+</html>
