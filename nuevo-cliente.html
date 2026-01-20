@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetConnect Pro | Nuevo Cliente</title>
+    <title>NetConnect Pro | Gestión de Clientes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Variables de tema */
@@ -40,7 +40,6 @@
             --shadow-button: 0 8px 20px rgba(124, 58, 237, 0.25);
             --shadow-nav: 0 4px 20px rgba(0, 0, 0, 0.08);
             --shadow-sidebar: 5px 0 25px rgba(0, 0, 0, 0.1);
-            --shadow-input: 0 5px 15px rgba(0, 0, 0, 0.05);
             
             --radius-card: 20px;
             --radius-button: 12px;
@@ -74,7 +73,6 @@
             --shadow-card: 0 10px 25px rgba(0, 0, 0, 0.25), 0 5px 15px rgba(0, 0, 0, 0.15);
             --shadow-card-hover: 0 20px 40px rgba(0, 0, 0, 0.35), 0 10px 20px rgba(0, 0, 0, 0.25);
             --shadow-sidebar: 5px 0 25px rgba(0, 0, 0, 0.25);
-            --shadow-input: 0 5px 15px rgba(0, 0, 0, 0.15);
         }
 
         /* Reset y estilos base */
@@ -103,7 +101,7 @@
             min-height: 100vh;
         }
 
-        /* Sidebar (Mismo que las otras páginas) */
+        /* Sidebar (Mismo que dashboard) */
         .sidebar {
             width: var(--sidebar-width);
             background: var(--gradient-sidebar);
@@ -375,236 +373,122 @@
             box-shadow: var(--shadow-button);
         }
 
-        /* Contenido específico de nuevo cliente */
+        /* Contenido específico de clientes */
         .content-wrapper {
             padding: 30px;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
         }
 
-        /* Encabezado del formulario */
-        .form-header {
+        /* Filtros y búsqueda */
+        .filters-section {
             background: var(--gradient-card);
             border-radius: var(--radius-card);
-            padding: 30px;
+            padding: 25px;
             margin-bottom: 30px;
             box-shadow: var(--shadow-card);
             border: 1px solid var(--color-border);
-            text-align: center;
         }
 
-        .form-header h2 {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--color-text);
-            margin-bottom: 15px;
+        .filters-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
             gap: 15px;
         }
 
-        .form-header p {
-            color: var(--color-text-light);
-            font-size: 16px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Formulario principal */
-        .new-client-form {
-            background: var(--gradient-card);
-            border-radius: var(--radius-card);
-            padding: 40px;
-            box-shadow: var(--shadow-card);
-            border: 1px solid var(--color-border);
-            margin-bottom: 30px;
-        }
-
-        /* Secciones del formulario */
-        .form-section {
-            margin-bottom: 40px;
-            padding-bottom: 40px;
-            border-bottom: 2px solid var(--color-border);
-        }
-
-        .form-section:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .section-icon {
-            width: 60px;
-            height: 60px;
-            background: var(--gradient-admin);
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-            box-shadow: var(--shadow-button);
-            flex-shrink: 0;
-        }
-
-        .section-title {
-            font-size: 22px;
+        .filters-header h2 {
+            font-size: 20px;
             font-weight: 800;
             color: var(--color-text);
-        }
-
-        .section-description {
-            color: var(--color-text-light);
-            font-size: 15px;
-            margin-top: 8px;
-        }
-
-        /* Grid del formulario */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-        }
-
-        .form-group {
             display: flex;
-            flex-direction: column;
+            align-items: center;
             gap: 10px;
         }
 
-        .form-label {
-            font-weight: 700;
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            background: var(--color-white);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-button);
             color: var(--color-text);
-            font-size: 15px;
+            font-size: 16px;
+            transition: var(--transition-smooth);
+        }
+
+        [data-theme="dark"] .search-input {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-admin);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-text-light);
+            font-size: 18px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 8px;
         }
 
-        .form-label .required {
-            color: var(--color-danger);
-            font-size: 18px;
-            line-height: 1;
+        .filter-label {
+            font-weight: 600;
+            color: var(--color-text);
+            font-size: 14px;
         }
 
-        .form-input {
-            padding: 16px 20px;
+        .filter-select {
+            padding: 12px 15px;
             background: var(--color-white);
             border: 2px solid var(--color-border);
             border-radius: var(--radius-input);
             color: var(--color-text);
-            font-size: 16px;
-            font-weight: 500;
+            font-size: 14px;
             transition: var(--transition-smooth);
-            box-shadow: var(--shadow-input);
-            width: 100%;
+            cursor: pointer;
         }
 
-        [data-theme="dark"] .form-input {
+        [data-theme="dark"] .filter-select {
             background: rgba(255, 255, 255, 0.05);
         }
 
-        .form-input:focus {
+        .filter-select:focus {
             outline: none;
             border-color: var(--color-admin);
-            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
         }
 
-        .form-input::placeholder {
-            color: var(--color-text-lighter);
-        }
-
-        /* Upload de foto de perfil */
-        .photo-upload {
+        .filter-actions {
             display: flex;
-            align-items: center;
-            gap: 25px;
-            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 15px;
         }
 
-        .photo-preview {
-            width: 120px;
-            height: 120px;
-            border-radius: 20px;
-            background: var(--color-light);
-            border: 3px dashed var(--color-border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .photo-preview:hover {
-            border-color: var(--color-admin);
-            background: rgba(124, 58, 237, 0.05);
-        }
-
-        .photo-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none;
-        }
-
-        .photo-preview.has-image img {
-            display: block;
-        }
-
-        .photo-preview.has-image .upload-icon,
-        .photo-preview.has-image .upload-text {
-            display: none;
-        }
-
-        .upload-icon {
-            font-size: 32px;
-            color: var(--color-admin);
-            margin-bottom: 10px;
-        }
-
-        .upload-text {
-            font-size: 14px;
-            color: var(--color-text-light);
-            text-align: center;
-            max-width: 100px;
-        }
-
-        .photo-info {
-            flex: 1;
-            min-width: 250px;
-        }
-
-        .photo-info h4 {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--color-text);
-            margin-bottom: 10px;
-        }
-
-        .photo-info p {
-            color: var(--color-text-light);
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-
-        .upload-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--gradient-admin);
-            color: white;
+        .btn {
             padding: 12px 25px;
             border-radius: var(--radius-button);
             font-weight: 700;
@@ -612,288 +496,21 @@
             transition: var(--transition-smooth);
             border: none;
             font-size: 15px;
-            box-shadow: var(--shadow-button);
-        }
-
-        .upload-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(124, 58, 237, 0.3);
-        }
-
-        .remove-photo {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 30px;
-            height: 30px;
-            background: var(--color-danger);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            cursor: pointer;
-            opacity: 0;
-            transition: var(--transition-smooth);
-            z-index: 2;
-        }
-
-        .photo-preview.has-image:hover .remove-photo {
-            opacity: 1;
-        }
-
-        /* Cards de planes */
-        .plans-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
-        }
-
-        .plan-card {
-            background: var(--color-white);
-            border: 3px solid var(--color-border);
-            border-radius: var(--radius-card);
-            padding: 30px;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            position: relative;
-            overflow: hidden;
-        }
-
-        [data-theme="dark"] .plan-card {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .plan-card:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-card-hover);
-        }
-
-        .plan-card.selected {
-            border-color: var(--color-admin);
-            background: rgba(124, 58, 237, 0.05);
-            box-shadow: 0 15px 30px rgba(124, 58, 237, 0.1);
-        }
-
-        .plan-card .selected-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: var(--gradient-admin);
-            color: white;
-            padding: 5px 15px;
-            border-radius: var(--radius-full);
-            font-size: 12px;
-            font-weight: 800;
-            display: none;
-        }
-
-        .plan-card.selected .selected-badge {
-            display: block;
-        }
-
-        .plan-header {
-            margin-bottom: 20px;
-        }
-
-        .plan-name {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--color-text);
-            margin-bottom: 10px;
-        }
-
-        .plan-price {
-            font-size: 32px;
-            font-weight: 900;
-            color: var(--color-admin);
-            line-height: 1;
-        }
-
-        .plan-price span {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--color-text-light);
-        }
-
-        .plan-features {
-            list-style: none;
-            margin-bottom: 25px;
-        }
-
-        .plan-features li {
-            padding: 10px 0;
-            border-bottom: 1px solid var(--color-border);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--color-text);
-        }
-
-        .plan-features li i {
-            color: var(--color-success);
-            font-size: 16px;
-            min-width: 20px;
-        }
-
-        .plan-select-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--color-admin);
-            color: white;
-            border: none;
-            border-radius: var(--radius-button);
-            font-weight: 800;
-            font-size: 16px;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-        }
-
-        .plan-card.selected .plan-select-btn {
-            background: var(--gradient-success);
-        }
-
-        .plan-select-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-button);
-        }
-
-        /* Resumen del plan seleccionado */
-        .plan-summary {
-            background: var(--color-white);
-            border-radius: var(--radius-card);
-            padding: 30px;
-            margin-top: 30px;
-            border: 2px solid var(--color-admin);
-            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.1);
-            display: none;
-        }
-
-        [data-theme="dark"] .plan-summary {
-            background: rgba(124, 58, 237, 0.05);
-        }
-
-        .plan-summary.visible {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .summary-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--color-border);
-        }
-
-        .summary-header h3 {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--color-text);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .summary-item {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .summary-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--color-text-light);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .summary-value {
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--color-text);
-        }
-
-        .summary-value.price {
-            font-size: 28px;
-            color: var(--color-admin);
-        }
-
-        /* Fecha de inicio y notas */
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-top: 25px;
-        }
-
-        .notes-group {
-            grid-column: 1 / -1;
-        }
-
-        .notes-input {
-            min-height: 120px;
-            resize: vertical;
-            font-family: inherit;
-            line-height: 1.6;
-        }
-
-        /* Acciones del formulario */
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 40px;
-            border-top: 2px solid var(--color-border);
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .form-buttons {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn {
-            padding: 16px 35px;
-            border-radius: var(--radius-button);
-            font-weight: 800;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            border: none;
-            font-size: 16px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            min-width: 160px;
+            gap: 10px;
         }
 
         .btn-primary {
-            background: var(--gradient-success);
+            background: var(--gradient-admin);
             color: white;
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            box-shadow: var(--shadow-button);
         }
 
         .btn-primary:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(124, 58, 237, 0.3);
         }
 
         .btn-secondary {
@@ -905,37 +522,583 @@
         .btn-secondary:hover {
             background: rgba(124, 58, 237, 0.05);
             border-color: var(--color-admin);
-            transform: translateY(-5px);
+            transform: translateY(-3px);
         }
 
-        .btn-cancel {
-            background: transparent;
-            color: var(--color-danger);
-            border: 2px solid var(--color-danger);
+        /* Tabla de clientes */
+        .clients-section {
+            background: var(--gradient-card);
+            border-radius: var(--radius-card);
+            padding: 30px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--color-border);
+            margin-bottom: 30px;
+            overflow-x: auto;
         }
 
-        .btn-cancel:hover {
-            background: rgba(239, 68, 68, 0.1);
-            transform: translateY(-5px);
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        .form-help {
-            color: var(--color-text-light);
-            font-size: 14px;
+        .section-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--color-text);
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .form-help i {
+        .clients-count {
+            color: var(--color-text-light);
+            font-size: 14px;
+        }
+
+        .clients-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        .clients-table thead {
+            background: var(--color-light);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        [data-theme="dark"] .clients-table thead {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .clients-table th {
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 700;
+            color: var(--color-text);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .clients-table tbody tr {
+            border-bottom: 1px solid var(--color-border);
+            transition: var(--transition-smooth);
+        }
+
+        .clients-table tbody tr:hover {
+            background: rgba(124, 58, 237, 0.05);
+        }
+
+        .clients-table td {
+            padding: 20px 15px;
+            vertical-align: middle;
+        }
+
+        /* Avatar y nombre */
+        .client-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--gradient-admin);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            margin-right: 15px;
+        }
+
+        .client-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .client-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .client-name {
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 3px;
+        }
+
+        .client-id {
+            font-size: 12px;
+            color: var(--color-text-light);
+        }
+
+        /* Contacto */
+        .client-contact {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--color-text-light);
+        }
+
+        /* Plan */
+        .client-plan {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .plan-name {
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .plan-price {
+            font-size: 14px;
+            color: var(--color-text-light);
+        }
+
+        /* Estado */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--color-success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--color-warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-expired {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--color-danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Acciones */
+        .client-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-input);
+            background: var(--color-white);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        [data-theme="dark"] .action-btn {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .action-btn:hover {
+            background: var(--color-admin);
+            color: white;
+            border-color: var(--color-admin);
+            transform: translateY(-2px);
+        }
+
+        .action-btn.view:hover {
+            background: var(--color-success);
+            border-color: var(--color-success);
+        }
+
+        .action-btn.edit:hover {
+            background: var(--color-warning);
+            border-color: var(--color-warning);
+        }
+
+        .action-btn.delete:hover {
+            background: var(--color-danger);
+            border-color: var(--color-danger);
+        }
+
+        /* Paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: var(--radius-input);
+            background: var(--color-white);
+            border: 2px solid var(--color-border);
+            color: var(--color-text);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        [data-theme="dark"] .pagination-btn {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .pagination-btn:hover {
+            background: var(--color-admin);
+            color: white;
+            border-color: var(--color-admin);
+        }
+
+        .pagination-btn.active {
+            background: var(--gradient-admin);
+            color: white;
+            border-color: var(--color-admin);
+            box-shadow: var(--shadow-button);
+        }
+
+        .pagination-info {
+            color: var(--color-text-light);
+            font-size: 14px;
+            margin: 0 15px;
+        }
+
+        /* Modal de detalles del cliente */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--gradient-card);
+            border-radius: var(--radius-card);
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-card-hover);
+            border: 1px solid var(--color-border);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--gradient-admin);
+            border-radius: var(--radius-card) var(--radius-card) 0 0;
+            color: white;
+        }
+
+        .modal-header h3 {
+            font-size: 22px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .client-profile {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--gradient-admin);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 36px;
+            flex-shrink: 0;
+        }
+
+        .profile-info h4 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--color-text);
+            margin-bottom: 10px;
+        }
+
+        .profile-contact {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 15px;
+        }
+
+        .contact-detail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--color-text-light);
+            font-size: 15px;
+        }
+
+        .contact-detail i {
             color: var(--color-admin);
             font-size: 18px;
+            width: 24px;
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .info-section {
+            background: var(--color-white);
+            border-radius: var(--radius-card);
+            padding: 25px;
+            border: 1px solid var(--color-border);
+        }
+
+        [data-theme="dark"] .info-section {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--color-text);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-list {
+            list-style: none;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--color-text-light);
+        }
+
+        .info-value {
+            color: var(--color-text);
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .payment-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 15px;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .notes-section {
+            grid-column: 1 / -1;
+        }
+
+        .notes-content {
+            background: var(--color-white);
+            border-radius: var(--radius-input);
+            padding: 20px;
+            border: 1px solid var(--color-border);
+            min-height: 120px;
+        }
+
+        [data-theme="dark"] .notes-content {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-footer {
+            padding: 25px 30px;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        /* Estadísticas rápidas */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--gradient-card);
+            border-radius: var(--radius-card);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--color-border);
+            transition: var(--transition-smooth);
+            text-align: center;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-card-hover);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin: 0 auto 15px;
+        }
+
+        .stat-icon.total {
+            background: var(--gradient-admin);
+        }
+
+        .stat-icon.active {
+            background: var(--gradient-success);
+        }
+
+        .stat-icon.warning {
+            background: var(--gradient-warning);
+        }
+
+        .stat-icon.expired {
+            background: var(--gradient-danger);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--color-text);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(124, 58, 237, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--color-admin);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Responsive */
         @media (max-width: 1200px) {
-            .content-wrapper {
-                padding: 20px;
+            .modal-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -957,57 +1120,47 @@
                 display: flex;
             }
             
-            .new-client-form {
-                padding: 30px;
+            .clients-table {
+                min-width: 900px;
             }
         }
 
         @media (max-width: 768px) {
-            .form-header {
-                padding: 25px 20px;
+            .content-wrapper {
+                padding: 20px;
             }
             
-            .form-header h2 {
-                font-size: 24px;
-                flex-direction: column;
-                gap: 10px;
+            .main-header {
+                padding: 0 20px;
             }
             
-            .form-grid,
-            .plans-grid,
-            .form-row {
+            .filters-grid {
                 grid-template-columns: 1fr;
             }
             
-            .photo-upload {
+            .filter-actions {
                 flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .form-buttons {
-                flex-direction: column;
-                width: 100%;
             }
             
             .btn {
                 width: 100%;
             }
             
-            .section-header {
-                flex-direction: column;
-                text-align: center;
-                gap: 20px;
+            .modal-body {
+                padding: 20px;
             }
             
-            .summary-header {
+            .client-profile {
                 flex-direction: column;
-                gap: 15px;
                 text-align: center;
+            }
+            
+            .profile-contact {
+                justify-content: center;
+            }
+            
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -1025,21 +1178,32 @@
                 padding: 15px;
             }
             
-            .new-client-form {
-                padding: 25px 20px;
+            .filters-section,
+            .clients-section {
+                padding: 20px;
             }
             
-            .form-section {
-                padding-bottom: 30px;
-                margin-bottom: 30px;
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
             
-            .plan-card {
-                padding: 25px 20px;
+            .search-box {
+                max-width: 100%;
             }
             
-            .plan-summary {
-                padding: 25px 20px;
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal {
+                padding: 0;
+            }
+            
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: 20px;
             }
         }
 
@@ -1092,30 +1256,13 @@
         }
 
         /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .animate-fade-in {
             animation: fadeIn 0.5s ease forwards;
-        }
-
-        .delay-1 { animation-delay: 0.1s; }
-        .delay-2 { animation-delay: 0.2s; }
-        .delay-3 { animation-delay: 0.3s; }
-
-        /* Scroll personalizado */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--color-light);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--color-admin);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--color-primary);
         }
 
         /* Notificaciones */
@@ -1167,6 +1314,24 @@
         .notification-close:hover {
             opacity: 1;
         }
+
+        /* Scroll personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-admin);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-primary);
+        }
     </style>
 </head>
 <body>
@@ -1201,17 +1366,17 @@
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="clientes.html" class="menu-link">
+                    <a href="#" class="menu-link active">
                         <i class="fas fa-users menu-icon"></i>
                         <span class="menu-text">Clientes</span>
-                        <span class="menu-badge">24</span>
+                        <span class="menu-badge" id="clientsBadge">0</span>
                     </a>
                 </li>
                 <li class="menu-item">
                     <a href="pagos.html" class="menu-link">
                         <i class="fas fa-credit-card menu-icon"></i>
                         <span class="menu-text">Pagos</span>
-                        <span class="menu-badge">5</span>
+                        <span class="menu-badge">0</span>
                     </a>
                 </li>
                 <li class="menu-item">
@@ -1230,7 +1395,7 @@
                     <a href="soporte.html" class="menu-link">
                         <i class="fas fa-headset menu-icon"></i>
                         <span class="menu-text">Soporte</span>
-                        <span class="menu-badge">3</span>
+                        <span class="menu-badge">0</span>
                     </a>
                 </li>
                 <li class="menu-item">
@@ -1240,9 +1405,9 @@
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link active">
-                        <i class="fas fa-user-plus menu-icon"></i>
-                        <span class="menu-text">Nuevo Cliente</span>
+                    <a href="empleados.html" class="menu-link">
+                        <i class="fas fa-user-tie menu-icon"></i>
+                        <span class="menu-text">Empleados</span>
                     </a>
                 </li>
             </ul>
@@ -1266,11 +1431,17 @@
             <!-- Header -->
             <header class="main-header">
                 <div class="header-left">
-                    <h1>Nuevo Cliente</h1>
-                    <p>Registra un nuevo cliente en el sistema de NetConnect Pro</p>
+                    <h1>Gestión de Clientes</h1>
+                    <p>Administra y visualiza toda la información de tus clientes</p>
                 </div>
                 
                 <div class="header-right">
+                    <div class="header-actions">
+                        <button class="header-btn" id="notificationsBtn">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                    </div>
+                    
                     <button class="theme-toggle" id="themeToggle">
                         <i class="fas fa-sun"></i>
                     </button>
@@ -1279,279 +1450,437 @@
 
             <!-- Contenido -->
             <div class="content-wrapper">
-                <!-- Encabezado del formulario -->
-                <div class="form-header animate-fade-in">
-                    <h2><i class="fas fa-user-plus"></i> Registro de Nuevo Cliente</h2>
-                    <p>Completa todos los campos requeridos para registrar un nuevo cliente en el sistema. Todos los campos marcados con <span style="color: #ef4444;">*</span> son obligatorios.</p>
+                <!-- Estadísticas rápidas -->
+                <div class="quick-stats">
+                    <div class="stat-card animate-fade-in">
+                        <div class="stat-icon total">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-value" id="totalClients">0</div>
+                        <div class="stat-label">Total Clientes</div>
+                    </div>
+                    
+                    <div class="stat-card animate-fade-in delay-1">
+                        <div class="stat-icon active">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value" id="activeClients">0</div>
+                        <div class="stat-label">Activos</div>
+                    </div>
+                    
+                    <div class="stat-card animate-fade-in delay-2">
+                        <div class="stat-icon warning">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-value" id="warningClients">0</div>
+                        <div class="stat-label">Por Vencer</div>
+                    </div>
+                    
+                    <div class="stat-card animate-fade-in delay-3">
+                        <div class="stat-icon expired">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="stat-value" id="expiredClients">0</div>
+                        <div class="stat-label">Vencidos</div>
+                    </div>
                 </div>
 
-                <!-- Formulario principal -->
-                <form class="new-client-form animate-fade-in delay-1" id="newClientForm">
-                    <!-- Sección 1: Foto de Perfil -->
-                    <div class="form-section">
-                        <div class="section-header">
-                            <div class="section-icon">
-                                <i class="fas fa-camera"></i>
-                            </div>
-                            <div>
-                                <div class="section-title">Foto de Perfil</div>
-                                <div class="section-description">Sube una foto del cliente (opcional, pero recomendado)</div>
-                            </div>
-                        </div>
-                        
-                        <div class="photo-upload">
-                            <div class="photo-preview" id="photoPreview">
-                                <div class="upload-icon">
-                                    <i class="fas fa-user-circle"></i>
-                                </div>
-                                <div class="upload-text">
-                                    Hacer clic para subir foto
-                                </div>
-                                <img id="previewImage" src="" alt="Preview">
-                                <div class="remove-photo" id="removePhoto">
-                                    <i class="fas fa-times"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="photo-info">
-                                <h4>Recomendaciones para la foto</h4>
-                                <p>• Formato: JPG, PNG o GIF (máx. 5MB)<br>
-                                   • Tamaño recomendado: 500x500 px<br>
-                                   • La foto debe ser clara y profesional<br>
-                                   • Se aceptan fotos de perfil o logotipos</p>
-                                <input type="file" id="photoUpload" accept="image/*" style="display: none;">
-                                <button type="button" class="upload-btn" id="uploadBtn">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    Subir Foto
-                                </button>
-                            </div>
+                <!-- Filtros y búsqueda -->
+                <section class="filters-section animate-fade-in">
+                    <div class="filters-header">
+                        <h2><i class="fas fa-filter"></i> Filtros y Búsqueda</h2>
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="search-input" id="searchInput" placeholder="Buscar cliente por nombre, teléfono o email...">
                         </div>
                     </div>
+                    
+                    <div class="filters-grid">
+                        <div class="filter-group">
+                            <label class="filter-label">Estado</label>
+                            <select class="filter-select" id="statusFilter">
+                                <option value="">Todos los estados</option>
+                                <option value="active">Activo</option>
+                                <option value="warning">Próximo a vencer</option>
+                                <option value="expired">Vencido</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Plan</label>
+                            <select class="filter-select" id="planFilter">
+                                <option value="">Todos los planes</option>
+                                <option value="basic">Básico</option>
+                                <option value="family">Familiar Pro</option>
+                                <option value="premium">Premium Ultra</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Ordenar por</label>
+                            <select class="filter-select" id="sortFilter">
+                                <option value="nombre">Nombre A-Z</option>
+                                <option value="fecha_registro">Fecha de registro</option>
+                                <option value="fecha_vencimiento">Próximo vencimiento</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Mostrar</label>
+                            <select class="filter-select" id="limitFilter">
+                                <option value="25">25 clientes por página</option>
+                                <option value="50">50 clientes por página</option>
+                                <option value="100">100 clientes por página</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <button class="btn btn-secondary" id="resetFilters">
+                            <i class="fas fa-redo"></i> Limpiar filtros
+                        </button>
+                        <a href="nuevo-cliente.html" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Nuevo Cliente
+                        </a>
+                    </div>
+                </section>
 
-                    <!-- Sección 2: Información Personal -->
-                    <div class="form-section">
-                        <div class="section-header">
-                            <div class="section-icon">
-                                <i class="fas fa-id-card"></i>
-                            </div>
-                            <div>
-                                <div class="section-title">Información Personal</div>
-                                <div class="section-description">Datos personales básicos del cliente</div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Primer Nombre
-                                    <span class="required">*</span>
-                                </label>
-                                <input type="text" class="form-input" id="firstName" placeholder="Ej: Juan" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Segundo Nombre
-                                </label>
-                                <input type="text" class="form-input" id="secondName" placeholder="Ej: Carlos">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Primer Apellido
-                                    <span class="required">*</span>
-                                </label>
-                                <input type="text" class="form-input" id="firstLastName" placeholder="Ej: Pérez" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Segundo Apellido
-                                </label>
-                                <input type="text" class="form-input" id="secondLastName" placeholder="Ej: García">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Correo Electrónico
-                                    <span class="required">*</span>
-                                </label>
-                                <input type="email" class="form-input" id="email" placeholder="cliente@ejemplo.com" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Teléfono
-                                    <span class="required">*</span>
-                                </label>
-                                <input type="tel" class="form-input" id="phone" placeholder="+504 XXXX-XXXX" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Dirección Completa
-                                    <span class="required">*</span>
-                                </label>
-                                <input type="text" class="form-input" id="address" placeholder="Colonia, ciudad, departamento" required>
-                            </div>
-                        </div>
+                <!-- Tabla de clientes -->
+                <section class="clients-section animate-fade-in">
+                    <div class="section-header">
+                        <h2><i class="fas fa-list"></i> Lista de Clientes</h2>
+                        <div class="clients-count" id="clientsCount">Cargando clientes...</div>
                     </div>
-
-                    <!-- Sección 3: Información del Servicio -->
-                    <div class="form-section">
-                        <div class="section-header">
-                            <div class="section-icon">
-                                <i class="fas fa-tv"></i>
-                            </div>
-                            <div>
-                                <div class="section-title">Información del Servicio</div>
-                                <div class="section-description">Selecciona el plan y configura el servicio del cliente</div>
-                            </div>
-                        </div>
-                        
-                        <div class="plans-grid" id="plansContainer">
-                            <!-- Plan Básico -->
-                            <div class="plan-card" data-plan="basic">
-                                <div class="selected-badge">
-                                    <i class="fas fa-check"></i> SELECCIONADO
-                                </div>
-                                <div class="plan-header">
-                                    <div class="plan-name">Plan Básico</div>
-                                    <div class="plan-price">L 699<span>/mes</span></div>
-                                </div>
-                                <ul class="plan-features">
-                                    <li><i class="fas fa-check"></i> 100 Mbps Simétricos</li>
-                                    <li><i class="fas fa-check"></i> 120 Canales HD</li>
-                                    <li><i class="fas fa-check"></i> WiFi 6 Router</li>
-                                    <li><i class="fas fa-check"></i> 1 Decodificador 4K</li>
-                                    <li><i class="fas fa-check"></i> Soporte Básico</li>
-                                </ul>
-                                <button type="button" class="plan-select-btn">
-                                    Seleccionar Plan
-                                </button>
-                            </div>
-                            
-                            <!-- Plan Familiar Pro -->
-                            <div class="plan-card" data-plan="family">
-                                <div class="selected-badge">
-                                    <i class="fas fa-check"></i> SELECCIONADO
-                                </div>
-                                <div class="plan-header">
-                                    <div class="plan-name">Plan Familiar Pro</div>
-                                    <div class="plan-price">L 1,199<span>/mes</span></div>
-                                </div>
-                                <ul class="plan-features">
-                                    <li><i class="fas fa-check"></i> 300 Mbps Simétricos</li>
-                                    <li><i class="fas fa-check"></i> 180 Canales HD/4K</li>
-                                    <li><i class="fas fa-check"></i> WiFi Mesh System</li>
-                                    <li><i class="fas fa-check"></i> 3 Decodificadores 4K</li>
-                                    <li><i class="fas fa-check"></i> Netflix & Disney+</li>
-                                </ul>
-                                <button type="button" class="plan-select-btn">
-                                    Seleccionar Plan
-                                </button>
-                            </div>
-                            
-                            <!-- Plan Premium Ultra -->
-                            <div class="plan-card" data-plan="premium">
-                                <div class="selected-badge">
-                                    <i class="fas fa-check"></i> SELECCIONADO
-                                </div>
-                                <div class="plan-header">
-                                    <div class="plan-name">Plan Premium Ultra</div>
-                                    <div class="plan-price">L 1,999<span>/mes</span></div>
-                                </div>
-                                <ul class="plan-features">
-                                    <li><i class="fas fa-check"></i> 1 Gbps Simétricos</li>
-                                    <li><i class="fas fa-check"></i> 220 Canales 4K</li>
-                                    <li><i class="fas fa-check"></i> WiFi 6E Mesh Pro</li>
-                                    <li><i class="fas fa-check"></i> 4 Decodificadores 8K</li>
-                                    <li><i class="fas fa-check"></i> Prioridad Gaming</li>
-                                </ul>
-                                <button type="button" class="plan-select-btn">
-                                    Seleccionar Plan
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Resumen del Plan Seleccionado -->
-                        <div class="plan-summary" id="planSummary">
-                            <div class="summary-header">
-                                <h3><i class="fas fa-file-invoice-dollar"></i> Resumen del Plan Seleccionado</h3>
-                                <div class="plan-price" id="summaryPrice">L 699<span>/mes</span></div>
-                            </div>
-                            
-                            <div class="summary-grid">
-                                <div class="summary-item">
-                                    <div class="summary-label">Plan Contratado</div>
-                                    <div class="summary-value" id="summaryPlan">Plan Básico</div>
-                                </div>
-                                
-                                <div class="summary-item">
-                                    <div class="summary-label">Mensualidad</div>
-                                    <div class="summary-value price" id="summaryMonthly">L 699.00</div>
-                                </div>
-                                
-                                <div class="summary-item">
-                                    <div class="summary-label">Valor en Lempiras</div>
-                                    <div class="summary-value" id="summaryLempiras">Setecientos Lempiras</div>
-                                </div>
-                                
-                                <div class="summary-item">
-                                    <div class="summary-label">Fecha de Inicio</div>
-                                    <div class="summary-value" id="summaryStartDate">Hoy</div>
-                                </div>
-                                
-                                <div class="summary-item">
-                                    <div class="summary-label">Fecha de Vencimiento</div>
-                                    <div class="summary-value" id="summaryDueDate">Próximo mes</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Fecha de inicio y notas -->
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Fecha de Inicio del Plan
-                                    <span class="required">*</span>
-                                </label>
-                                <input type="date" class="form-input" id="startDate" required>
-                            </div>
-                            
-                            <div class="form-group notes-group">
-                                <label class="form-label">
-                                    Notas Adicionales
-                                </label>
-                                <textarea class="form-input notes-input" id="notes" placeholder="Notas importantes sobre el cliente o instalación..."></textarea>
-                            </div>
-                        </div>
+                    
+                    <div class="table-container">
+                        <table class="clients-table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Contacto</th>
+                                    <th>Plan</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientsTableBody">
+                                <!-- Los clientes se cargan dinámicamente desde la base de datos -->
+                                <tr id="loadingRow">
+                                    <td colspan="5" style="text-align: center; padding: 50px;">
+                                        <div class="loading" style="margin: 0 auto 15px;"></div>
+                                        <div style="color: var(--color-text-light);">Cargando clientes...</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-
-                    <!-- Acciones del formulario -->
-                    <div class="form-actions">
-                        <div class="form-help">
-                            <i class="fas fa-info-circle"></i>
-                            <span>Revise cuidadosamente la información antes de guardar</span>
-                        </div>
+                    
+                    <!-- Paginación -->
+                    <div class="pagination" id="paginationContainer" style="display: none;">
+                        <button class="pagination-btn" id="prevPage" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
                         
-                        <div class="form-buttons">
-                            <button type="button" class="btn btn-cancel" id="cancelBtn">
-                                <i class="fas fa-times"></i>
-                                Cancelar
-                            </button>
-                            <button type="submit" class="btn btn-primary" id="saveBtn">
-                                <i class="fas fa-save"></i>
-                                Guardar Cliente
-                            </button>
-                        </div>
+                        <button class="pagination-btn active">1</button>
+                        
+                        <button class="pagination-btn" id="nextPage" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
-                </form>
+                </section>
             </div>
         </main>
     </div>
 
+    <!-- Modal de detalles del cliente -->
+    <div class="modal-overlay" id="clientModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-circle"></i> Detalles del Cliente</h3>
+                <button class="modal-close" id="modalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="client-profile">
+                    <div class="profile-avatar" id="modalAvatar">NC</div>
+                    <div class="profile-info">
+                        <h4 id="modalName">Cargando...</h4>
+                        <div class="status-badge status-active" id="modalStatus">Activo</div>
+                        <div class="profile-contact">
+                            <div class="contact-detail">
+                                <i class="fas fa-phone"></i>
+                                <span id="modalPhone">Cargando...</span>
+                            </div>
+                            <div class="contact-detail">
+                                <i class="fas fa-envelope"></i>
+                                <span id="modalEmail">Cargando...</span>
+                            </div>
+                            <div class="contact-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span id="modalAddress">Cargando...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-grid">
+                    <div class="info-section">
+                        <h4 class="section-title"><i class="fas fa-info-circle"></i> Información Personal</h4>
+                        <ul class="info-list">
+                            <li class="info-item">
+                                <span class="info-label">Nombre completo:</span>
+                                <span class="info-value" id="modalFullName">Cargando...</span>
+                            </li>
+                            <li class="info-item">
+                                <span class="info-label">Teléfono:</span>
+                                <span class="info-value" id="modalPhoneFull">Cargando...</span>
+                            </li>
+                            <li class="info-item">
+                                <span class="info-label">Fecha de registro:</span>
+                                <span class="info-value" id="modalRegDate">Cargando...</span>
+                            </li>
+                            <li class="info-item">
+                                <span class="info-label">Dirección:</span>
+                                <span class="info-value" id="modalAddressFull">Cargando...</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h4 class="section-title"><i class="fas fa-tv"></i> Información del Plan</h4>
+                        <ul class="info-list">
+                            <li class="info-item">
+                                <span class="info-label">Plan contratado:</span>
+                                <span class="info-value" id="modalPlan">Cargando...</span>
+                            </li>
+                            <li class="info-item">
+                                <span class="info-label">Mensualidad:</span>
+                                <span class="info-value" id="modalMonthly">Cargando...</span>
+                            </li>
+                            <li class="info-item">
+                                <span class="info-label">Fecha de inicio:</span>
+                                <span class="info-value" id="modalStartDate">Cargando...</span>
+                            </li>
+                            <li class="info-item">
+                                <span class="info-label">Fecha de vencimiento:</span>
+                                <span class="info-value" id="modalDueDate">Cargando...</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h4 class="section-title"><i class="fas fa-file-invoice-dollar"></i> Estado de Pagos</h4>
+                        <ul class="info-list">
+                            <li class="info-item">
+                                <span class="info-label">Meses pagados:</span>
+                                <span class="info-value" id="modalPaid">Cargando...</span>
+                            </li>
+                            <li class="info-item">
+                                <span class="info-label">Último pago:</span>
+                                <span class="info-value" id="modalLastPayment">Cargando...</span>
+                            </li>
+                            <li class="info-item">
+                                <span class="info-label">Próximo pago:</span>
+                                <span class="info-value" id="modalNextPayment">Cargando...</span>
+                            </li>
+                            <li class="info-item">
+                                <span class="info-label">Estado de pago:</span>
+                                <span class="info-value" id="modalPaymentStatus">Cargando...</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="info-section notes-section">
+                        <h4 class="section-title"><i class="fas fa-sticky-note"></i> Notas Adicionales</h4>
+                        <div class="notes-content" id="modalNotes">
+                            Cargando notas...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="editClient">
+                    <i class="fas fa-edit"></i> Editar Cliente
+                </button>
+                <button class="btn btn-primary" id="processPayment">
+                    <i class="fas fa-credit-card"></i> Procesar Pago
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // =============================================
+        // CONFIGURACIÓN DE LA BASE DE DATOS NOCODB
+        // =============================================
+        // Reemplaza estos valores con los de tu instancia de NocoDB
+        const NOCODB_CONFIG = {
+            // URL base de tu API de NocoDB
+            BASE_URL: 'https://app.nocodb.com/api/v2/meta/bases/plaa1e43hb02rwi/swagger',
+            
+            // Nombre de tu proyecto en NocoDB
+            PROJECT_NAME: 'NetConnectPro',
+            
+            // Token de acceso (API Token de NocoDB)
+            API_TOKEN: 'kkwcfnQhokq8OcCzf_0e1LTN4feqiNXSwfrGz0kB',
+            
+            // Nombres de las tablas
+            TABLES: {
+                CLIENTES: 'Clientes',
+                PAGOS: 'Pagos'
+            }
+        };
+
+        // =============================================
+        // FUNCIONES PARA CONECTAR CON NOCODB
+        // =============================================
+        
+        // Función para obtener los headers de autenticación
+        function getHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'xc-auth': NOCODB_CONFIG.API_TOKEN
+            };
+        }
+
+        // Función para construir la URL de la API
+        function getTableUrl(tableName) {
+            return `${NOCODB_CONFIG.BASE_URL}${NOCODB_CONFIG.PROJECT_NAME}/${tableName}`;
+        }
+
+        // Función para obtener todos los clientes
+        async function fetchClientes(filters = {}) {
+            try {
+                const url = getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES);
+                const response = await fetch(url, {
+                    headers: getHeaders()
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al obtener clientes');
+                }
+                
+                const data = await response.json();
+                return data.list || [];
+            } catch (error) {
+                console.error('Error fetching clientes:', error);
+                showNotification('Error al cargar clientes', 'error');
+                return [];
+            }
+        }
+
+        // Función para obtener un cliente por ID
+        async function fetchClienteById(id) {
+            try {
+                const url = `${getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES)}/${id}`;
+                const response = await fetch(url, {
+                    headers: getHeaders()
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al obtener cliente');
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching cliente:', error);
+                showNotification('Error al cargar cliente', 'error');
+                return null;
+            }
+        }
+
+        // Función para crear un nuevo cliente
+        async function createCliente(clienteData) {
+            try {
+                const url = getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify(clienteData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al crear cliente');
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Error creating cliente:', error);
+                showNotification('Error al crear cliente', 'error');
+                return null;
+            }
+        }
+
+        // Función para actualizar un cliente
+        async function updateCliente(id, clienteData) {
+            try {
+                const url = `${getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES)}/${id}`;
+                const response = await fetch(url, {
+                    method: 'PATCH',
+                    headers: getHeaders(),
+                    body: JSON.stringify(clienteData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al actualizar cliente');
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Error updating cliente:', error);
+                showNotification('Error al actualizar cliente', 'error');
+                return null;
+            }
+        }
+
+        // Función para eliminar un cliente
+        async function deleteCliente(id) {
+            try {
+                const url = `${getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES)}/${id}`;
+                const response = await fetch(url, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al eliminar cliente');
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error deleting cliente:', error);
+                showNotification('Error al eliminar cliente', 'error');
+                return false;
+            }
+        }
+
+        // Función para obtener pagos de un cliente
+        async function fetchPagosByClienteId(clienteId) {
+            try {
+                const url = getTableUrl(NOCODB_CONFIG.TABLES.PAGOS);
+                const response = await fetch(`${url}?where=(cliente_id,eq,${clienteId})`, {
+                    headers: getHeaders()
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al obtener pagos');
+                }
+                
+                const data = await response.json();
+                return data.list || [];
+            } catch (error) {
+                console.error('Error fetching pagos:', error);
+                return [];
+            }
+        }
+
+        // =============================================
+        // FUNCIONES DE LA INTERFAZ
+        // =============================================
+
         // Sistema de cambio de tema
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
@@ -1569,7 +1898,6 @@
             localStorage.setItem('theme', newTheme);
             updateThemeIcon(newTheme);
             
-            // Efecto de transición
             themeToggle.style.transform = 'rotate(180deg) scale(1.1)';
             setTimeout(() => {
                 themeToggle.style.transform = 'rotate(0) scale(1)';
@@ -1596,7 +1924,6 @@
         sidebarToggle.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
             
-            // Cambiar icono
             const icon = sidebarToggle.querySelector('i');
             if (sidebar.classList.contains('collapsed')) {
                 icon.classList.remove('fa-chevron-left');
@@ -1627,275 +1954,430 @@
                 }
             });
         });
-        
-        // Datos de planes
-        const plansData = {
-            basic: {
-                name: "Plan Básico",
-                price: "L 699.00",
-                monthly: "699.00",
-                lempiras: "Setecientos Lempiras",
-                features: [
-                    "100 Mbps Simétricos",
-                    "120 Canales HD",
-                    "WiFi 6 Router",
-                    "1 Decodificador 4K",
-                    "Soporte Básico"
-                ]
-            },
-            family: {
-                name: "Plan Familiar Pro",
-                price: "L 1,199.00",
-                monthly: "1,199.00",
-                lempiras: "Mil ciento noventa y nueve Lempiras",
-                features: [
-                    "300 Mbps Simétricos",
-                    "180 Canales HD/4K",
-                    "WiFi Mesh System",
-                    "3 Decodificadores 4K",
-                    "Netflix & Disney+"
-                ]
-            },
-            premium: {
-                name: "Plan Premium Ultra",
-                price: "L 1,999.00",
-                monthly: "1,999.00",
-                lempiras: "Mil novecientos noventa y nueve Lempiras",
-                features: [
-                    "1 Gbps Simétricos",
-                    "220 Canales 4K",
-                    "WiFi 6E Mesh Pro",
-                    "4 Decodificadores 8K",
-                    "Prioridad Gaming"
-                ]
-            }
-        };
-        
-        // Variables para el plan seleccionado
-        let selectedPlan = 'basic';
-        let uploadedPhoto = null;
-        
-        // Inicializar fecha de inicio con hoy
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            document.getElementById('startDate').value = formattedDate;
-            updatePlanSummary();
+
+        // Función para generar avatar color
+        function getAvatarColor(name) {
+            const colors = [
+                'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
+                'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+            ];
+            if (!name) return colors[0];
+            const index = name.charCodeAt(0) % colors.length;
+            return colors[index];
+        }
+
+        // Variables globales
+        let allClients = [];
+        let currentPage = 1;
+        let itemsPerPage = 25;
+
+        // Función para renderizar clientes en la tabla
+        function renderClients(clients) {
+            const tableBody = document.getElementById('clientsTableBody');
             
-            // Añadir animaciones
-            const animatedElements = document.querySelectorAll('.animate-fade-in');
-            animatedElements.forEach((el, index) => {
-                el.style.animationDelay = `${index * 0.1}s`;
-            });
-        });
-        
-        // Gestión de foto de perfil
-        const photoPreview = document.getElementById('photoPreview');
-        const photoUpload = document.getElementById('photoUpload');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const previewImage = document.getElementById('previewImage');
-        const removePhoto = document.getElementById('removePhoto');
-        
-        uploadBtn.addEventListener('click', () => {
-            photoUpload.click();
-        });
-        
-        photoPreview.addEventListener('click', () => {
-            photoUpload.click();
-        });
-        
-        photoUpload.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                if (file.size > 5 * 1024 * 1024) { // 5MB
-                    showNotification('El archivo es demasiado grande. Máximo 5MB.', 'error');
-                    return;
-                }
+            if (clients.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 50px;">
+                            <i class="fas fa-users" style="font-size: 48px; color: var(--color-text-lighter); margin-bottom: 15px;"></i>
+                            <div style="color: var(--color-text-light); font-size: 16px;">No se encontraron clientes</div>
+                            <a href="nuevo-cliente.html" class="btn btn-primary" style="margin-top: 20px;">
+                                <i class="fas fa-user-plus"></i> Agregar primer cliente
+                            </a>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tableBody.innerHTML = '';
+            
+            clients.forEach(client => {
+                const row = document.createElement('tr');
+                row.className = 'animate-fade-in';
                 
-                if (!file.type.match('image.*')) {
-                    showNotification('Por favor, selecciona una imagen válida.', 'error');
-                    return;
-                }
+                // Generar iniciales para el avatar
+                const initials = generateInitials(client.primer_nombre, client.primer_apellido);
                 
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImage.src = e.target.result;
-                    photoPreview.classList.add('has-image');
-                    uploadedPhoto = file;
-                    showNotification('Foto cargada exitosamente', 'success');
+                // Determinar precio del plan
+                const planPrices = {
+                    'basic': 'L 699.00',
+                    'family': 'L 1,199.00',
+                    'premium': 'L 1,999.00'
                 };
-                reader.readAsDataURL(file);
-            }
-        });
-        
-        removePhoto.addEventListener('click', (e) => {
-            e.stopPropagation(); // Evitar que se active el click del contenedor
-            previewImage.src = '';
-            photoPreview.classList.remove('has-image');
-            photoUpload.value = '';
-            uploadedPhoto = null;
-            showNotification('Foto eliminada', 'warning');
-        });
-        
-        // Selección de plan
-        document.querySelectorAll('.plan-card').forEach(card => {
-            card.addEventListener('click', function() {
-                const planType = this.getAttribute('data-plan');
                 
-                // Remover clase selected de todos los planes
-                document.querySelectorAll('.plan-card').forEach(c => {
-                    c.classList.remove('selected');
-                });
+                const price = planPrices[client.plan] || 'L 0.00';
                 
-                // Agregar clase selected al plan clickeado
-                this.classList.add('selected');
+                // Determinar texto del plan
+                const planNames = {
+                    'basic': 'Básico',
+                    'family': 'Familiar Pro',
+                    'premium': 'Premium Ultra'
+                };
                 
-                // Actualizar plan seleccionado
-                selectedPlan = planType;
+                const planName = planNames[client.plan] || 'Sin plan';
                 
-                // Actualizar resumen
-                updatePlanSummary();
+                // Determinar clase de estado
+                let statusClass = 'status-active';
+                if (client.estado === 'warning') statusClass = 'status-warning';
+                if (client.estado === 'expired') statusClass = 'status-expired';
+                
+                // Determinar texto del estado
+                const statusTexts = {
+                    'active': 'Activo',
+                    'warning': 'Próximo a vencer',
+                    'expired': 'Vencido'
+                };
+                
+                const statusText = statusTexts[client.estado] || 'Desconocido';
+                
+                row.innerHTML = `
+                    <td>
+                        <div class="client-info">
+                            <div class="client-avatar" style="background: ${getAvatarColor(client.primer_nombre)};">
+                                ${initials}
+                            </div>
+                            <div class="client-details">
+                                <div class="client-name">${client.primer_nombre} ${client.primer_apellido}</div>
+                                <div class="client-id">ID: NC-${client.id.toString().padStart(4, '0')}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="client-contact">
+                            <div class="contact-item">
+                                <i class="fas fa-phone"></i>
+                                ${client.telefono || 'Sin teléfono'}
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                ${client.direccion ? (client.direccion.length > 30 ? client.direccion.substring(0, 30) + '...' : client.direccion) : 'Sin dirección'}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="client-plan">
+                            <div class="plan-name">${planName}</div>
+                            <div class="plan-price">${price}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </td>
+                    <td>
+                        <div class="client-actions">
+                            <button class="action-btn view" data-id="${client.id}" title="Ver detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" data-id="${client.id}" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" data-id="${client.id}" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
             });
-        });
+            
+            // Agregar event listeners a los botones
+            attachActionListeners();
+        }
+
+        // Función para generar iniciales
+        function generateInitials(firstName, lastName) {
+            if (!firstName && !lastName) return 'NC';
+            const first = firstName ? firstName.charAt(0).toUpperCase() : '';
+            const last = lastName ? lastName.charAt(0).toUpperCase() : '';
+            return first + last;
+        }
+
+        // Función para filtrar clientes
+        function filterClients() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const planFilter = document.getElementById('planFilter').value;
+            const sortFilter = document.getElementById('sortFilter').value;
+            
+            let filtered = allClients.filter(client => {
+                // Búsqueda
+                const matchesSearch = searchTerm === '' || 
+                    (client.primer_nombre && client.primer_nombre.toLowerCase().includes(searchTerm)) ||
+                    (client.primer_apellido && client.primer_apellido.toLowerCase().includes(searchTerm)) ||
+                    (client.telefono && client.telefono.includes(searchTerm)) ||
+                    (client.email && client.email.toLowerCase().includes(searchTerm));
+                
+                // Filtro de estado
+                const matchesStatus = statusFilter === '' || client.estado === statusFilter;
+                
+                // Filtro de plan
+                const matchesPlan = planFilter === '' || client.plan === planFilter;
+                
+                return matchesSearch && matchesStatus && matchesPlan;
+            });
+            
+            // Ordenar
+            filtered.sort((a, b) => {
+                switch(sortFilter) {
+                    case 'nombre':
+                        const nameA = `${a.primer_nombre} ${a.primer_apellido}`.toLowerCase();
+                        const nameB = `${b.primer_nombre} ${b.primer_apellido}`.toLowerCase();
+                        return nameA.localeCompare(nameB);
+                    case 'fecha_registro':
+                        return new Date(b.fecha_registro) - new Date(a.fecha_registro);
+                    case 'fecha_vencimiento':
+                        return new Date(a.fecha_vencimiento) - new Date(b.fecha_vencimiento);
+                    default:
+                        return 0;
+                }
+            });
+            
+            renderClients(filtered);
+            updateClientCount(filtered.length);
+            updateStats(filtered);
+        }
+
+        // Función para actualizar contador de clientes
+        function updateClientCount(count) {
+            const countElement = document.getElementById('clientsCount');
+            if (countElement) {
+                const start = (currentPage - 1) * itemsPerPage + 1;
+                const end = Math.min(currentPage * itemsPerPage, count);
+                countElement.textContent = `Mostrando ${start}-${end} de ${count} clientes`;
+            }
+        }
+
+        // Función para actualizar estadísticas
+        function updateStats(clients) {
+            const total = clients.length;
+            const active = clients.filter(c => c.estado === 'active').length;
+            const warning = clients.filter(c => c.estado === 'warning').length;
+            const expired = clients.filter(c => c.estado === 'expired').length;
+            
+            document.getElementById('totalClients').textContent = total;
+            document.getElementById('activeClients').textContent = active;
+            document.getElementById('warningClients').textContent = warning;
+            document.getElementById('expiredClients').textContent = expired;
+            
+            // Actualizar badge en sidebar
+            document.getElementById('clientsBadge').textContent = total;
+        }
+
+        // Función para adjuntar event listeners a los botones de acción
+        function attachActionListeners() {
+            // Botones de ver
+            document.querySelectorAll('.action-btn.view').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const clientId = parseInt(this.getAttribute('data-id'));
+                    await showClientModal(clientId);
+                });
+            });
+            
+            // Botones de editar
+            document.querySelectorAll('.action-btn.edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const clientId = parseInt(this.getAttribute('data-id'));
+                    window.location.href = `editar-cliente.html?id=${clientId}`;
+                });
+            });
+            
+            // Botones de eliminar
+            document.querySelectorAll('.action-btn.delete').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const clientId = parseInt(this.getAttribute('data-id'));
+                    const client = allClients.find(c => c.id === clientId);
+                    
+                    if (client && confirm(`¿Estás seguro de eliminar a ${client.primer_nombre} ${client.primer_apellido}? Esta acción no se puede deshacer.`)) {
+                        const success = await deleteCliente(clientId);
+                        if (success) {
+                            showNotification('Cliente eliminado exitosamente', 'success');
+                            // Recargar la lista
+                            await loadClientes();
+                        }
+                    }
+                });
+            });
+        }
+
+        // Modal de detalles del cliente
+        const clientModal = document.getElementById('clientModal');
+        const modalClose = document.getElementById('modalClose');
         
-        // Función para actualizar el resumen del plan
-        function updatePlanSummary() {
-            const plan = plansData[selectedPlan];
-            const startDateInput = document.getElementById('startDate');
-            const startDate = new Date(startDateInput.value);
+        async function showClientModal(clientId) {
+            const cliente = await fetchClienteById(clientId);
+            if (!cliente) return;
             
-            // Calcular fecha de vencimiento (1 mes después)
-            const dueDate = new Date(startDate);
-            dueDate.setMonth(dueDate.getMonth() + 1);
+            // Obtener pagos del cliente
+            const pagos = await fetchPagosByClienteId(clientId);
             
-            // Actualizar elementos del resumen
-            document.getElementById('summaryPlan').textContent = plan.name;
-            document.getElementById('summaryPrice').innerHTML = `${plan.price}<span>/mes</span>`;
-            document.getElementById('summaryMonthly').textContent = plan.price;
-            document.getElementById('summaryLempiras').textContent = plan.lempiras;
-            document.getElementById('summaryStartDate').textContent = formatDate(startDate);
-            document.getElementById('summaryDueDate').textContent = formatDate(dueDate);
+            // Actualizar información del modal
+            const initials = generateInitials(cliente.primer_nombre, cliente.primer_apellido);
+            document.getElementById('modalAvatar').textContent = initials;
+            document.getElementById('modalAvatar').style.background = getAvatarColor(cliente.primer_nombre);
             
-            // Mostrar resumen
-            document.getElementById('planSummary').classList.add('visible');
+            document.getElementById('modalName').textContent = `${cliente.primer_nombre} ${cliente.primer_apellido}`;
+            document.getElementById('modalPhone').textContent = cliente.telefono || 'No disponible';
+            document.getElementById('modalEmail').textContent = cliente.email || 'No disponible';
+            document.getElementById('modalAddress').textContent = cliente.direccion || 'No disponible';
+            
+            // Actualizar estado
+            const modalStatus = document.getElementById('modalStatus');
+            const statusTexts = {
+                'active': 'Activo',
+                'warning': 'Próximo a vencer',
+                'expired': 'Vencido'
+            };
+            modalStatus.textContent = statusTexts[cliente.estado] || 'Desconocido';
+            modalStatus.className = 'status-badge ';
+            if (cliente.estado === 'active') modalStatus.classList.add('status-active');
+            if (cliente.estado === 'warning') modalStatus.classList.add('status-warning');
+            if (cliente.estado === 'expired') modalStatus.classList.add('status-expired');
+            
+            // Información personal
+            document.getElementById('modalFullName').textContent = 
+                `${cliente.primer_nombre} ${cliente.segundo_nombre || ''} ${cliente.primer_apellido} ${cliente.segundo_apellido || ''}`.trim();
+            
+            document.getElementById('modalPhoneFull').textContent = cliente.telefono || 'No disponible';
+            document.getElementById('modalRegDate').textContent = formatDate(cliente.fecha_registro);
+            document.getElementById('modalAddressFull').textContent = cliente.direccion || 'No disponible';
+            
+            // Información del plan
+            const planNames = {
+                'basic': 'Plan Básico',
+                'family': 'Plan Familiar Pro',
+                'premium': 'Plan Premium Ultra'
+            };
+            
+            const planPrices = {
+                'basic': 'L 699.00',
+                'family': 'L 1,199.00',
+                'premium': 'L 1,999.00'
+            };
+            
+            document.getElementById('modalPlan').textContent = planNames[cliente.plan] || 'Sin plan';
+            document.getElementById('modalMonthly').textContent = planPrices[cliente.plan] || 'L 0.00';
+            document.getElementById('modalStartDate').textContent = formatDate(cliente.fecha_inicio);
+            document.getElementById('modalDueDate').textContent = formatDate(cliente.fecha_vencimiento);
+            
+            // Información de pagos
+            const mesesPagados = pagos.filter(p => p.estado === 'completado').length;
+            const ultimoPago = pagos.filter(p => p.estado === 'completado')
+                .sort((a, b) => new Date(b.fecha_pago) - new Date(a.fecha_pago))[0];
+            
+            document.getElementById('modalPaid').textContent = `${mesesPagados} meses`;
+            document.getElementById('modalLastPayment').textContent = ultimoPago ? formatDate(ultimoPago.fecha_pago) : 'Ninguno';
+            document.getElementById('modalNextPayment').textContent = formatDate(cliente.fecha_vencimiento);
+            
+            // Determinar estado de pago basado en la fecha de vencimiento
+            const today = new Date();
+            const dueDate = new Date(cliente.fecha_vencimiento);
+            const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+            
+            let paymentStatus = 'Al día';
+            if (daysUntilDue < 0) paymentStatus = 'Vencido';
+            else if (daysUntilDue <= 7) paymentStatus = 'Por vencer';
+            
+            document.getElementById('modalPaymentStatus').textContent = paymentStatus;
+            
+            // Notas
+            document.getElementById('modalNotes').textContent = cliente.notas || 'No hay notas adicionales.';
+            
+            // Actualizar botones del modal
+            document.getElementById('editClient').onclick = () => {
+                window.location.href = `editar-cliente.html?id=${cliente.id}`;
+            };
+            
+            document.getElementById('processPayment').onclick = () => {
+                window.location.href = `nuevo-pago.html?cliente_id=${cliente.id}`;
+            };
+            
+            // Mostrar modal
+            clientModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
         
         // Función para formatear fecha
-        function formatDate(date) {
-            if (!(date instanceof Date) || isNaN(date)) {
-                return 'Fecha inválida';
-            }
-            
-            const options = { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                weekday: 'long'
-            };
-            
-            return date.toLocaleDateString('es-HN', options);
-        }
-        
-        // Actualizar resumen cuando cambia la fecha
-        document.getElementById('startDate').addEventListener('change', updatePlanSummary);
-        
-        // Validación del formulario
-        const newClientForm = document.getElementById('newClientForm');
-        const saveBtn = document.getElementById('saveBtn');
-        
-        newClientForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Validar campos requeridos
-            const firstName = document.getElementById('firstName').value.trim();
-            const firstLastName = document.getElementById('firstLastName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const address = document.getElementById('address').value.trim();
-            const startDate = document.getElementById('startDate').value;
-            
-            if (!firstName || !firstLastName || !email || !phone || !address || !startDate) {
-                showNotification('Por favor, complete todos los campos requeridos.', 'error');
-                return;
-            }
-            
-            if (!validateEmail(email)) {
-                showNotification('Por favor, ingrese un correo electrónico válido.', 'error');
-                return;
-            }
-            
-            if (!validatePhone(phone)) {
-                showNotification('Por favor, ingrese un número de teléfono válido.', 'error');
-                return;
-            }
-            
-            // Mostrar estado de carga
-            const originalText = saveBtn.innerHTML;
-            saveBtn.innerHTML = '<span class="loading"></span> Guardando...';
-            saveBtn.disabled = true;
-            
+        function formatDate(dateString) {
+            if (!dateString) return 'No disponible';
             try {
-                // Simular guardado en servidor
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return 'Fecha inválida';
                 
-                // Obtener datos del formulario
-                const formData = {
-                    photo: uploadedPhoto ? uploadedPhoto.name : null,
-                    personalInfo: {
-                        firstName: firstName,
-                        secondName: document.getElementById('secondName').value.trim(),
-                        firstLastName: firstLastName,
-                        secondLastName: document.getElementById('secondLastName').value.trim(),
-                        email: email,
-                        phone: phone,
-                        address: address
-                    },
-                    serviceInfo: {
-                        plan: selectedPlan,
-                        planName: plansData[selectedPlan].name,
-                        monthlyPrice: plansData[selectedPlan].monthly,
-                        startDate: startDate,
-                        notes: document.getElementById('notes').value.trim()
-                    },
-                    registrationDate: new Date().toISOString().split('T')[0]
+                const options = { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric'
                 };
                 
-                // Mostrar éxito
-                showNotification('¡Cliente registrado exitosamente!', 'success');
-                
-                // Simular redirección después de un momento
-                setTimeout(() => {
-                    alert(`Cliente ${firstName} ${firstLastName} registrado exitosamente.\n\nPlan: ${plansData[selectedPlan].name}\nMensualidad: ${plansData[selectedPlan].price}\nFecha de inicio: ${formatDate(new Date(startDate))}`);
-                    
-                    // Redirigir a la lista de clientes
-                    window.location.href = 'clientes.html';
-                }, 1000);
-                
+                return date.toLocaleDateString('es-HN', options);
             } catch (error) {
-                showNotification('Error al guardar el cliente. Inténtalo de nuevo.', 'error');
-                saveBtn.innerHTML = originalText;
-                saveBtn.disabled = false;
+                return 'Fecha inválida';
+            }
+        }
+        
+        // Cerrar modal
+        modalClose.addEventListener('click', () => {
+            clientModal.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+        
+        // Cerrar modal al hacer clic fuera
+        clientModal.addEventListener('click', (e) => {
+            if (e.target === clientModal) {
+                clientModal.classList.remove('active');
+                document.body.style.overflow = '';
             }
         });
         
-        // Validación de email
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-        
-        // Validación de teléfono (simple para Honduras)
-        function validatePhone(phone) {
-            // Acepta formatos: +504 XXXX-XXXX, XXXX-XXXX, XXXXXXXXX
-            const re = /^(\+504\s?)?\d{4}[\s-]?\d{4}$/;
-            return re.test(phone);
-        }
-        
-        // Botón de cancelar
-        document.getElementById('cancelBtn').addEventListener('click', () => {
-            if (confirm('¿Estás seguro de cancelar? Se perderán todos los datos ingresados.')) {
-                window.location.href = 'clientes.html';
+        // Función para cargar todos los clientes
+        async function loadClientes() {
+            try {
+                const loadingRow = document.getElementById('loadingRow');
+                if (loadingRow) {
+                    loadingRow.innerHTML = `
+                        <td colspan="5" style="text-align: center; padding: 50px;">
+                            <div class="loading" style="margin: 0 auto 15px;"></div>
+                            <div style="color: var(--color-text-light);">Cargando clientes desde la base de datos...</div>
+                        </td>
+                    `;
+                }
+                
+                allClients = await fetchClientes();
+                filterClients();
+                
+            } catch (error) {
+                console.error('Error loading clientes:', error);
+                showNotification('Error al cargar clientes desde la base de datos', 'error');
             }
+        }
+        
+        // Event listeners para filtros
+        document.getElementById('searchInput').addEventListener('input', filterClients);
+        document.getElementById('statusFilter').addEventListener('change', filterClients);
+        document.getElementById('planFilter').addEventListener('change', filterClients);
+        document.getElementById('sortFilter').addEventListener('change', filterClients);
+        
+        document.getElementById('limitFilter').addEventListener('change', function() {
+            itemsPerPage = parseInt(this.value);
+            filterClients();
+        });
+        
+        // Botón para limpiar filtros
+        document.getElementById('resetFilters').addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('planFilter').value = '';
+            document.getElementById('sortFilter').value = 'nombre';
+            document.getElementById('limitFilter').value = '25';
+            itemsPerPage = 25;
+            filterClients();
         });
         
         // Función para mostrar notificaciones
@@ -1918,100 +2400,44 @@
             
             // Botón para cerrar
             notification.querySelector('.notification-close').addEventListener('click', () => {
-                notification.style.animation = 'slideOutRight 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
+                notification.remove();
             });
             
             // Auto cerrar después de 5 segundos
             setTimeout(() => {
                 if (notification.parentNode) {
-                    notification.style.animation = 'slideOutRight 0.3s ease';
-                    setTimeout(() => notification.remove(), 300);
+                    notification.remove();
                 }
             }, 5000);
-            
-            // Añadir keyframes para la animación de salida
-            if (!document.querySelector('#notification-out-styles')) {
-                const style = document.createElement('style');
-                style.id = 'notification-out-styles';
-                style.textContent = `
-                    @keyframes slideOutRight {
-                        from { transform: translateX(0); opacity: 1; }
-                        to { transform: translateX(100%); opacity: 0; }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
         }
         
-        // Generar avatar automático basado en nombre
-        document.getElementById('firstName').addEventListener('blur', function() {
-            const firstName = this.value.trim();
-            const lastName = document.getElementById('firstLastName').value.trim();
+        // Notificaciones
+        document.getElementById('notificationsBtn').addEventListener('click', () => {
+            const expiredCount = allClients.filter(c => c.estado === 'expired').length;
+            const warningCount = allClients.filter(c => c.estado === 'warning').length;
             
-            if (firstName && lastName) {
-                const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
-                
-                // Si no hay foto cargada, mostrar las iniciales
-                if (!uploadedPhoto) {
-                    const photoPreview = document.getElementById('photoPreview');
-                    const uploadIcon = photoPreview.querySelector('.upload-icon');
-                    const uploadText = photoPreview.querySelector('.upload-text');
-                    
-                    uploadIcon.innerHTML = `<span style="font-size: 24px; font-weight: bold;">${initials}</span>`;
-                    uploadText.textContent = `${firstName} ${lastName}`;
-                }
-            }
+            showNotification(`Tienes ${expiredCount} clientes vencidos y ${warningCount} próximos a vencer`, 'warning');
         });
         
-        document.getElementById('firstLastName').addEventListener('blur', function() {
-            const firstName = document.getElementById('firstName').value.trim();
-            const lastName = this.value.trim();
+        // Inicializar cuando se carga la página
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Añadir animaciones
+            const animatedElements = document.querySelectorAll('.animate-fade-in');
+            animatedElements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.05}s`;
+            });
             
-            if (firstName && lastName) {
-                const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
-                
-                // Si no hay foto cargada, mostrar las iniciales
-                if (!uploadedPhoto) {
-                    const photoPreview = document.getElementById('photoPreview');
-                    const uploadIcon = photoPreview.querySelector('.upload-icon');
-                    const uploadText = photoPreview.querySelector('.upload-text');
-                    
-                    uploadIcon.innerHTML = `<span style="font-size: 24px; font-weight: bold;">${initials}</span>`;
-                    uploadText.textContent = `${firstName} ${lastName}`;
+            // Cargar clientes desde la base de datos
+            await loadClientes();
+            
+            // Detectar cambios en el tamaño de la ventana
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 992) {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
                 }
-            }
+            });
         });
-        
-        // Detectar cambios en el tamaño de la ventana
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 992) {
-                sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
-            }
-        });
-        
-        // Loading animation style
-        if (!document.querySelector('#loading-styles')) {
-            const style = document.createElement('style');
-            style.id = 'loading-styles';
-            style.textContent = `
-                .loading {
-                    display: inline-block;
-                    width: 20px;
-                    height: 20px;
-                    border: 3px solid rgba(255,255,255,0.3);
-                    border-radius: 50%;
-                    border-top-color: white;
-                    animation: spin 1s ease-in-out infinite;
-                }
-                
-                @keyframes spin {
-                    to { transform: rotate(360deg); }
-                }
-            `;
-            document.head.appendChild(style);
-        }
     </script>
 </body>
 </html>
