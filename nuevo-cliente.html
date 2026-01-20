@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NetConnect Pro | Nuevo Cliente</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Incluir Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Variables de tema */
+        /* Variables de tema - Mismo CSS que antes */
         :root {
             --gradient-primary: linear-gradient(135deg, #0a0f2d 0%, #1a237e 30%, #283593 60%, #3949ab 100%);
             --gradient-secondary: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -1552,7 +1554,19 @@
     </div>
 
     <script>
-        // Sistema de cambio de tema
+        // ============================================
+        // CONFIGURACIÓN DE SUPABASE
+        // ============================================
+        // Reemplaza estos valores con tus credenciales de Supabase
+        const SUPABASE_URL = 'https://vvqxzpjfrsanlhtoemya.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_secret_oBJ80J8LKYzqEXrAka5ebQ_8w0TFlYN';
+        
+        // Inicializar Supabase
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // ============================================
+        // SISTEMA DE CAMBIO DE TEMA
+        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
         
@@ -1587,7 +1601,9 @@
             }
         }
         
-        // Sidebar toggle
+        // ============================================
+        // SIDEBAR TOGGLE
+        // ============================================
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebarToggle');
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -1628,7 +1644,9 @@
             });
         });
         
-        // Datos de planes
+        // ============================================
+        // DATOS DE PLANES
+        // ============================================
         const plansData = {
             basic: {
                 name: "Plan Básico",
@@ -1674,8 +1692,11 @@
         // Variables para el plan seleccionado
         let selectedPlan = 'basic';
         let uploadedPhoto = null;
+        let photoBase64 = null;
         
-        // Inicializar fecha de inicio con hoy
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
             const formattedDate = today.toISOString().split('T')[0];
@@ -1689,7 +1710,9 @@
             });
         });
         
-        // Gestión de foto de perfil
+        // ============================================
+        // GESTIÓN DE FOTO DE PERFIL
+        // ============================================
         const photoPreview = document.getElementById('photoPreview');
         const photoUpload = document.getElementById('photoUpload');
         const uploadBtn = document.getElementById('uploadBtn');
@@ -1717,11 +1740,13 @@
                     return;
                 }
                 
+                // Convertir a Base64 para almacenar temporalmente
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     previewImage.src = e.target.result;
                     photoPreview.classList.add('has-image');
                     uploadedPhoto = file;
+                    photoBase64 = e.target.result; // Guardar Base64 para enviar a Supabase
                     showNotification('Foto cargada exitosamente', 'success');
                 };
                 reader.readAsDataURL(file);
@@ -1734,10 +1759,13 @@
             photoPreview.classList.remove('has-image');
             photoUpload.value = '';
             uploadedPhoto = null;
+            photoBase64 = null;
             showNotification('Foto eliminada', 'warning');
         });
         
-        // Selección de plan
+        // ============================================
+        // SELECCIÓN DE PLAN
+        // ============================================
         document.querySelectorAll('.plan-card').forEach(card => {
             card.addEventListener('click', function() {
                 const planType = this.getAttribute('data-plan');
@@ -1758,7 +1786,9 @@
             });
         });
         
-        // Función para actualizar el resumen del plan
+        // ============================================
+        // FUNCIÓN PARA ACTUALIZAR EL RESUMEN DEL PLAN
+        // ============================================
         function updatePlanSummary() {
             const plan = plansData[selectedPlan];
             const startDateInput = document.getElementById('startDate');
@@ -1799,7 +1829,9 @@
         // Actualizar resumen cuando cambia la fecha
         document.getElementById('startDate').addEventListener('change', updatePlanSummary);
         
-        // Validación del formulario
+        // ============================================
+        // VALIDACIÓN DEL FORMULARIO
+        // ============================================
         const newClientForm = document.getElementById('newClientForm');
         const saveBtn = document.getElementById('saveBtn');
         
@@ -1835,48 +1867,118 @@
             saveBtn.disabled = true;
             
             try {
-                // Simular guardado en servidor
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                // ============================================
+                // SUBIR FOTO A SUPABASE STORAGE (si existe)
+                // ============================================
+                let photoUrl = null;
                 
-                // Obtener datos del formulario
-                const formData = {
-                    photo: uploadedPhoto ? uploadedPhoto.name : null,
-                    personalInfo: {
-                        firstName: firstName,
-                        secondName: document.getElementById('secondName').value.trim(),
-                        firstLastName: firstLastName,
-                        secondLastName: document.getElementById('secondLastName').value.trim(),
-                        email: email,
-                        phone: phone,
-                        address: address
-                    },
-                    serviceInfo: {
-                        plan: selectedPlan,
-                        planName: plansData[selectedPlan].name,
-                        monthlyPrice: plansData[selectedPlan].monthly,
-                        startDate: startDate,
-                        notes: document.getElementById('notes').value.trim()
-                    },
-                    registrationDate: new Date().toISOString().split('T')[0]
+                if (uploadedPhoto && photoBase64) {
+                    const fileName = `client_${Date.now()}_${uploadedPhoto.name}`;
+                    
+                    // Convertir Base64 a Blob
+                    const blob = base64ToBlob(photoBase64, uploadedPhoto.type);
+                    
+                    // Subir archivo a Supabase Storage
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('client-photos') // Nombre del bucket en Supabase
+                        .upload(fileName, blob);
+                    
+                    if (uploadError) {
+                        throw new Error(`Error al subir la foto: ${uploadError.message}`);
+                    }
+                    
+                    // Obtener URL pública de la imagen
+                    const { data: urlData } = supabase.storage
+                        .from('client-photos')
+                        .getPublicUrl(fileName);
+                    
+                    photoUrl = urlData.publicUrl;
+                }
+                
+                // ============================================
+                // PREPARAR DATOS DEL CLIENTE
+                // ============================================
+                const clienteData = {
+                    primer_nombre: firstName,
+                    segundo_nombre: document.getElementById('secondName').value.trim() || null,
+                    primer_apellido: firstLastName,
+                    segundo_apellido: document.getElementById('secondLastName').value.trim() || null,
+                    email: email,
+                    telefono: phone,
+                    direccion: address,
+                    plan: selectedPlan,
+                    plan_nombre: plansData[selectedPlan].name,
+                    precio_mensual: parseFloat(plansData[selectedPlan].monthly.replace(',', '')),
+                    fecha_inicio: startDate,
+                    fecha_registro: new Date().toISOString().split('T')[0],
+                    fecha_vencimiento: calcularFechaVencimiento(startDate),
+                    estado: 'activo',
+                    notas: document.getElementById('notes').value.trim() || null,
+                    foto_url: photoUrl,
+                    creado_por: 'Juan Pérez', // En una app real, esto vendría de la sesión
+                    creado_en: new Date().toISOString()
                 };
                 
-                // Mostrar éxito
-                showNotification('¡Cliente registrado exitosamente!', 'success');
+                // ============================================
+                // INSERTAR CLIENTE EN SUPABASE
+                // ============================================
+                const { data, error } = await supabase
+                    .from('clientes') // Nombre de tu tabla en Supabase
+                    .insert([clienteData])
+                    .select();
                 
-                // Simular redirección después de un momento
+                if (error) {
+                    throw new Error(`Error al guardar el cliente: ${error.message}`);
+                }
+                
+                // ============================================
+                // CREAR PRIMERA FACTURA (opcional)
+                // ============================================
+                const clienteId = data[0].id;
+                
+                const facturaData = {
+                    cliente_id: clienteId,
+                    plan: selectedPlan,
+                    monto: parseFloat(plansData[selectedPlan].monthly.replace(',', '')),
+                    fecha_emision: new Date().toISOString().split('T')[0],
+                    fecha_vencimiento: calcularFechaVencimiento(startDate),
+                    estado: 'pendiente',
+                    descripcion: `Factura inicial - ${plansData[selectedPlan].name}`,
+                    creado_en: new Date().toISOString()
+                };
+                
+                // Insertar factura en la tabla de facturas
+                const { error: facturaError } = await supabase
+                    .from('facturas') // Nombre de tu tabla de facturas
+                    .insert([facturaData]);
+                
+                if (facturaError) {
+                    console.warn('Cliente creado pero error al crear factura:', facturaError);
+                    // Continuar aunque haya error en la factura
+                }
+                
+                // Mostrar éxito
+                showNotification('¡Cliente registrado exitosamente en la base de datos!', 'success');
+                
+                // Mostrar resumen y redirigir
                 setTimeout(() => {
-                    alert(`Cliente ${firstName} ${firstLastName} registrado exitosamente.\n\nPlan: ${plansData[selectedPlan].name}\nMensualidad: ${plansData[selectedPlan].price}\nFecha de inicio: ${formatDate(new Date(startDate))}`);
+                    alert(`Cliente ${firstName} ${firstLastName} registrado exitosamente.\n\nID: ${clienteId}\nPlan: ${plansData[selectedPlan].name}\nMensualidad: ${plansData[selectedPlan].price}\nFecha de inicio: ${formatDate(new Date(startDate))}`);
                     
                     // Redirigir a la lista de clientes
                     window.location.href = 'clientes.html';
                 }, 1000);
                 
             } catch (error) {
-                showNotification('Error al guardar el cliente. Inténtalo de nuevo.', 'error');
+                console.error('Error completo:', error);
+                showNotification(`Error al guardar el cliente: ${error.message}`, 'error');
                 saveBtn.innerHTML = originalText;
                 saveBtn.disabled = false;
             }
         });
+        
+        // ============================================
+        // FUNCIONES UTILITARIAS
+        // ============================================
         
         // Validación de email
         function validateEmail(email) {
@@ -1891,6 +1993,33 @@
             return re.test(phone);
         }
         
+        // Convertir Base64 a Blob
+        function base64ToBlob(base64, contentType = '') {
+            const byteCharacters = atob(base64.split(',')[1]);
+            const byteArrays = [];
+            
+            for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                const slice = byteCharacters.slice(offset, offset + 512);
+                
+                const byteNumbers = new Array(slice.length);
+                for (let i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                
+                const byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            
+            return new Blob(byteArrays, { type: contentType });
+        }
+        
+        // Calcular fecha de vencimiento (1 mes después)
+        function calcularFechaVencimiento(fechaInicio) {
+            const fecha = new Date(fechaInicio);
+            fecha.setMonth(fecha.getMonth() + 1);
+            return fecha.toISOString().split('T')[0];
+        }
+        
         // Botón de cancelar
         document.getElementById('cancelBtn').addEventListener('click', () => {
             if (confirm('¿Estás seguro de cancelar? Se perderán todos los datos ingresados.')) {
@@ -1898,7 +2027,9 @@
             }
         });
         
-        // Función para mostrar notificaciones
+        // ============================================
+        // FUNCIÓN PARA MOSTRAR NOTIFICACIONES
+        // ============================================
         function showNotification(message, type = 'info') {
             // Remover notificaciones existentes
             const existingNotifications = document.querySelectorAll('.notification');
@@ -1944,7 +2075,9 @@
             }
         }
         
-        // Generar avatar automático basado en nombre
+        // ============================================
+        // GENERAR AVATAR AUTOMÁTICO BASADO EN NOMBRE
+        // ============================================
         document.getElementById('firstName').addEventListener('blur', function() {
             const firstName = this.value.trim();
             const lastName = document.getElementById('firstLastName').value.trim();
@@ -1983,7 +2116,9 @@
             }
         });
         
-        // Detectar cambios en el tamaño de la ventana
+        // ============================================
+        // DETECTAR CAMBIOS EN EL TAMAÑO DE LA VENTANA
+        // ============================================
         window.addEventListener('resize', () => {
             if (window.innerWidth > 992) {
                 sidebar.classList.remove('active');
@@ -1991,7 +2126,9 @@
             }
         });
         
-        // Loading animation style
+        // ============================================
+        // ESTILOS DE LOADING
+        // ============================================
         if (!document.querySelector('#loading-styles')) {
             const style = document.createElement('style');
             style.id = 'loading-styles';
@@ -2012,6 +2149,40 @@
             `;
             document.head.appendChild(style);
         }
+        
+        // ============================================
+        // FUNCIONES ADICIONALES PARA SUPABASE
+        // ============================================
+        
+        // Ejemplo de función para verificar conexión
+        async function testSupabaseConnection() {
+            try {
+                const { data, error } = await supabase
+                    .from('clientes')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    console.warn('Error de conexión a Supabase:', error);
+                    return false;
+                }
+                
+                console.log('Conexión a Supabase exitosa');
+                return true;
+            } catch (error) {
+                console.error('Error al conectar con Supabase:', error);
+                return false;
+            }
+        }
+        
+        // Probar conexión al cargar la página
+        document.addEventListener('DOMContentLoaded', async () => {
+            const connected = await testSupabaseConnection();
+            if (!connected) {
+                console.warn('No se pudo conectar a Supabase. Verifica tus credenciales.');
+                showNotification('Advertencia: No se pudo conectar a la base de datos', 'warning');
+            }
+        });
     </script>
 </body>
 </html>
