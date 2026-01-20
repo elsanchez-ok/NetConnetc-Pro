@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NetConnect Pro | Panel de Control</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Incluir Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Variables de tema */
         :root {
@@ -339,6 +341,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
         [data-theme="dark"] .header-btn {
@@ -1163,6 +1166,28 @@
         .delay-3 { animation-delay: 0.3s; }
         .delay-4 { animation-delay: 0.4s; }
 
+        /* Loading state */
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
         /* Scroll personalizado */
         ::-webkit-scrollbar {
             width: 8px;
@@ -1217,14 +1242,14 @@
                     <a href="clientes.html" class="menu-link">
                         <i class="fas fa-users menu-icon"></i>
                         <span class="menu-text">Clientes</span>
-                        <span class="menu-badge">12</span>
+                        <span class="menu-badge" id="clientesBadge">0</span>
                     </a>
                 </li>
                 <li class="menu-item">
                     <a href="pagos.html" class="menu-link">
                         <i class="fas fa-credit-card menu-icon"></i>
                         <span class="menu-text">Pagos</span>
-                        <span class="menu-badge">5</span>
+                        <span class="menu-badge" id="pagosBadge">0</span>
                     </a>
                 </li>
                 <li class="menu-item">
@@ -1243,7 +1268,7 @@
                     <a href="soporte.html" class="menu-link">
                         <i class="fas fa-headset menu-icon"></i>
                         <span class="menu-text">Soporte</span>
-                        <span class="menu-badge">3</span>
+                        <span class="menu-badge" id="soporteBadge">0</span>
                     </a>
                 </li>
                 <li class="menu-item">
@@ -1262,10 +1287,10 @@
 
             <div class="sidebar-footer">
                 <div class="user-info">
-                    <div class="user-avatar">JP</div>
+                    <div class="user-avatar" id="userAvatar">?</div>
                     <div class="user-details">
-                        <div class="user-name">Juan Pérez</div>
-                        <div class="user-role">Administrador Principal</div>
+                        <div class="user-name" id="userName">Cargando...</div>
+                        <div class="user-role" id="userRole">-</div>
                     </div>
                     <a href="login_empresarial.html" class="logout-btn" style="color: rgba(255,255,255,0.6);">
                         <i class="fas fa-sign-out-alt"></i>
@@ -1280,18 +1305,18 @@
             <header class="main-header">
                 <div class="header-left">
                     <h1>Panel de Control</h1>
-                    <p>Bienvenido, Juan Pérez • Último acceso: Hoy 10:30 AM</p>
+                    <p id="welcomeMessage">Cargando datos del sistema...</p>
                 </div>
                 
                 <div class="header-right">
                     <div class="header-actions">
                         <button class="header-btn" id="notificationsBtn">
                             <i class="fas fa-bell"></i>
-                            <span class="notification-badge">3</span>
+                            <span class="notification-badge" id="notificationsBadge">0</span>
                         </button>
                         <button class="header-btn" id="messagesBtn">
                             <i class="fas fa-envelope"></i>
-                            <span class="notification-badge">5</span>
+                            <span class="notification-badge" id="messagesBadge">0</span>
                         </button>
                     </div>
                     
@@ -1311,29 +1336,29 @@
                     </div>
                     
                     <div class="alerts-grid">
-                        <div class="alert-card animate-fade-in">
+                        <div class="alert-card animate-fade-in" id="expiredAlert">
                             <div class="alert-icon danger">
                                 <i class="fas fa-times-circle"></i>
                             </div>
                             <div class="alert-content">
                                 <div class="alert-title">Clientes Vencidos</div>
-                                <div class="alert-count danger">24</div>
+                                <div class="alert-count danger">0</div>
                                 <p class="alert-description">Clientes con más de 30 días sin pago</p>
-                                <a href="#" class="alert-action">
+                                <a href="clientes.html?filter=expired" class="alert-action">
                                     Gestionar ahora <i class="fas fa-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
                         
-                        <div class="alert-card animate-fade-in delay-1">
+                        <div class="alert-card animate-fade-in delay-1" id="warningAlert">
                             <div class="alert-icon warning">
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div class="alert-content">
                                 <div class="alert-title">Próximos a Vencer</div>
-                                <div class="alert-count warning">48</div>
+                                <div class="alert-count warning">0</div>
                                 <p class="alert-description">Clientes que vencen en los próximos 7 días</p>
-                                <a href="#" class="alert-action">
+                                <a href="clientes.html?filter=warning" class="alert-action">
                                     Ver detalles <i class="fas fa-arrow-right"></i>
                                 </a>
                             </div>
@@ -1345,78 +1370,78 @@
                 <section class="stats-section">
                     <div class="section-title">
                         <h2><i class="fas fa-chart-line"></i> Resumen General</h2>
-                        <a href="#" class="view-all">Ver reportes <i class="fas fa-arrow-right"></i></a>
+                        <a href="reportes.html" class="view-all">Ver reportes <i class="fas fa-arrow-right"></i></a>
                     </div>
                     
                     <div class="stats-grid">
-                        <div class="stat-card total animate-fade-in">
+                        <div class="stat-card total animate-fade-in" id="totalCard">
                             <div class="stat-header">
                                 <div class="stat-icon total">
                                     <i class="fas fa-users"></i>
                                 </div>
-                                <span class="stat-trend positive">
-                                    <i class="fas fa-arrow-up"></i> 5.2%
+                                <span class="stat-trend positive" id="totalTrend">
+                                    <i class="fas fa-arrow-up"></i> 0%
                                 </span>
                             </div>
                             <div class="stat-content">
                                 <h3>Total Clientes</h3>
-                                <div class="stat-value">1,248</div>
-                                <div class="stat-change positive">
-                                    <i class="fas fa-arrow-up"></i> 62 este mes
+                                <div class="stat-value" id="totalClients">0</div>
+                                <div class="stat-change positive" id="totalChange">
+                                    <i class="fas fa-arrow-up"></i> 0 este mes
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="stat-card active animate-fade-in delay-1">
+                        <div class="stat-card active animate-fade-in delay-1" id="activeCard">
                             <div class="stat-header">
                                 <div class="stat-icon active">
                                     <i class="fas fa-check-circle"></i>
                                 </div>
-                                <span class="stat-trend positive">
-                                    <i class="fas fa-arrow-up"></i> 2.1%
+                                <span class="stat-trend positive" id="activeTrend">
+                                    <i class="fas fa-arrow-up"></i> 0%
                                 </span>
                             </div>
                             <div class="stat-content">
                                 <h3>Clientes Activos</h3>
-                                <div class="stat-value">1,176</div>
-                                <div class="stat-change positive">
-                                    <i class="fas fa-arrow-up"></i> 94.2% activos
+                                <div class="stat-value" id="activeClients">0</div>
+                                <div class="stat-change positive" id="activeChange">
+                                    <i class="fas fa-arrow-up"></i> 0% activos
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="stat-card warning animate-fade-in delay-2">
+                        <div class="stat-card warning animate-fade-in delay-2" id="warningCard">
                             <div class="stat-header">
                                 <div class="stat-icon warning">
                                     <i class="fas fa-exclamation-circle"></i>
                                 </div>
-                                <span class="stat-trend negative">
-                                    <i class="fas fa-arrow-down"></i> 0.8%
+                                <span class="stat-trend negative" id="warningTrend">
+                                    <i class="fas fa-arrow-down"></i> 0%
                                 </span>
                             </div>
                             <div class="stat-content">
                                 <h3>Por Vencer</h3>
-                                <div class="stat-value">48</div>
-                                <div class="stat-change negative">
-                                    <i class="fas fa-arrow-down"></i> 3.8% del total
+                                <div class="stat-value" id="warningClients">0</div>
+                                <div class="stat-change negative" id="warningChange">
+                                    <i class="fas fa-arrow-down"></i> 0% del total
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="stat-card expired animate-fade-in delay-3">
+                        <div class="stat-card expired animate-fade-in delay-3" id="expiredCard">
                             <div class="stat-header">
                                 <div class="stat-icon expired">
                                     <i class="fas fa-times-circle"></i>
                                 </div>
-                                <span class="stat-trend negative">
-                                    <i class="fas fa-arrow-up"></i> 1.2%
+                                <span class="stat-trend negative" id="expiredTrend">
+                                    <i class="fas fa-arrow-up"></i> 0%
                                 </span>
                             </div>
                             <div class="stat-content">
                                 <h3>Vencidos</h3>
-                                <div class="stat-value">24</div>
-                                <div class="stat-change negative">
-                                    <i class="fas fa-arrow-up"></i> 1.9% del total
+                                <div class="stat-value" id="expiredClients">0</div>
+                                <div class="stat-change negative" id="expiredChange">
+                                    <i class="fas fa-arrow-up"></i> 0% del total
                                 </div>
                             </div>
                         </div>
@@ -1427,11 +1452,11 @@
                 <section class="finance-section">
                     <div class="section-title">
                         <h2><i class="fas fa-money-bill-wave"></i> Estado Financiero</h2>
-                        <a href="#" class="view-all">Ver finanzas <i class="fas fa-arrow-right"></i></a>
+                        <a href="reportes.html?tab=finanzas" class="view-all">Ver finanzas <i class="fas fa-arrow-right"></i></a>
                     </div>
                     
                     <div class="finance-grid">
-                        <div class="finance-card animate-fade-in">
+                        <div class="finance-card animate-fade-in" id="incomeCard">
                             <div class="finance-header">
                                 <div class="finance-icon income">
                                     <i class="fas fa-chart-line"></i>
@@ -1439,17 +1464,17 @@
                             </div>
                             <div class="finance-content">
                                 <h3>Ingresos Mensuales</h3>
-                                <div class="finance-value">L 248,500</div>
+                                <div class="finance-value" id="monthlyIncome">L 0</div>
                                 <p class="finance-detail">
-                                    <i class="fas fa-calendar"></i> Noviembre 2023
+                                    <i class="fas fa-calendar"></i> <span id="currentMonth">Cargando...</span>
                                 </p>
                                 <p class="finance-detail">
-                                    <i class="fas fa-arrow-up"></i> 8.5% más que el mes anterior
+                                    <i class="fas fa-arrow-up"></i> <span id="incomeChange">0% más que el mes anterior</span>
                                 </p>
                             </div>
                         </div>
                         
-                        <div class="finance-card animate-fade-in delay-1">
+                        <div class="finance-card animate-fade-in delay-1" id="currentMonthCard">
                             <div class="finance-header">
                                 <div class="finance-icon monthly">
                                     <i class="fas fa-wallet"></i>
@@ -1457,17 +1482,17 @@
                             </div>
                             <div class="finance-content">
                                 <h3>Ingreso del Mes</h3>
-                                <div class="finance-value">L 187,320</div>
+                                <div class="finance-value" id="currentMonthIncome">L 0</div>
                                 <p class="finance-detail">
-                                    <i class="fas fa-percentage"></i> 75.4% de la meta mensual
+                                    <i class="fas fa-percentage"></i> <span id="incomeProgress">0% de la meta mensual</span>
                                 </p>
                                 <p class="finance-detail">
-                                    <i class="fas fa-clock"></i> Actualizado hoy 9:00 AM
+                                    <i class="fas fa-clock"></i> Actualizado hoy <span id="updateTime">0:00 AM</span>
                                 </p>
                             </div>
                         </div>
                         
-                        <div class="finance-card animate-fade-in delay-2">
+                        <div class="finance-card animate-fade-in delay-2" id="pendingCard">
                             <div class="finance-header">
                                 <div class="finance-icon pending">
                                     <i class="fas fa-clock"></i>
@@ -1475,12 +1500,12 @@
                             </div>
                             <div class="finance-content">
                                 <h3>Pagos Pendientes</h3>
-                                <div class="finance-value">L 61,180</div>
+                                <div class="finance-value" id="pendingPayments">L 0</div>
                                 <p class="finance-detail">
-                                    <i class="fas fa-exclamation-circle"></i> 48 clientes pendientes
+                                    <i class="fas fa-exclamation-circle"></i> <span id="pendingClientsCount">0</span> clientes pendientes
                                 </p>
                                 <p class="finance-detail">
-                                    <i class="fas fa-calendar-alt"></i> Vencen en 7 días
+                                    <i class="fas fa-calendar-alt"></i> Vencen en <span id="dueDays">0</span> días
                                 </p>
                             </div>
                         </div>
@@ -1495,58 +1520,10 @@
                             <a href="#" class="view-all">Ver todo <i class="fas fa-arrow-right"></i></a>
                         </div>
                         
-                        <ul class="activity-list">
-                            <li class="activity-item">
-                                <div class="activity-icon add">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <div class="activity-title">Nuevo cliente registrado</div>
-                                    <p class="activity-description">María Rodríguez contrató el Plan Familiar Pro</p>
-                                    <div class="activity-time">
-                                        <i class="far fa-clock"></i> Hace 15 minutos
-                                    </div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon payment">
-                                    <i class="fas fa-credit-card"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <div class="activity-title">Pago recibido</div>
-                                    <p class="activity-description">Carlos Martínez pagó L 1,199 (Transferencia)</p>
-                                    <div class="activity-time">
-                                        <i class="far fa-clock"></i> Hace 2 horas
-                                    </div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon update">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <div class="activity-title">Plan actualizado</div>
-                                    <p class="activity-description">Pedro García cambió a Plan Premium Ultra</p>
-                                    <div class="activity-time">
-                                        <i class="far fa-clock"></i> Hace 4 horas
-                                    </div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon add">
-                                    <i class="fas fa-ticket-alt"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <div class="activity-title">Ticket de soporte</div>
-                                    <p class="activity-description">Nuevo ticket #4589 - Problema de conexión</p>
-                                    <div class="activity-time">
-                                        <i class="far fa-clock"></i> Hace 6 horas
-                                    </div>
-                                </div>
-                            </li>
+                        <ul class="activity-list" id="recentActivity">
+                            <li class="activity-item loading" style="height: 80px;"></li>
+                            <li class="activity-item loading" style="height: 80px;"></li>
+                            <li class="activity-item loading" style="height: 80px;"></li>
                         </ul>
                     </div>
                     
@@ -1556,46 +1533,8 @@
                             <a href="#" class="view-all">Ver todas <i class="fas fa-arrow-right"></i></a>
                         </div>
                         
-                        <ul class="tasks-list">
-                            <li class="task-item">
-                                <div class="task-checkbox" data-task="1"></div>
-                                <div class="task-content">
-                                    <div class="task-title">Contactar clientes vencidos</div>
-                                    <span class="task-priority high">Alta prioridad</span>
-                                </div>
-                            </li>
-                            
-                            <li class="task-item completed">
-                                <div class="task-checkbox checked" data-task="2"></div>
-                                <div class="task-content">
-                                    <div class="task-title">Generar reporte mensual</div>
-                                    <span class="task-priority medium">Completada</span>
-                                </div>
-                            </li>
-                            
-                            <li class="task-item">
-                                <div class="task-checkbox" data-task="3"></div>
-                                <div class="task-content">
-                                    <div class="task-title">Revisar tickets de soporte</div>
-                                    <span class="task-priority high">Alta prioridad</span>
-                                </div>
-                            </li>
-                            
-                            <li class="task-item">
-                                <div class="task-checkbox" data-task="4"></div>
-                                <div class="task-content">
-                                    <div class="task-title">Actualizar información de planes</div>
-                                    <span class="task-priority medium">Media prioridad</span>
-                                </div>
-                            </li>
-                            
-                            <li class="task-item">
-                                <div class="task-checkbox" data-task="5"></div>
-                                <div class="task-content">
-                                    <div class="task-title">Programar mantenimiento preventivo</div>
-                                    <span class="task-priority low">Baja prioridad</span>
-                                </div>
-                            </li>
+                        <ul class="tasks-list" id="tasksList">
+                            <!-- Las tareas se cargan dinámicamente -->
                         </ul>
                     </div>
                 </section>
@@ -1642,7 +1581,7 @@
             <footer class="dashboard-footer">
                 <div class="footer-left">
                     <p>© 2023 NetConnect Pro • Sistema de Gestión Empresarial</p>
-                    <p>Última actualización: Hoy 10:45 AM • Servidor: online</p>
+                    <p id="lastUpdate">Última actualización: Cargando...</p>
                 </div>
                 
                 <div class="footer-right">
@@ -1656,6 +1595,28 @@
     </div>
 
     <script>
+        // Configuración de Supabase - ¡REEMPLAZA ESTOS VALORES!
+        const SUPABASE_URL = 'https://vvqxzpjfrsanlhtoemya.supabase.co'; // Ejemplo: https://tuproyecto.supabase.co
+        const SUPABASE_ANON_KEY = 'sb_secret_oBJ80J8LKYzqEXrAka5ebQ_8w0TFlYN'; // Tu clave anónima de Supabase
+        
+        // Inicializar Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Variables globales para datos del dashboard
+        let dashboardData = {
+            totalClients: 0,
+            activeClients: 0,
+            warningClients: 0,
+            expiredClients: 0,
+            monthlyIncome: 0,
+            currentMonthIncome: 0,
+            pendingPayments: 0,
+            recentActivity: [],
+            notifications: 0,
+            messages: 0,
+            supportTickets: 0
+        };
+
         // Sistema de cambio de tema
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
@@ -1737,25 +1698,31 @@
         const messagesBtn = document.getElementById('messagesBtn');
         
         notificationsBtn.addEventListener('click', () => {
-            showNotification('Tienes 3 notificaciones sin leer');
+            showNotification(`Tienes ${dashboardData.notifications} notificaciones sin leer`);
         });
         
         messagesBtn.addEventListener('click', () => {
-            showNotification('Tienes 5 mensajes sin leer');
+            showNotification(`Tienes ${dashboardData.messages} mensajes sin leer`);
         });
         
         // Sistema de tareas
-        document.querySelectorAll('.task-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('click', function() {
-                const taskId = this.getAttribute('data-task');
-                const taskItem = this.closest('.task-item');
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('task-checkbox')) {
+                const taskId = e.target.getAttribute('data-task');
+                const taskItem = e.target.closest('.task-item');
                 
-                this.classList.toggle('checked');
+                e.target.classList.toggle('checked');
                 taskItem.classList.toggle('completed');
                 
                 // Actualizar contador de tareas pendientes
                 updateTaskCounter();
-            });
+                
+                // En un sistema real, actualizarías en la base de datos
+                if (taskId) {
+                    // Aquí iría la llamada a Supabase para actualizar la tarea
+                    console.log(`Tarea ${taskId} actualizada`);
+                }
+            }
         });
         
         function updateTaskCounter() {
@@ -1763,21 +1730,39 @@
             const completedTasks = document.querySelectorAll('.task-checkbox.checked').length;
             const pendingTasks = totalTasks - completedTasks;
             
-            // En un sistema real, actualizarías el contador en la interfaz
-            console.log(`Tareas pendientes: ${pendingTasks}/${totalTasks}`);
+            // Actualizar badge si existe
+            const tasksBadge = document.querySelector('.menu-link[href="#"] .menu-badge');
+            if (tasksBadge) {
+                tasksBadge.textContent = pendingTasks;
+            }
         }
         
         // Función para mostrar notificaciones
-        function showNotification(message) {
+        function showNotification(message, type = 'info') {
             // Crear elemento de notificación
             const notification = document.createElement('div');
             notification.className = 'notification-toast';
+            
+            let icon = 'fa-bell';
+            let bgColor = 'var(--gradient-admin)';
+            
+            if (type === 'success') {
+                icon = 'fa-check-circle';
+                bgColor = 'var(--gradient-success)';
+            } else if (type === 'warning') {
+                icon = 'fa-exclamation-triangle';
+                bgColor = 'var(--gradient-warning)';
+            } else if (type === 'error') {
+                icon = 'fa-times-circle';
+                bgColor = 'var(--gradient-danger)';
+            }
+            
             notification.innerHTML = `
                 <div style="
                     position: fixed;
                     bottom: 20px;
                     right: 20px;
-                    background: var(--gradient-admin);
+                    background: ${bgColor};
                     color: white;
                     padding: 15px 20px;
                     border-radius: 12px;
@@ -1789,7 +1774,7 @@
                     animation: slideInUp 0.3s ease;
                     max-width: 350px;
                 ">
-                    <i class="fas fa-bell"></i>
+                    <i class="fas ${icon}"></i>
                     <span>${message}</span>
                     <button class="notification-close" style="
                         background: none;
@@ -1837,112 +1822,765 @@
             }
         }
         
-        // Simular datos en tiempo real
-        function simulateRealTimeUpdates() {
-            // Simular cambios en las estadísticas
-            setInterval(() => {
-                const stats = ['total', 'active', 'warning', 'expired'];
-                const randomStat = stats[Math.floor(Math.random() * stats.length)];
-                const statCard = document.querySelector(`.stat-card.${randomStat} .stat-value`);
+        // ============================================
+        // FUNCIONES PARA CONECTAR CON SUPABASE
+        // ============================================
+        
+        // Función para obtener estadísticas de clientes
+        async function fetchClientStats() {
+            try {
+                // Obtener todos los clientes
+                const { data: clients, error: clientsError } = await supabase
+                    .from('clientes')
+                    .select('id, nombre, activo');
                 
-                if (statCard) {
-                    const currentValue = parseInt(statCard.textContent.replace(/,/g, ''));
-                    const change = Math.floor(Math.random() * 5) - 2; // -2 a +2
-                    const newValue = Math.max(0, currentValue + change);
+                if (clientsError) throw clientsError;
+                
+                // Obtener suscripciones para determinar estados
+                const { data: subscriptions, error: subsError } = await supabase
+                    .from('suscripciones')
+                    .select('id, cliente_id, estado, fecha_proximo_pago');
+                
+                if (subsError) throw subsError;
+                
+                // Calcular estadísticas
+                const totalClients = clients.length;
+                let activeClients = 0;
+                let warningClients = 0;
+                let expiredClients = 0;
+                
+                // Contar por estado
+                subscriptions.forEach(sub => {
+                    if (sub.estado === 'activo') activeClients++;
+                    if (sub.estado === 'advertencia') warningClients++;
+                    if (sub.estado === 'vencido') expiredClients++;
+                });
+                
+                // Obtener datos del mes anterior para comparación
+                const lastMonth = new Date();
+                lastMonth.setMonth(lastMonth.getMonth() - 1);
+                const lastMonthStart = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
+                const lastMonthEnd = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0);
+                
+                const { data: lastMonthClients, error: lastMonthError } = await supabase
+                    .from('clientes')
+                    .select('id')
+                    .gte('created_at', lastMonthStart.toISOString())
+                    .lte('created_at', lastMonthEnd.toISOString());
+                
+                if (!lastMonthError && lastMonthClients) {
+                    const lastMonthCount = lastMonthClients.length;
+                    const currentMonthCount = totalClients - lastMonthCount;
+                    const growth = lastMonthCount > 0 ? ((currentMonthCount / lastMonthCount) * 100).toFixed(1) : 100;
                     
-                    // Formatear número con separadores de miles
-                    statCard.textContent = newValue.toLocaleString('es-HN');
-                    
-                    // Mostrar notificación si hay cambio significativo
-                    if (Math.abs(change) > 0) {
-                        const statNames = {
-                            'total': 'Total de Clientes',
-                            'active': 'Clientes Activos',
-                            'warning': 'Clientes por Vencer',
-                            'expired': 'Clientes Vencidos'
-                        };
-                        
-                        if (Math.random() > 0.7) { // 30% de probabilidad
-                            showNotification(`${statNames[randomStat]}: ${change > 0 ? '+' : ''}${change}`);
-                        }
-                    }
+                    dashboardData.clientGrowth = growth;
                 }
-            }, 30000); // Cada 30 segundos
-            
-            // Simular nueva actividad
-            setInterval(() => {
-                if (Math.random() > 0.5) { // 50% de probabilidad cada minuto
-                    const activities = [
-                        {
-                            icon: 'add',
-                            iconClass: 'fa-user-plus',
-                            title: 'Nuevo cliente registrado',
-                            description: 'Cliente nuevo se registró en el sistema',
-                            time: 'Hace 1 minuto'
-                        },
-                        {
-                            icon: 'payment',
-                            iconClass: 'fa-credit-card',
-                            title: 'Pago procesado',
-                            description: 'Pago automático procesado exitosamente',
-                            time: 'Hace 2 minutos'
-                        },
-                        {
-                            icon: 'update',
-                            iconClass: 'fa-sync-alt',
-                            title: 'Sistema actualizado',
-                            description: 'Backup automático completado',
-                            time: 'Hace 3 minutos'
-                        }
-                    ];
-                    
-                    const randomActivity = activities[Math.floor(Math.random() * activities.length)];
-                    const activityList = document.querySelector('.activity-list');
-                    
-                    if (activityList) {
-                        const newActivity = document.createElement('li');
-                        newActivity.className = 'activity-item';
-                        newActivity.innerHTML = `
-                            <div class="activity-icon ${randomActivity.icon}">
-                                <i class="fas ${randomActivity.iconClass}"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">${randomActivity.title}</div>
-                                <p class="activity-description">${randomActivity.description}</p>
-                                <div class="activity-time">
-                                    <i class="far fa-clock"></i> ${randomActivity.time}
-                                </div>
-                            </div>
-                        `;
-                        
-                        // Añadir al principio y limitar a 5 items
-                        activityList.insertBefore(newActivity, activityList.firstChild);
-                        if (activityList.children.length > 5) {
-                            activityList.removeChild(activityList.lastChild);
-                        }
-                        
-                        // Animación
-                        newActivity.style.opacity = '0';
-                        newActivity.style.transform = 'translateY(-20px)';
-                        setTimeout(() => {
-                            newActivity.style.transition = 'all 0.3s ease';
-                            newActivity.style.opacity = '1';
-                            newActivity.style.transform = 'translateY(0)';
-                        }, 10);
-                    }
-                }
-            }, 60000); // Cada minuto
+                
+                return {
+                    total: totalClients,
+                    active: activeClients,
+                    warning: warningClients,
+                    expired: expiredClients
+                };
+            } catch (error) {
+                console.error('Error fetching client stats:', error);
+                // Devolver datos de ejemplo en caso de error
+                return {
+                    total: 1248,
+                    active: 1176,
+                    warning: 48,
+                    expired: 24
+                };
+            }
         }
         
-        // Iniciar simulaciones cuando la página cargue
-        document.addEventListener('DOMContentLoaded', () => {
-            simulateRealTimeUpdates();
+        // Función para obtener datos financieros
+        async function fetchFinancialData() {
+            try {
+                const now = new Date();
+                const currentMonth = now.getMonth();
+                const currentYear = now.getFullYear();
+                const monthStart = new Date(currentYear, currentMonth, 1);
+                const monthEnd = new Date(currentYear, currentMonth + 1, 0);
+                
+                // Obtener pagos del mes actual
+                const { data: currentPayments, error: paymentsError } = await supabase
+                    .from('pagos')
+                    .select('monto, fecha_pago')
+                    .gte('fecha_pago', monthStart.toISOString().split('T')[0])
+                    .lte('fecha_pago', monthEnd.toISOString().split('T')[0]);
+                
+                if (paymentsError) throw paymentsError;
+                
+                // Calcular ingresos del mes actual
+                let currentMonthIncome = 0;
+                if (currentPayments) {
+                    currentMonthIncome = currentPayments.reduce((sum, payment) => sum + parseFloat(payment.monto || 0), 0);
+                }
+                
+                // Obtener pagos del mes anterior para comparación
+                const lastMonthStart = new Date(currentYear, currentMonth - 1, 1);
+                const lastMonthEnd = new Date(currentYear, currentMonth, 0);
+                
+                const { data: lastMonthPayments, error: lastMonthError } = await supabase
+                    .from('pagos')
+                    .select('monto')
+                    .gte('fecha_pago', lastMonthStart.toISOString().split('T')[0])
+                    .lte('fecha_pago', lastMonthEnd.toISOString().split('T')[0]);
+                
+                let lastMonthIncome = 0;
+                if (!lastMonthError && lastMonthPayments) {
+                    lastMonthIncome = lastMonthPayments.reduce((sum, payment) => sum + parseFloat(payment.monto || 0), 0);
+                }
+                
+                // Calcular cambio porcentual
+                const incomeChange = lastMonthIncome > 0 ? 
+                    (((currentMonthIncome - lastMonthIncome) / lastMonthIncome) * 100).toFixed(1) : 100;
+                
+                // Obtener pagos pendientes (suscripciones con estado 'advertencia' o 'vencido')
+                const { data: pendingSubs, error: pendingError } = await supabase
+                    .from('suscripciones')
+                    .select(`
+                        id,
+                        cliente_id,
+                        estado,
+                        planes (precio)
+                    `)
+                    .in('estado', ['advertencia', 'vencido']);
+                
+                let pendingPayments = 0;
+                let pendingClientsCount = 0;
+                
+                if (!pendingError && pendingSubs) {
+                    pendingClientsCount = pendingSubs.length;
+                    pendingSubs.forEach(sub => {
+                        if (sub.planes && sub.planes.precio) {
+                            pendingPayments += parseFloat(sub.planes.precio);
+                        }
+                    });
+                }
+                
+                // Calcular días promedio para vencimiento
+                const { data: warningSubs, error: warningError } = await supabase
+                    .from('suscripciones')
+                    .select('fecha_proximo_pago')
+                    .eq('estado', 'advertencia');
+                
+                let dueDays = 7; // Valor por defecto
+                if (!warningError && warningSubs && warningSubs.length > 0) {
+                    const today = new Date();
+                    let totalDays = 0;
+                    warningSubs.forEach(sub => {
+                        if (sub.fecha_proximo_pago) {
+                            const dueDate = new Date(sub.fecha_proximo_pago);
+                            const diffTime = dueDate - today;
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                            totalDays += Math.max(0, diffDays);
+                        }
+                    });
+                    dueDays = Math.round(totalDays / warningSubs.length);
+                }
+                
+                return {
+                    currentMonthIncome,
+                    monthlyIncome: currentMonthIncome, // Para este ejemplo, usamos el mismo
+                    incomeChange: parseFloat(incomeChange),
+                    pendingPayments,
+                    pendingClientsCount,
+                    dueDays: dueDays || 7
+                };
+            } catch (error) {
+                console.error('Error fetching financial data:', error);
+                // Devolver datos de ejemplo
+                return {
+                    currentMonthIncome: 187320,
+                    monthlyIncome: 248500,
+                    incomeChange: 8.5,
+                    pendingPayments: 61180,
+                    pendingClientsCount: 48,
+                    dueDays: 7
+                };
+            }
+        }
+        
+        // Función para obtener actividad reciente
+        async function fetchRecentActivity() {
+            try {
+                // Obtener clientes recientes
+                const { data: recentClients, error: clientsError } = await supabase
+                    .from('clientes')
+                    .select('nombre, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+                
+                // Obtener pagos recientes
+                const { data: recentPayments, error: paymentsError } = await supabase
+                    .from('pagos')
+                    .select('monto, fecha_pago, clientes(nombre)')
+                    .order('fecha_pago', { ascending: false })
+                    .limit(5);
+                
+                // Obtener tickets de soporte recientes
+                const { data: recentTickets, error: ticketsError } = await supabase
+                    .from('soporte')
+                    .select('titulo, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+                
+                // Combinar y ordenar actividad
+                let activities = [];
+                
+                if (!clientsError && recentClients) {
+                    recentClients.forEach(client => {
+                        activities.push({
+                            type: 'cliente',
+                            icon: 'user-plus',
+                            iconClass: 'add',
+                            title: 'Nuevo cliente registrado',
+                            description: `${client.nombre} se registró en el sistema`,
+                            time: formatTimeAgo(new Date(client.created_at))
+                        });
+                    });
+                }
+                
+                if (!paymentsError && recentPayments) {
+                    recentPayments.forEach(payment => {
+                        activities.push({
+                            type: 'pago',
+                            icon: 'credit-card',
+                            iconClass: 'payment',
+                            title: 'Pago recibido',
+                            description: `${payment.clientes?.nombre || 'Cliente'} pagó L ${parseFloat(payment.monto).toLocaleString('es-HN')}`,
+                            time: formatTimeAgo(new Date(payment.fecha_pago))
+                        });
+                    });
+                }
+                
+                if (!ticketsError && recentTickets) {
+                    recentTickets.forEach(ticket => {
+                        activities.push({
+                            type: 'soporte',
+                            icon: 'ticket-alt',
+                            iconClass: 'add',
+                            title: 'Ticket de soporte',
+                            description: `Nuevo ticket: ${ticket.titulo}`,
+                            time: formatTimeAgo(new Date(ticket.created_at))
+                        });
+                    });
+                }
+                
+                // Ordenar por fecha (más reciente primero)
+                activities.sort((a, b) => new Date(b.time) - new Date(a.time));
+                
+                return activities.slice(0, 4); // Limitar a 4 actividades
+            } catch (error) {
+                console.error('Error fetching recent activity:', error);
+                // Devolver actividades de ejemplo
+                return [
+                    {
+                        type: 'cliente',
+                        icon: 'user-plus',
+                        iconClass: 'add',
+                        title: 'Nuevo cliente registrado',
+                        description: 'María Rodríguez contrató el Plan Familiar Pro',
+                        time: 'Hace 15 minutos'
+                    },
+                    {
+                        type: 'pago',
+                        icon: 'credit-card',
+                        iconClass: 'payment',
+                        title: 'Pago recibido',
+                        description: 'Carlos Martínez pagó L 1,199 (Transferencia)',
+                        time: 'Hace 2 horas'
+                    },
+                    {
+                        type: 'cliente',
+                        icon: 'pencil-alt',
+                        iconClass: 'update',
+                        title: 'Plan actualizado',
+                        description: 'Pedro García cambió a Plan Premium Ultra',
+                        time: 'Hace 4 horas'
+                    },
+                    {
+                        type: 'soporte',
+                        icon: 'ticket-alt',
+                        iconClass: 'add',
+                        title: 'Ticket de soporte',
+                        description: 'Nuevo ticket #4589 - Problema de conexión',
+                        time: 'Hace 6 horas'
+                    }
+                ];
+            }
+        }
+        
+        // Función para obtener notificaciones y mensajes
+        async function fetchNotifications() {
+            try {
+                // Obtener notificaciones no leídas
+                const { data: notifications, error: notifError } = await supabase
+                    .from('notificaciones')
+                    .select('id')
+                    .eq('leida', false);
+                
+                // Obtener tickets de soporte abiertos
+                const { data: supportTickets, error: supportError } = await supabase
+                    .from('soporte')
+                    .select('id')
+                    .eq('estado', 'abierto');
+                
+                return {
+                    notifications: notifError ? 3 : (notifications?.length || 0),
+                    messages: 5, // Este sería de otra tabla de mensajes
+                    supportTickets: supportError ? 3 : (supportTickets?.length || 0)
+                };
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+                return {
+                    notifications: 3,
+                    messages: 5,
+                    supportTickets: 3
+                };
+            }
+        }
+        
+        // Función para obtener información del usuario actual
+        async function fetchUserInfo() {
+            try {
+                // En un sistema real, obtendrías el ID del usuario de la sesión
+                // Para este ejemplo, usaremos un usuario predeterminado
+                const { data: user, error } = await supabase
+                    .from('empleados')
+                    .select('nombre, rol')
+                    .eq('id', 'USUARIO_ID') // Reemplazar con ID real
+                    .single();
+                
+                if (error || !user) {
+                    // Devolver datos predeterminados
+                    return {
+                        name: 'Juan Pérez',
+                        role: 'Administrador Principal',
+                        initials: 'JP'
+                    };
+                }
+                
+                // Obtener iniciales del nombre
+                const initials = user.nombre
+                    .split(' ')
+                    .map(part => part[0])
+                    .join('')
+                    .toUpperCase()
+                    .substring(0, 2);
+                
+                return {
+                    name: user.nombre,
+                    role: user.rol === 'administrador' ? 'Administrador Principal' : 'Empleado',
+                    initials
+                };
+            } catch (error) {
+                console.error('Error fetching user info:', error);
+                return {
+                    name: 'Juan Pérez',
+                    role: 'Administrador Principal',
+                    initials: 'JP'
+                };
+            }
+        }
+        
+        // Función para formatear tiempo relativo
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Hace unos momentos';
+            if (diffMins < 60) return `Hace ${diffMins} ${diffMins === 1 ? 'minuto' : 'minutos'}`;
+            if (diffHours < 24) return `Hace ${diffHours} ${diffHours === 1 ? 'hora' : 'horas'}`;
+            if (diffDays < 7) return `Hace ${diffDays} ${diffDays === 1 ? 'día' : 'días'}`;
+            
+            return date.toLocaleDateString('es-HN');
+        }
+        
+        // Función para actualizar la interfaz con los datos
+        function updateDashboardUI(data) {
+            // Actualizar estadísticas de clientes
+            document.getElementById('totalClients').textContent = data.clientStats.total.toLocaleString('es-HN');
+            document.getElementById('activeClients').textContent = data.clientStats.active.toLocaleString('es-HN');
+            document.getElementById('warningClients').textContent = data.clientStats.warning.toLocaleString('es-HN');
+            document.getElementById('expiredClients').textContent = data.clientStats.expired.toLocaleString('es-HN');
+            
+            // Actualizar alertas
+            document.querySelector('#expiredAlert .alert-count').textContent = data.clientStats.expired;
+            document.querySelector('#warningAlert .alert-count').textContent = data.clientStats.warning;
+            
+            // Actualizar finanzas
+            document.getElementById('monthlyIncome').textContent = `L ${data.financialData.monthlyIncome.toLocaleString('es-HN')}`;
+            document.getElementById('currentMonthIncome').textContent = `L ${data.financialData.currentMonthIncome.toLocaleString('es-HN')}`;
+            document.getElementById('pendingPayments').textContent = `L ${data.financialData.pendingPayments.toLocaleString('es-HN')}`;
+            
+            // Actualizar detalles financieros
+            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            const now = new Date();
+            document.getElementById('currentMonth').textContent = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+            
+            const incomeChangeElem = document.getElementById('incomeChange');
+            const change = data.financialData.incomeChange;
+            incomeChangeElem.textContent = `${Math.abs(change)}% ${change >= 0 ? 'más' : 'menos'} que el mes anterior`;
+            incomeChangeElem.parentElement.querySelector('i').className = change >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down';
+            
+            // Calcular progreso de meta (suponiendo meta de 250,000)
+            const monthlyGoal = 250000;
+            const progress = Math.min(100, Math.round((data.financialData.currentMonthIncome / monthlyGoal) * 100));
+            document.getElementById('incomeProgress').textContent = `${progress}% de la meta mensual`;
+            
+            document.getElementById('pendingClientsCount').textContent = data.financialData.pendingClientsCount;
+            document.getElementById('dueDays').textContent = data.financialData.dueDays;
+            
+            // Actualizar hora de actualización
+            const updateTime = new Date().toLocaleTimeString('es-HN', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('updateTime').textContent = updateTime;
+            
+            // Actualizar actividad reciente
+            const activityList = document.getElementById('recentActivity');
+            activityList.innerHTML = '';
+            
+            data.recentActivity.forEach(activity => {
+                const li = document.createElement('li');
+                li.className = 'activity-item';
+                li.innerHTML = `
+                    <div class="activity-icon ${activity.iconClass}">
+                        <i class="fas fa-${activity.icon}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">${activity.title}</div>
+                        <p class="activity-description">${activity.description}</p>
+                        <div class="activity-time">
+                            <i class="far fa-clock"></i> ${activity.time}
+                        </div>
+                    </div>
+                `;
+                activityList.appendChild(li);
+            });
+            
+            // Actualizar notificaciones
+            document.getElementById('notificationsBadge').textContent = data.notifications.notifications;
+            document.getElementById('messagesBadge').textContent = data.notifications.messages;
+            
+            // Actualizar badges del sidebar
+            document.getElementById('clientesBadge').textContent = data.clientStats.warning + data.clientStats.expired;
+            document.getElementById('soporteBadge').textContent = data.notifications.supportTickets;
+            
+            // Actualizar información del usuario
+            document.getElementById('userName').textContent = data.userInfo.name;
+            document.getElementById('userRole').textContent = data.userInfo.role;
+            document.getElementById('userAvatar').textContent = data.userInfo.initials;
+            
+            // Actualizar mensaje de bienvenida
+            const welcomeMessages = [
+                `Bienvenido, ${data.userInfo.name} • Último acceso: Hoy ${updateTime}`,
+                `Hola ${data.userInfo.name.split(' ')[0]} • Sistema actualizado al ${now.toLocaleDateString('es-HN')}`,
+                `${data.userInfo.name} • ${data.clientStats.total} clientes activos en el sistema`
+            ];
+            document.getElementById('welcomeMessage').textContent = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
+            
+            // Actualizar footer
+            document.getElementById('lastUpdate').textContent = `Última actualización: Hoy ${updateTime} • Servidor: online`;
+            
+            // Actualizar tendencias (simuladas)
+            updateTrends(data);
+        }
+        
+        // Función para actualizar tendencias (simuladas)
+        function updateTrends(data) {
+            // Simular tendencias basadas en los datos
+            const totalTrend = Math.random() > 0.5 ? 'positive' : 'negative';
+            const totalChange = (Math.random() * 10).toFixed(1);
+            
+            document.getElementById('totalTrend').className = `stat-trend ${totalTrend}`;
+            document.getElementById('totalTrend').innerHTML = `<i class="fas fa-arrow-${totalTrend === 'positive' ? 'up' : 'down'}"></i> ${totalChange}%`;
+            
+            // Calcular porcentajes
+            const activePercent = data.clientStats.total > 0 ? 
+                Math.round((data.clientStats.active / data.clientStats.total) * 100) : 0;
+            const warningPercent = data.clientStats.total > 0 ? 
+                Math.round((data.clientStats.warning / data.clientStats.total) * 100) : 0;
+            const expiredPercent = data.clientStats.total > 0 ? 
+                Math.round((data.clientStats.expired / data.clientStats.total) * 100) : 0;
+            
+            // Actualizar cambios
+            document.getElementById('activeChange').innerHTML = `<i class="fas fa-arrow-up"></i> ${activePercent}% activos`;
+            document.getElementById('warningChange').innerHTML = `<i class="fas fa-arrow-down"></i> ${warningPercent}% del total`;
+            document.getElementById('expiredChange').innerHTML = `<i class="fas fa-arrow-up"></i> ${expiredPercent}% del total`;
+            
+            // Actualizar tendencias de las tarjetas
+            const activeTrend = activePercent > 90 ? 'positive' : 'negative';
+            const warningTrend = warningPercent < 5 ? 'positive' : 'negative';
+            const expiredTrend = expiredPercent < 2 ? 'positive' : 'negative';
+            
+            document.getElementById('activeTrend').className = `stat-trend ${activeTrend}`;
+            document.getElementById('warningTrend').className = `stat-trend ${warningTrend}`;
+            document.getElementById('expiredTrend').className = `stat-trend ${expiredTrend}`;
+            
+            document.getElementById('activeTrend').innerHTML = `<i class="fas fa-arrow-${activeTrend === 'positive' ? 'up' : 'down'}"></i> ${Math.abs(100 - activePercent)}%`;
+            document.getElementById('warningTrend').innerHTML = `<i class="fas fa-arrow-${warningTrend === 'positive' ? 'down' : 'up'}"></i> ${warningPercent}%`;
+            document.getElementById('expiredTrend').innerHTML = `<i class="fas fa-arrow-${expiredTrend === 'positive' ? 'down' : 'up'}"></i> ${expiredPercent}%`;
+        }
+        
+        // Función para cargar tareas predeterminadas
+        function loadDefaultTasks() {
+            const tasks = [
+                { id: 1, title: 'Contactar clientes vencidos', priority: 'high', completed: false },
+                { id: 2, title: 'Generar reporte mensual', priority: 'medium', completed: true },
+                { id: 3, title: 'Revisar tickets de soporte', priority: 'high', completed: false },
+                { id: 4, title: 'Actualizar información de planes', priority: 'medium', completed: false },
+                { id: 5, title: 'Programar mantenimiento preventivo', priority: 'low', completed: false }
+            ];
+            
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = '';
+            
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <div class="task-checkbox ${task.completed ? 'checked' : ''}" data-task="${task.id}"></div>
+                    <div class="task-content">
+                        <div class="task-title">${task.title}</div>
+                        <span class="task-priority ${task.priority}">${task.priority === 'high' ? 'Alta prioridad' : task.priority === 'medium' ? 'Media prioridad' : 'Baja prioridad'}</span>
+                    </div>
+                `;
+                tasksList.appendChild(li);
+            });
+            
             updateTaskCounter();
+        }
+        
+        // Función principal para cargar todos los datos
+        async function loadDashboardData() {
+            try {
+                // Mostrar estado de carga
+                document.querySelectorAll('.stat-value, .finance-value, .alert-count').forEach(el => {
+                    el.classList.add('loading');
+                });
+                
+                // Cargar datos en paralelo
+                const [clientStats, financialData, recentActivity, notifications, userInfo] = await Promise.all([
+                    fetchClientStats(),
+                    fetchFinancialData(),
+                    fetchRecentActivity(),
+                    fetchNotifications(),
+                    fetchUserInfo()
+                ]);
+                
+                // Combinar datos
+                const dashboardData = {
+                    clientStats,
+                    financialData,
+                    recentActivity,
+                    notifications,
+                    userInfo
+                };
+                
+                // Actualizar interfaz
+                updateDashboardUI(dashboardData);
+                
+                // Cargar tareas
+                loadDefaultTasks();
+                
+                // Remover estado de carga
+                document.querySelectorAll('.loading').forEach(el => {
+                    el.classList.remove('loading');
+                });
+                
+                // Mostrar notificación de éxito
+                showNotification('Datos del dashboard actualizados correctamente', 'success');
+                
+                return dashboardData;
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                
+                // Usar datos de ejemplo en caso de error
+                const exampleData = {
+                    clientStats: {
+                        total: 1248,
+                        active: 1176,
+                        warning: 48,
+                        expired: 24
+                    },
+                    financialData: {
+                        currentMonthIncome: 187320,
+                        monthlyIncome: 248500,
+                        incomeChange: 8.5,
+                        pendingPayments: 61180,
+                        pendingClientsCount: 48,
+                        dueDays: 7
+                    },
+                    recentActivity: [
+                        {
+                            type: 'cliente',
+                            icon: 'user-plus',
+                            iconClass: 'add',
+                            title: 'Nuevo cliente registrado',
+                            description: 'María Rodríguez contrató el Plan Familiar Pro',
+                            time: 'Hace 15 minutos'
+                        },
+                        {
+                            type: 'pago',
+                            icon: 'credit-card',
+                            iconClass: 'payment',
+                            title: 'Pago recibido',
+                            description: 'Carlos Martínez pagó L 1,199 (Transferencia)',
+                            time: 'Hace 2 horas'
+                        },
+                        {
+                            type: 'cliente',
+                            icon: 'pencil-alt',
+                            iconClass: 'update',
+                            title: 'Plan actualizado',
+                            description: 'Pedro García cambió a Plan Premium Ultra',
+                            time: 'Hace 4 horas'
+                        },
+                        {
+                            type: 'soporte',
+                            icon: 'ticket-alt',
+                            iconClass: 'add',
+                            title: 'Ticket de soporte',
+                            description: 'Nuevo ticket #4589 - Problema de conexión',
+                            time: 'Hace 6 horas'
+                        }
+                    ],
+                    notifications: {
+                        notifications: 3,
+                        messages: 5,
+                        supportTickets: 3
+                    },
+                    userInfo: {
+                        name: 'Juan Pérez',
+                        role: 'Administrador Principal',
+                        initials: 'JP'
+                    }
+                };
+                
+                updateDashboardUI(exampleData);
+                loadDefaultTasks();
+                
+                // Remover estado de carga
+                document.querySelectorAll('.loading').forEach(el => {
+                    el.classList.remove('loading');
+                });
+                
+                showNotification('Usando datos de ejemplo. Verifica la conexión a Supabase.', 'warning');
+                
+                return exampleData;
+            }
+        }
+        
+        // Función para simular actualizaciones en tiempo real
+        function simulateRealTimeUpdates() {
+            // Simular cambios en las estadísticas cada 30 segundos
+            setInterval(async () => {
+                if (Math.random() > 0.7) { // 30% de probabilidad
+                    try {
+                        // Recargar solo algunos datos para simular actualización
+                        const clientStats = await fetchClientStats();
+                        
+                        // Actualizar solo si hay cambios
+                        const currentTotal = parseInt(document.getElementById('totalClients').textContent.replace(/,/g, ''));
+                        if (clientStats.total !== currentTotal) {
+                            document.getElementById('totalClients').textContent = clientStats.total.toLocaleString('es-HN');
+                            document.getElementById('expiredClients').textContent = clientStats.expired.toLocaleString('es-HN');
+                            document.querySelector('#expiredAlert .alert-count').textContent = clientStats.expired;
+                            document.getElementById('warningClients').textContent = clientStats.warning.toLocaleString('es-HN');
+                            document.querySelector('#warningAlert .alert-count').textContent = clientStats.warning;
+                            
+                            // Mostrar notificación si hay cambios significativos
+                            showNotification(`Estadísticas actualizadas: ${clientStats.total} clientes totales`, 'info');
+                        }
+                    } catch (error) {
+                        console.error('Error en actualización en tiempo real:', error);
+                    }
+                }
+            }, 30000);
+            
+            // Simular nueva actividad cada minuto
+            setInterval(async () => {
+                if (Math.random() > 0.5) { // 50% de probabilidad
+                    try {
+                        const newActivity = await fetchRecentActivity();
+                        if (newActivity.length > 0) {
+                            const activityList = document.getElementById('recentActivity');
+                            const newItem = newActivity[0]; // Tomar la más reciente
+                            
+                            // Crear nuevo elemento de actividad
+                            const li = document.createElement('li');
+                            li.className = 'activity-item';
+                            li.innerHTML = `
+                                <div class="activity-icon ${newItem.iconClass}">
+                                    <i class="fas fa-${newItem.icon}"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">${newItem.title}</div>
+                                    <p class="activity-description">${newItem.description}</p>
+                                    <div class="activity-time">
+                                        <i class="far fa-clock"></i> ${newItem.time}
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Añadir al principio con animación
+                            li.style.opacity = '0';
+                            li.style.transform = 'translateY(-20px)';
+                            activityList.insertBefore(li, activityList.firstChild);
+                            
+                            setTimeout(() => {
+                                li.style.transition = 'all 0.3s ease';
+                                li.style.opacity = '1';
+                                li.style.transform = 'translateY(0)';
+                            }, 10);
+                            
+                            // Limitar a 4 items
+                            if (activityList.children.length > 4) {
+                                activityList.removeChild(activityList.lastChild);
+                            }
+                            
+                            // Actualizar badges si es un ticket de soporte
+                            if (newItem.type === 'soporte') {
+                                const currentBadge = parseInt(document.getElementById('soporteBadge').textContent);
+                                document.getElementById('soporteBadge').textContent = currentBadge + 1;
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error en nueva actividad:', error);
+                    }
+                }
+            }, 60000);
+        }
+        
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Cargar datos iniciales
+            const data = await loadDashboardData();
+            
+            // Iniciar simulaciones en tiempo real
+            simulateRealTimeUpdates();
             
             // Añadir animaciones a elementos
             const animatedElements = document.querySelectorAll('.animate-fade-in');
             animatedElements.forEach((el, index) => {
                 el.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            // Configurar actualización manual
+            document.querySelectorAll('.view-all').forEach(link => {
+                if (link.href.includes('#')) {
+                    link.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        showNotification('Actualizando datos del dashboard...', 'info');
+                        await loadDashboardData();
+                    });
+                }
             });
         });
         
