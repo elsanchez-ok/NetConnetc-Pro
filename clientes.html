@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NetConnect Pro | Gestión de Clientes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Incluir Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Variables de tema */
         :root {
@@ -1080,6 +1082,28 @@
             letter-spacing: 1px;
         }
 
+        /* Loading states */
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .modal-grid {
@@ -1304,14 +1328,14 @@
                     <a href="#" class="menu-link active">
                         <i class="fas fa-users menu-icon"></i>
                         <span class="menu-text">Clientes</span>
-                        <span class="menu-badge">24</span>
+                        <span class="menu-badge" id="clientesBadge">0</span>
                     </a>
                 </li>
                 <li class="menu-item">
                     <a href="pagos.html" class="menu-link">
                         <i class="fas fa-credit-card menu-icon"></i>
                         <span class="menu-text">Pagos</span>
-                        <span class="menu-badge">5</span>
+                        <span class="menu-badge" id="pagosBadge">0</span>
                     </a>
                 </li>
                 <li class="menu-item">
@@ -1330,7 +1354,7 @@
                     <a href="soporte.html" class="menu-link">
                         <i class="fas fa-headset menu-icon"></i>
                         <span class="menu-text">Soporte</span>
-                        <span class="menu-badge">3</span>
+                        <span class="menu-badge" id="soporteBadge">0</span>
                     </a>
                 </li>
                 <li class="menu-item">
@@ -1349,10 +1373,10 @@
 
             <div class="sidebar-footer">
                 <div class="user-info">
-                    <div class="user-avatar">JP</div>
+                    <div class="user-avatar" id="userAvatar">?</div>
                     <div class="user-details">
-                        <div class="user-name">Juan Pérez</div>
-                        <div class="user-role">Administrador Principal</div>
+                        <div class="user-name" id="userName">Cargando...</div>
+                        <div class="user-role" id="userRole">-</div>
                     </div>
                     <a href="login_empresarial.html" class="logout-btn" style="color: rgba(255,255,255,0.6);">
                         <i class="fas fa-sign-out-alt"></i>
@@ -1367,7 +1391,7 @@
             <header class="main-header">
                 <div class="header-left">
                     <h1>Gestión de Clientes</h1>
-                    <p>Administra y visualiza toda la información de tus clientes</p>
+                    <p id="welcomeMessage">Administra y visualiza toda la información de tus clientes</p>
                 </div>
                 
                 <div class="header-right">
@@ -1387,35 +1411,35 @@
             <div class="content-wrapper">
                 <!-- Estadísticas rápidas -->
                 <div class="quick-stats">
-                    <div class="stat-card animate-fade-in">
+                    <div class="stat-card animate-fade-in" id="totalCard">
                         <div class="stat-icon total">
                             <i class="fas fa-users"></i>
                         </div>
-                        <div class="stat-value">1,248</div>
+                        <div class="stat-value" id="totalClients">0</div>
                         <div class="stat-label">Total Clientes</div>
                     </div>
                     
-                    <div class="stat-card animate-fade-in delay-1">
+                    <div class="stat-card animate-fade-in delay-1" id="activeCard">
                         <div class="stat-icon active">
                             <i class="fas fa-check-circle"></i>
                         </div>
-                        <div class="stat-value">1,176</div>
+                        <div class="stat-value" id="activeClients">0</div>
                         <div class="stat-label">Activos</div>
                     </div>
                     
-                    <div class="stat-card animate-fade-in delay-2">
+                    <div class="stat-card animate-fade-in delay-2" id="warningCard">
                         <div class="stat-icon warning">
                             <i class="fas fa-clock"></i>
                         </div>
-                        <div class="stat-value">48</div>
+                        <div class="stat-value" id="warningClients">0</div>
                         <div class="stat-label">Por Vencer</div>
                     </div>
                     
-                    <div class="stat-card animate-fade-in delay-3">
+                    <div class="stat-card animate-fade-in delay-3" id="expiredCard">
                         <div class="stat-icon expired">
                             <i class="fas fa-times-circle"></i>
                         </div>
-                        <div class="stat-value">24</div>
+                        <div class="stat-value" id="expiredClients">0</div>
                         <div class="stat-label">Vencidos</div>
                     </div>
                 </div>
@@ -1485,7 +1509,7 @@
                 <section class="clients-section animate-fade-in">
                     <div class="section-header">
                         <h2><i class="fas fa-list"></i> Lista de Clientes</h2>
-                        <div class="clients-count">Mostrando 1-25 de 1,248 clientes</div>
+                        <div class="clients-count" id="clientsCount">Mostrando 0 de 0 clientes</div>
                     </div>
                     
                     <div class="table-container">
@@ -1501,29 +1525,18 @@
                             </thead>
                             <tbody id="clientsTableBody">
                                 <!-- Los clientes se cargan dinámicamente con JavaScript -->
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 40px;">
+                                        <div class="loading" style="height: 100px;"></div>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                     
                     <!-- Paginación -->
-                    <div class="pagination">
-                        <button class="pagination-btn" id="prevPage">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        
-                        <button class="pagination-btn active">1</button>
-                        <button class="pagination-btn">2</button>
-                        <button class="pagination-btn">3</button>
-                        <button class="pagination-btn">4</button>
-                        <button class="pagination-btn">5</button>
-                        
-                        <span class="pagination-info">...</span>
-                        
-                        <button class="pagination-btn">50</button>
-                        
-                        <button class="pagination-btn" id="nextPage">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
+                    <div class="pagination" id="paginationContainer">
+                        <!-- La paginación se genera dinámicamente -->
                     </div>
                 </section>
             </div>
@@ -1540,24 +1553,24 @@
                 </button>
             </div>
             
-            <div class="modal-body">
+            <div class="modal-body" id="modalBody">
                 <div class="client-profile">
-                    <div class="profile-avatar" id="modalAvatar">MR</div>
+                    <div class="profile-avatar" id="modalAvatar">?</div>
                     <div class="profile-info">
-                        <h4 id="modalName">María Rodríguez</h4>
-                        <div class="status-badge status-active" id="modalStatus">Activo</div>
+                        <h4 id="modalName">Cargando...</h4>
+                        <div class="status-badge status-active" id="modalStatus">-</div>
                         <div class="profile-contact">
                             <div class="contact-detail">
                                 <i class="fas fa-phone"></i>
-                                <span id="modalPhone">+504 9999-8888</span>
+                                <span id="modalPhone">-</span>
                             </div>
                             <div class="contact-detail">
                                 <i class="fas fa-envelope"></i>
-                                <span id="modalEmail">maria@email.com</span>
+                                <span id="modalEmail">-</span>
                             </div>
                             <div class="contact-detail">
                                 <i class="fas fa-map-marker-alt"></i>
-                                <span id="modalAddress">Colonia Los Robles, Tegucigalpa</span>
+                                <span id="modalAddress">-</span>
                             </div>
                         </div>
                     </div>
@@ -1566,76 +1579,29 @@
                 <div class="modal-grid">
                     <div class="info-section">
                         <h4 class="section-title"><i class="fas fa-info-circle"></i> Información Personal</h4>
-                        <ul class="info-list">
-                            <li class="info-item">
-                                <span class="info-label">Nombre completo:</span>
-                                <span class="info-value" id="modalFullName">María Gabriela Rodríguez López</span>
-                            </li>
-                            <li class="info-item">
-                                <span class="info-label">Identidad:</span>
-                                <span class="info-value" id="modalId">0801-1990-12345</span>
-                            </li>
-                            <li class="info-item">
-                                <span class="info-label">Fecha de registro:</span>
-                                <span class="info-value" id="modalRegDate">15/10/2023</span>
-                            </li>
-                            <li class="info-item">
-                                <span class="info-label">Referido por:</span>
-                                <span class="info-value" id="modalReferred">Carlos Martínez</span>
-                            </li>
+                        <ul class="info-list" id="personalInfo">
+                            <!-- Información personal se carga dinámicamente -->
                         </ul>
                     </div>
                     
                     <div class="info-section">
                         <h4 class="section-title"><i class="fas fa-tv"></i> Información del Plan</h4>
-                        <ul class="info-list">
-                            <li class="info-item">
-                                <span class="info-label">Plan contratado:</span>
-                                <span class="info-value" id="modalPlan">Familiar Pro</span>
-                            </li>
-                            <li class="info-item">
-                                <span class="info-label">Mensualidad:</span>
-                                <span class="info-value" id="modalMonthly">L 1,199.00</span>
-                            </li>
-                            <li class="info-item">
-                                <span class="info-label">Próximo pago:</span>
-                                <span class="info-value" id="modalNextPayment">15/12/2023</span>
-                            </li>
-                            <li class="info-item">
-                                <span class="info-label">Fecha de inicio:</span>
-                                <span class="info-value" id="modalStartDate">15/11/2023</span>
-                            </li>
+                        <ul class="info-list" id="planInfo">
+                            <!-- Información del plan se carga dinámicamente -->
                         </ul>
                     </div>
                     
                     <div class="info-section">
                         <h4 class="section-title"><i class="fas fa-file-invoice-dollar"></i> Estado de Pagos</h4>
-                        <ul class="info-list">
-                            <li class="info-item">
-                                <span class="info-label">Meses pagados:</span>
-                                <span class="info-value" id="modalPaid">1 mes</span>
-                            </li>
-                            <li class="info-item">
-                                <span class="info-label">Meses atrasados:</span>
-                                <span class="info-value" id="modalOverdue">0 meses</span>
-                            </li>
-                            <li class="info-item">
-                                <span class="info-label">Días restantes:</span>
-                                <span class="info-value" id="modalDaysLeft">15 días</span>
-                            </li>
-                            <li class="info-item">
-                                <span class="info-label">Fecha de vencimiento:</span>
-                                <span class="info-value" id="modalDueDate">30/12/2023</span>
-                            </li>
+                        <ul class="info-list" id="paymentInfo">
+                            <!-- Información de pagos se carga dinámicamente -->
                         </ul>
                     </div>
                     
                     <div class="info-section notes-section">
                         <h4 class="section-title"><i class="fas fa-sticky-note"></i> Notas Adicionales</h4>
                         <div class="notes-content" id="modalNotes">
-                            Cliente referido por Carlos Martínez. Prefiere ser contactado en las tardes. 
-                            Instalación realizada sin inconvenientes. Muy satisfecho con la velocidad del servicio.
-                            Solicita factura electrónica a su correo.
+                            Cargando notas del cliente...
                         </div>
                     </div>
                 </div>
@@ -1653,6 +1619,20 @@
     </div>
 
     <script>
+        // Configuración de Supabase - ¡REEMPLAZA ESTOS VALORES!
+        const SUPABASE_URL = 'https://vvqxzpjfrsanlhtoemya.supabase.co'; // Ejemplo: https://tuproyecto.supabase.co
+        const SUPABASE_ANON_KEY = 'sb_secret_oBJ80J8LKYzqEXrAka5ebQ_8w0TFlYN'; // Tu clave anónima de Supabase
+        
+        // Inicializar Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Variables globales
+        let currentClients = [];
+        let filteredClients = [];
+        let currentPage = 1;
+        let itemsPerPage = 25;
+        let totalPages = 1;
+
         // Sistema de cambio de tema
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
@@ -1729,220 +1709,6 @@
             });
         });
         
-        // Datos de ejemplo para clientes
-        const sampleClients = [
-            {
-                id: 1,
-                name: "María Rodríguez",
-                initials: "MR",
-                phone: "+504 9999-8888",
-                email: "maria@email.com",
-                address: "Colonia Los Robles, Tegucigalpa",
-                plan: "Familiar Pro",
-                price: "L 1,199.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "15/10/2023",
-                nextPayment: "15/12/2023"
-            },
-            {
-                id: 2,
-                name: "Carlos Martínez",
-                initials: "CM",
-                phone: "+504 8888-7777",
-                email: "carlos@email.com",
-                address: "Residencial Los Pinos, San Pedro Sula",
-                plan: "Premium Ultra",
-                price: "L 1,999.00",
-                status: "warning",
-                statusText: "Próximo a vencer",
-                registrationDate: "01/09/2023",
-                nextPayment: "01/12/2023"
-            },
-            {
-                id: 3,
-                name: "Ana García",
-                initials: "AG",
-                phone: "+504 7777-6666",
-                email: "ana@email.com",
-                address: "Barrio La Isla, La Ceiba",
-                plan: "Básico",
-                price: "L 699.00",
-                status: "expired",
-                statusText: "Vencido",
-                registrationDate: "20/08/2023",
-                nextPayment: "20/11/2023"
-            },
-            {
-                id: 4,
-                name: "Juan Pérez",
-                initials: "JP",
-                phone: "+504 6666-5555",
-                email: "juan@email.com",
-                address: "Colonia Florencia, Tegucigalpa",
-                plan: "Familiar Pro",
-                price: "L 1,199.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "05/11/2023",
-                nextPayment: "05/01/2024"
-            },
-            {
-                id: 5,
-                name: "Laura Hernández",
-                initials: "LH",
-                phone: "+504 5555-4444",
-                email: "laura@email.com",
-                address: "Residencial Las Lomas, San Pedro Sula",
-                plan: "Premium Ultra",
-                price: "L 1,999.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "10/10/2023",
-                nextPayment: "10/12/2023"
-            },
-            {
-                id: 6,
-                name: "Pedro López",
-                initials: "PL",
-                phone: "+504 4444-3333",
-                email: "pedro@email.com",
-                address: "Barrio El Centro, Comayagua",
-                plan: "Básico",
-                price: "L 699.00",
-                status: "warning",
-                statusText: "Próximo a vencer",
-                registrationDate: "15/09/2023",
-                nextPayment: "15/12/2023"
-            },
-            {
-                id: 7,
-                name: "Sofía Ramírez",
-                initials: "SR",
-                phone: "+504 3333-2222",
-                email: "sofia@email.com",
-                address: "Colonia El Carmen, Tegucigalpa",
-                plan: "Familiar Pro",
-                price: "L 1,199.00",
-                status: "expired",
-                statusText: "Vencido",
-                registrationDate: "01/08/2023",
-                nextPayment: "01/11/2023"
-            },
-            {
-                id: 8,
-                name: "Miguel Torres",
-                initials: "MT",
-                phone: "+504 2222-1111",
-                email: "miguel@email.com",
-                address: "Residencial Las Colinas, San Pedro Sula",
-                plan: "Premium Ultra",
-                price: "L 1,999.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "20/11/2023",
-                nextPayment: "20/01/2024"
-            },
-            {
-                id: 9,
-                name: "Elena Castro",
-                initials: "EC",
-                phone: "+504 1111-0000",
-                email: "elena@email.com",
-                address: "Barrio San José, La Ceiba",
-                plan: "Básico",
-                price: "L 699.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "05/10/2023",
-                nextPayment: "05/12/2023"
-            },
-            {
-                id: 10,
-                name: "Roberto Vargas",
-                initials: "RV",
-                phone: "+504 0000-9999",
-                email: "roberto@email.com",
-                address: "Colonia Miraflores, Tegucigalpa",
-                plan: "Familiar Pro",
-                price: "L 1,199.00",
-                status: "warning",
-                statusText: "Próximo a vencer",
-                registrationDate: "10/09/2023",
-                nextPayment: "10/12/2023"
-            },
-            {
-                id: 11,
-                name: "Carmen Ríos",
-                initials: "CR",
-                phone: "+504 1212-3434",
-                email: "carmen@email.com",
-                address: "Residencial Las Acacias, San Pedro Sula",
-                plan: "Premium Ultra",
-                price: "L 1,999.00",
-                status: "expired",
-                statusText: "Vencido",
-                registrationDate: "15/08/2023",
-                nextPayment: "15/11/2023"
-            },
-            {
-                id: 12,
-                name: "Javier Morales",
-                initials: "JM",
-                phone: "+504 2323-4545",
-                email: "javier@email.com",
-                address: "Barrio El Calvario, Comayagua",
-                plan: "Básico",
-                price: "L 699.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "20/11/2023",
-                nextPayment: "20/01/2024"
-            },
-            {
-                id: 13,
-                name: "Isabel Duarte",
-                initials: "ID",
-                phone: "+504 3434-5656",
-                email: "isabel@email.com",
-                address: "Colonia Las Mercedes, Tegucigalpa",
-                plan: "Familiar Pro",
-                price: "L 1,199.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "25/10/2023",
-                nextPayment: "25/12/2023"
-            },
-            {
-                id: 14,
-                name: "Fernando Soto",
-                initials: "FS",
-                phone: "+504 4545-6767",
-                email: "fernando@email.com",
-                address: "Residencial Los Alpes, San Pedro Sula",
-                plan: "Premium Ultra",
-                price: "L 1,999.00",
-                status: "warning",
-                statusText: "Próximo a vencer",
-                registrationDate: "30/09/2023",
-                nextPayment: "30/12/2023"
-            },
-            {
-                id: 15,
-                name: "Patricia Núñez",
-                initials: "PN",
-                phone: "+504 5656-7878",
-                email: "patricia@email.com",
-                address: "Barrio La Esperanza, La Ceiba",
-                plan: "Básico",
-                price: "L 699.00",
-                status: "expired",
-                statusText: "Vencido",
-                registrationDate: "05/08/2023",
-                nextPayment: "05/11/2023"
-            }
-        ];
-        
         // Función para generar avatar color
         function getAvatarColor(name) {
             const colors = [
@@ -1958,9 +1724,343 @@
             return colors[index];
         }
         
+        // Función para obtener iniciales del nombre
+        function getInitials(name) {
+            return name
+                .split(' ')
+                .map(part => part[0])
+                .join('')
+                .toUpperCase()
+                .substring(0, 2);
+        }
+        
+        // Función para formatear fecha
+        function formatDate(dateString) {
+            if (!dateString) return 'No especificada';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-HN');
+        }
+        
+        // Función para formatear moneda
+        function formatCurrency(amount) {
+            if (!amount) return 'L 0.00';
+            return `L ${parseFloat(amount).toLocaleString('es-HN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })}`;
+        }
+        
+        // ============================================
+        // FUNCIONES PARA CONECTAR CON SUPABASE
+        // ============================================
+        
+        // Función para obtener estadísticas de clientes
+        async function fetchClientStats() {
+            try {
+                // Obtener todos los clientes
+                const { data: clients, error: clientsError } = await supabase
+                    .from('clientes')
+                    .select('id, nombre, activo');
+                
+                if (clientsError) throw clientsError;
+                
+                // Obtener suscripciones para determinar estados
+                const { data: subscriptions, error: subsError } = await supabase
+                    .from('suscripciones')
+                    .select('id, cliente_id, estado');
+                
+                if (subsError) throw subsError;
+                
+                // Calcular estadísticas
+                const totalClients = clients?.length || 0;
+                let activeClients = 0;
+                let warningClients = 0;
+                let expiredClients = 0;
+                
+                // Contar por estado
+                subscriptions?.forEach(sub => {
+                    if (sub.estado === 'activo') activeClients++;
+                    if (sub.estado === 'advertencia') warningClients++;
+                    if (sub.estado === 'vencido') expiredClients++;
+                });
+                
+                return {
+                    total: totalClients,
+                    active: activeClients,
+                    warning: warningClients,
+                    expired: expiredClients
+                };
+            } catch (error) {
+                console.error('Error fetching client stats:', error);
+                return {
+                    total: 0,
+                    active: 0,
+                    warning: 0,
+                    expired: 0
+                };
+            }
+        }
+        
+        // Función para obtener clientes con sus suscripciones y planes
+        async function fetchClients(page = 1, limit = 25, filters = {}) {
+            try {
+                let query = supabase
+                    .from('clientes')
+                    .select(`
+                        *,
+                        suscripciones (
+                            estado,
+                            fecha_proximo_pago,
+                            fecha_inicio,
+                            planes (nombre, precio)
+                        )
+                    `)
+                    .order('created_at', { ascending: false });
+                
+                // Aplicar filtros
+                if (filters.search) {
+                    query = query.or(`nombre.ilike.%${filters.search}%,telefono.ilike.%${filters.search}%,email.ilike.%${filters.search}%`);
+                }
+                
+                // Aplicar paginación
+                const from = (page - 1) * limit;
+                const to = from + limit - 1;
+                query = query.range(from, to);
+                
+                const { data: clients, error, count } = await query;
+                
+                if (error) throw error;
+                
+                // Procesar datos de clientes
+                const processedClients = clients?.map(client => {
+                    const subscription = client.suscripciones?.[0];
+                    const plan = subscription?.planes;
+                    
+                    return {
+                        id: client.id,
+                        nombre: client.nombre,
+                        telefono: client.telefono || 'No especificado',
+                        email: client.email || 'No especificado',
+                        direccion: client.direccion || 'No especificada',
+                        identidad: client.identidad || 'No especificada',
+                        fecha_registro: client.created_at,
+                        referido_por: client.referido_por || 'Ninguno',
+                        notas: client.notas || 'Sin notas',
+                        avatar_color: getAvatarColor(client.nombre),
+                        initials: getInitials(client.nombre),
+                        plan: plan?.nombre || 'Sin plan',
+                        precio: plan?.precio ? formatCurrency(plan.precio) : 'L 0.00',
+                        estado: subscription?.estado || 'inactivo',
+                        estado_texto: subscription?.estado === 'activo' ? 'Activo' : 
+                                     subscription?.estado === 'advertencia' ? 'Próximo a vencer' : 
+                                     subscription?.estado === 'vencido' ? 'Vencido' : 'Inactivo',
+                        fecha_proximo_pago: subscription?.fecha_proximo_pago || 'No especificada',
+                        fecha_inicio: subscription?.fecha_inicio || 'No especificada'
+                    };
+                }) || [];
+                
+                return {
+                    clients: processedClients,
+                    totalCount: count || 0
+                };
+            } catch (error) {
+                console.error('Error fetching clients:', error);
+                return {
+                    clients: [],
+                    totalCount: 0
+                };
+            }
+        }
+        
+        // Función para obtener información completa de un cliente
+        async function fetchClientDetails(clientId) {
+            try {
+                const { data: client, error } = await supabase
+                    .from('clientes')
+                    .select(`
+                        *,
+                        suscripciones (
+                            *,
+                            planes (*)
+                        ),
+                        pagos (
+                            *,
+                            empleados (nombre)
+                        )
+                    `)
+                    .eq('id', clientId)
+                    .single();
+                
+                if (error) throw error;
+                
+                // Obtener el historial de pagos
+                const { data: payments, error: paymentsError } = await supabase
+                    .from('pagos')
+                    .select('*')
+                    .eq('cliente_id', clientId)
+                    .order('fecha_pago', { ascending: false });
+                
+                if (paymentsError) {
+                    console.error('Error fetching payments:', paymentsError);
+                }
+                
+                // Procesar datos del cliente
+                const subscription = client.suscripciones?.[0];
+                const plan = subscription?.planes;
+                
+                // Calcular días restantes
+                let dias_restantes = 0;
+                if (subscription?.fecha_proximo_pago) {
+                    const today = new Date();
+                    const nextPayment = new Date(subscription.fecha_proximo_pago);
+                    const diffTime = nextPayment - today;
+                    dias_restantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                }
+                
+                // Calcular meses pagados y atrasados
+                const meses_pagados = payments?.length || 0;
+                const meses_atrasados = subscription?.estado === 'vencido' ? 1 : 0;
+                
+                return {
+                    ...client,
+                    subscription: subscription || null,
+                    plan: plan || null,
+                    payments: payments || [],
+                    dias_restantes: dias_restantes,
+                    meses_pagados: meses_pagados,
+                    meses_atrasados: meses_atrasados
+                };
+            } catch (error) {
+                console.error('Error fetching client details:', error);
+                return null;
+            }
+        }
+        
+        // Función para eliminar un cliente
+        async function deleteClient(clientId) {
+            try {
+                // Primero eliminar las suscripciones relacionadas
+                const { error: subsError } = await supabase
+                    .from('suscripciones')
+                    .delete()
+                    .eq('cliente_id', clientId);
+                
+                if (subsError) throw subsError;
+                
+                // Luego eliminar los pagos relacionados
+                const { error: paymentsError } = await supabase
+                    .from('pagos')
+                    .delete()
+                    .eq('cliente_id', clientId);
+                
+                if (paymentsError) throw paymentsError;
+                
+                // Finalmente eliminar el cliente
+                const { error } = await supabase
+                    .from('clientes')
+                    .delete()
+                    .eq('id', clientId);
+                
+                if (error) throw error;
+                
+                return { success: true };
+            } catch (error) {
+                console.error('Error deleting client:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Función para obtener información del usuario actual
+        async function fetchUserInfo() {
+            try {
+                // En un sistema real, obtendrías el ID del usuario de la sesión
+                // Para este ejemplo, usaremos un usuario predeterminado
+                return {
+                    name: 'Juan Pérez',
+                    role: 'Administrador Principal',
+                    initials: 'JP'
+                };
+            } catch (error) {
+                console.error('Error fetching user info:', error);
+                return {
+                    name: 'Administrador',
+                    role: 'Usuario',
+                    initials: 'AD'
+                };
+            }
+        }
+        
+        // ============================================
+        // FUNCIONES DE INTERFAZ
+        // ============================================
+        
+        // Función para actualizar estadísticas en la interfaz
+        async function updateStats() {
+            try {
+                // Mostrar estado de carga
+                document.getElementById('totalClients').classList.add('loading');
+                document.getElementById('activeClients').classList.add('loading');
+                document.getElementById('warningClients').classList.add('loading');
+                document.getElementById('expiredClients').classList.add('loading');
+                
+                const stats = await fetchClientStats();
+                
+                // Actualizar valores
+                document.getElementById('totalClients').textContent = stats.total.toLocaleString('es-HN');
+                document.getElementById('activeClients').textContent = stats.active.toLocaleString('es-HN');
+                document.getElementById('warningClients').textContent = stats.warning.toLocaleString('es-HN');
+                document.getElementById('expiredClients').textContent = stats.expired.toLocaleString('es-HN');
+                
+                // Actualizar badge del sidebar
+                const totalIssues = stats.warning + stats.expired;
+                document.getElementById('clientesBadge').textContent = totalIssues > 0 ? totalIssues : '';
+                
+                // Remover estado de carga
+                document.getElementById('totalClients').classList.remove('loading');
+                document.getElementById('activeClients').classList.remove('loading');
+                document.getElementById('warningClients').classList.remove('loading');
+                document.getElementById('expiredClients').classList.remove('loading');
+                
+                return stats;
+            } catch (error) {
+                console.error('Error updating stats:', error);
+                
+                // Remover estado de carga incluso en error
+                document.getElementById('totalClients').classList.remove('loading');
+                document.getElementById('activeClients').classList.remove('loading');
+                document.getElementById('warningClients').classList.remove('loading');
+                document.getElementById('expiredClients').classList.remove('loading');
+                
+                return {
+                    total: 0,
+                    active: 0,
+                    warning: 0,
+                    expired: 0
+                };
+            }
+        }
+        
         // Función para renderizar clientes en la tabla
         function renderClients(clients) {
             const tableBody = document.getElementById('clientsTableBody');
+            
+            if (!clients || clients.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px;">
+                            <div style="font-size: 18px; color: var(--color-text-light); margin-bottom: 10px;">
+                                <i class="fas fa-users" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i>
+                                <p>No se encontraron clientes</p>
+                            </div>
+                            <a href="nuevo-cliente.html" class="btn btn-primary" style="margin-top: 10px;">
+                                <i class="fas fa-user-plus"></i> Agregar primer cliente
+                            </a>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
             tableBody.innerHTML = '';
             
             clients.forEach(client => {
@@ -1969,17 +2069,27 @@
                 
                 // Determinar clase de estado
                 let statusClass = 'status-active';
-                if (client.status === 'warning') statusClass = 'status-warning';
-                if (client.status === 'expired') statusClass = 'status-expired';
+                let statusIcon = 'fa-check-circle';
+                
+                if (client.estado === 'warning' || client.estado === 'advertencia') {
+                    statusClass = 'status-warning';
+                    statusIcon = 'fa-clock';
+                } else if (client.estado === 'expired' || client.estado === 'vencido') {
+                    statusClass = 'status-expired';
+                    statusIcon = 'fa-times-circle';
+                } else if (client.estado === 'inactivo') {
+                    statusClass = 'status-expired';
+                    statusIcon = 'fa-ban';
+                }
                 
                 row.innerHTML = `
                     <td>
                         <div class="client-info">
-                            <div class="client-avatar" style="background: ${getAvatarColor(client.name)};">
+                            <div class="client-avatar" style="background: ${client.avatar_color};">
                                 ${client.initials}
                             </div>
                             <div class="client-details">
-                                <div class="client-name">${client.name}</div>
+                                <div class="client-name">${client.nombre}</div>
                                 <div class="client-id">ID: NC-${client.id.toString().padStart(4, '0')}</div>
                             </div>
                         </div>
@@ -1988,22 +2098,25 @@
                         <div class="client-contact">
                             <div class="contact-item">
                                 <i class="fas fa-phone"></i>
-                                ${client.phone}
+                                ${client.telefono}
                             </div>
                             <div class="contact-item">
                                 <i class="fas fa-map-marker-alt"></i>
-                                ${client.address}
+                                ${client.direccion}
                             </div>
                         </div>
                     </td>
                     <td>
                         <div class="client-plan">
                             <div class="plan-name">${client.plan}</div>
-                            <div class="plan-price">${client.price}</div>
+                            <div class="plan-price">${client.precio}</div>
                         </div>
                     </td>
                     <td>
-                        <span class="status-badge ${statusClass}">${client.statusText}</span>
+                        <span class="status-badge ${statusClass}">
+                            <i class="fas ${statusIcon}" style="margin-right: 5px;"></i>
+                            ${client.estado_texto}
+                        </span>
                     </td>
                     <td>
                         <div class="client-actions">
@@ -2027,72 +2140,214 @@
             attachActionListeners();
         }
         
-        // Función para filtrar clientes
-        function filterClients() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
-            const planFilter = document.getElementById('planFilter').value;
-            const sortFilter = document.getElementById('sortFilter').value;
+        // Función para cargar y mostrar clientes
+        async function loadClients(page = 1) {
+            try {
+                currentPage = page;
+                itemsPerPage = parseInt(document.getElementById('limitFilter').value) || 25;
+                
+                // Mostrar estado de carga
+                const tableBody = document.getElementById('clientsTableBody');
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px;">
+                            <div class="loading" style="height: 100px;"></div>
+                        </td>
+                    </tr>
+                `;
+                
+                // Obtener filtros
+                const searchTerm = document.getElementById('searchInput').value;
+                const statusFilter = document.getElementById('statusFilter').value;
+                const planFilter = document.getElementById('planFilter').value;
+                
+                const filters = {};
+                if (searchTerm) filters.search = searchTerm;
+                
+                // Obtener clientes
+                const { clients, totalCount } = await fetchClients(page, itemsPerPage, filters);
+                currentClients = clients;
+                
+                // Aplicar filtros adicionales en el lado del cliente
+                filteredClients = clients.filter(client => {
+                    // Filtro de estado
+                    if (statusFilter && client.estado !== statusFilter && 
+                        !(statusFilter === 'active' && client.estado === 'activo') &&
+                        !(statusFilter === 'warning' && client.estado === 'advertencia') &&
+                        !(statusFilter === 'expired' && (client.estado === 'vencido' || client.estado === 'inactivo'))) {
+                        return false;
+                    }
+                    
+                    // Filtro de plan
+                    if (planFilter) {
+                        const planMap = {
+                            'basic': 'Básico',
+                            'family': 'Familiar Pro',
+                            'premium': 'Premium Ultra'
+                        };
+                        if (client.plan !== planMap[planFilter]) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                });
+                
+                // Aplicar ordenamiento
+                const sortFilter = document.getElementById('sortFilter').value;
+                filteredClients.sort((a, b) => {
+                    switch(sortFilter) {
+                        case 'name':
+                            return a.nombre.localeCompare(b.nombre);
+                        case 'date':
+                            return new Date(b.fecha_registro) - new Date(a.fecha_registro);
+                        case 'due':
+                            return new Date(a.fecha_proximo_pago) - new Date(b.fecha_proximo_pago);
+                        case 'plan':
+                            const priceA = parseFloat(a.precio.replace(/[^0-9.]/g, '')) || 0;
+                            const priceB = parseFloat(b.precio.replace(/[^0-9.]/g, '')) || 0;
+                            return priceB - priceA;
+                        default:
+                            return 0;
+                    }
+                });
+                
+                // Actualizar interfaz
+                renderClients(filteredClients);
+                
+                // Actualizar contador
+                const start = ((page - 1) * itemsPerPage) + 1;
+                const end = Math.min(page * itemsPerPage, totalCount);
+                document.getElementById('clientsCount').textContent = 
+                    `Mostrando ${start}-${end} de ${totalCount} clientes`;
+                
+                // Actualizar paginación
+                totalPages = Math.ceil(totalCount / itemsPerPage);
+                updatePagination(page, totalPages);
+                
+                return { clients: filteredClients, totalCount };
+            } catch (error) {
+                console.error('Error loading clients:', error);
+                
+                const tableBody = document.getElementById('clientsTableBody');
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px;">
+                            <div style="font-size: 18px; color: var(--color-danger); margin-bottom: 10px;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px;"></i>
+                                <p>Error al cargar los clientes</p>
+                                <p style="font-size: 14px; color: var(--color-text-light); margin-top: 10px;">
+                                    ${error.message || 'Intenta nuevamente más tarde'}
+                                </p>
+                            </div>
+                            <button class="btn btn-secondary" onclick="loadClients(1)" style="margin-top: 10px;">
+                                <i class="fas fa-redo"></i> Reintentar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                
+                return { clients: [], totalCount: 0 };
+            }
+        }
+        
+        // Función para actualizar la paginación
+        function updatePagination(currentPage, totalPages) {
+            const paginationContainer = document.getElementById('paginationContainer');
             
-            let filtered = sampleClients.filter(client => {
-                // Búsqueda
-                const matchesSearch = searchTerm === '' || 
-                    client.name.toLowerCase().includes(searchTerm) ||
-                    client.phone.includes(searchTerm) ||
-                    client.email.toLowerCase().includes(searchTerm);
-                
-                // Filtro de estado
-                const matchesStatus = statusFilter === '' || client.status === statusFilter;
-                
-                // Filtro de plan
-                const matchesPlan = planFilter === '' || 
-                    (planFilter === 'basic' && client.plan === 'Básico') ||
-                    (planFilter === 'family' && client.plan === 'Familiar Pro') ||
-                    (planFilter === 'premium' && client.plan === 'Premium Ultra');
-                
-                return matchesSearch && matchesStatus && matchesPlan;
-            });
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
             
-            // Ordenar
-            filtered.sort((a, b) => {
-                switch(sortFilter) {
-                    case 'name':
-                        return a.name.localeCompare(b.name);
-                    case 'date':
-                        return new Date(b.registrationDate) - new Date(a.registrationDate);
-                    case 'due':
-                        return new Date(a.nextPayment) - new Date(b.nextPayment);
-                    case 'plan':
-                        const priceA = parseInt(a.price.replace(/[^0-9]/g, ''));
-                        const priceB = parseInt(b.price.replace(/[^0-9]/g, ''));
-                        return priceB - priceA;
-                    default:
-                        return 0;
+            let paginationHTML = '';
+            
+            // Botón anterior
+            paginationHTML += `
+                <button class="pagination-btn" id="prevPage" ${currentPage === 1 ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+            
+            // Páginas
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            // Primera página
+            if (startPage > 1) {
+                paginationHTML += `
+                    <button class="pagination-btn ${1 === currentPage ? 'active' : ''}" data-page="1">
+                        1
+                    </button>
+                `;
+                if (startPage > 2) {
+                    paginationHTML += `<span class="pagination-info">...</span>`;
+                }
+            }
+            
+            // Páginas intermedias
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `
+                    <button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">
+                        ${i}
+                    </button>
+                `;
+            }
+            
+            // Última página
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    paginationHTML += `<span class="pagination-info">...</span>`;
+                }
+                paginationHTML += `
+                    <button class="pagination-btn ${totalPages === currentPage ? 'active' : ''}" data-page="${totalPages}">
+                        ${totalPages}
+                    </button>
+                `;
+            }
+            
+            // Botón siguiente
+            paginationHTML += `
+                <button class="pagination-btn" id="nextPage" ${currentPage === totalPages ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+            
+            paginationContainer.innerHTML = paginationHTML;
+            
+            // Agregar event listeners
+            document.getElementById('prevPage')?.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    loadClients(currentPage - 1);
                 }
             });
             
-            renderClients(filtered);
-            updateClientCount(filtered.length);
-        }
-        
-        // Función para actualizar contador de clientes
-        function updateClientCount(count) {
-            const countElement = document.querySelector('.clients-count');
-            if (countElement) {
-                countElement.textContent = `Mostrando 1-${Math.min(count, 25)} de ${count} clientes`;
-            }
+            document.getElementById('nextPage')?.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    loadClients(currentPage + 1);
+                }
+            });
+            
+            document.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const page = parseInt(this.getAttribute('data-page'));
+                    loadClients(page);
+                });
+            });
         }
         
         // Función para adjuntar event listeners a los botones de acción
         function attachActionListeners() {
             // Botones de ver
             document.querySelectorAll('.action-btn.view').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', async function() {
                     const clientId = parseInt(this.getAttribute('data-id'));
-                    const client = sampleClients.find(c => c.id === clientId);
-                    if (client) {
-                        showClientModal(client);
-                    }
+                    await showClientModal(clientId);
                 });
             });
             
@@ -2100,22 +2355,26 @@
             document.querySelectorAll('.action-btn.edit').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const clientId = parseInt(this.getAttribute('data-id'));
-                    alert(`Editar cliente ID: ${clientId}`);
-                    // En una implementación real, redirigir a página de edición
+                    window.location.href = `editar-cliente.html?id=${clientId}`;
                 });
             });
             
             // Botones de eliminar
             document.querySelectorAll('.action-btn.delete').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', async function() {
                     const clientId = parseInt(this.getAttribute('data-id'));
-                    const client = sampleClients.find(c => c.id === clientId);
+                    const client = currentClients.find(c => c.id === clientId);
                     
-                    if (confirm(`¿Estás seguro de eliminar a ${client.name}?`)) {
-                        // En una implementación real, enviar solicitud al servidor
-                        alert(`${client.name} ha sido eliminado`);
-                        // Recargar la lista
-                        filterClients();
+                    if (client && confirm(`¿Estás seguro de eliminar a ${client.nombre}?\n\nEsta acción no se puede deshacer.`)) {
+                        const result = await deleteClient(clientId);
+                        
+                        if (result.success) {
+                            showNotification(`Cliente ${client.nombre} eliminado correctamente`, 'success');
+                            await loadClients(currentPage);
+                            await updateStats();
+                        } else {
+                            showNotification(`Error al eliminar el cliente: ${result.error}`, 'error');
+                        }
                     }
                 });
             });
@@ -2125,64 +2384,164 @@
         const clientModal = document.getElementById('clientModal');
         const modalClose = document.getElementById('modalClose');
         
-        function showClientModal(client) {
-            // Actualizar información del modal
-            document.getElementById('modalAvatar').textContent = client.initials;
-            document.getElementById('modalAvatar').style.background = getAvatarColor(client.name);
-            document.getElementById('modalName').textContent = client.name;
-            document.getElementById('modalPhone').textContent = client.phone;
-            document.getElementById('modalEmail').textContent = client.email;
-            document.getElementById('modalAddress').textContent = client.address;
-            
-            // Actualizar estado
-            const modalStatus = document.getElementById('modalStatus');
-            modalStatus.textContent = client.statusText;
-            modalStatus.className = 'status-badge ';
-            if (client.status === 'active') modalStatus.classList.add('status-active');
-            if (client.status === 'warning') modalStatus.classList.add('status-warning');
-            if (client.status === 'expired') modalStatus.classList.add('status-expired');
-            
-            // Información adicional (simulada)
-            document.getElementById('modalFullName').textContent = client.name + " " + (client.name.split(' ')[0] === 'María' ? 'Gabriela' : 'Antonio') + " " + (client.name.split(' ')[1] === 'Rodríguez' ? 'López' : 'García');
-            document.getElementById('modalId').textContent = `0801-${1980 + client.id}-${10000 + client.id}`;
-            document.getElementById('modalRegDate').textContent = client.registrationDate;
-            document.getElementById('modalReferred').textContent = client.id % 3 === 0 ? 'Carlos Martínez' : 'Referencia propia';
-            document.getElementById('modalPlan').textContent = client.plan;
-            document.getElementById('modalMonthly').textContent = client.price;
-            document.getElementById('modalNextPayment').textContent = client.nextPayment;
-            
-            // Calcular fechas (simuladas)
-            const startDate = new Date(client.registrationDate);
-            startDate.setDate(startDate.getDate() + 30);
-            document.getElementById('modalStartDate').textContent = client.registrationDate;
-            
-            const dueDate = new Date(client.nextPayment);
-            dueDate.setDate(dueDate.getDate() + 15);
-            document.getElementById('modalDueDate').textContent = dueDate.toLocaleDateString('es-HN');
-            
-            // Calcular días restantes
-            const today = new Date();
-            const nextPayment = new Date(client.nextPayment);
-            const daysLeft = Math.ceil((nextPayment - today) / (1000 * 60 * 60 * 24));
-            document.getElementById('modalDaysLeft').textContent = daysLeft > 0 ? `${daysLeft} días` : `${-daysLeft} días vencidos`;
-            
-            // Información de pagos (simulada)
-            document.getElementById('modalPaid').textContent = `${Math.floor(client.id / 2) + 1} meses`;
-            document.getElementById('modalOverdue').textContent = client.status === 'expired' ? '1 mes' : '0 meses';
-            
-            // Notas (simuladas)
-            const notes = [
-                "Cliente muy satisfecho con el servicio. Paga puntualmente.",
-                "Prefiere ser contactado por WhatsApp. Solicita factura electrónica.",
-                "Tuvo problemas de conexión el mes pasado, pero ya resueltos.",
-                "Interesado en actualizar a plan superior el próximo mes.",
-                "Cliente referido. Muy contento con la velocidad de internet."
-            ];
-            document.getElementById('modalNotes').textContent = notes[client.id % notes.length];
-            
-            // Mostrar modal
-            clientModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+        async function showClientModal(clientId) {
+            try {
+                // Mostrar estado de carga
+                document.getElementById('modalBody').innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <div class="loading" style="height: 100px; width: 100px; margin: 0 auto;"></div>
+                        <p style="margin-top: 20px; color: var(--color-text-light);">Cargando información del cliente...</p>
+                    </div>
+                `;
+                
+                // Mostrar modal
+                clientModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                
+                // Obtener información del cliente
+                const client = await fetchClientDetails(clientId);
+                
+                if (!client) {
+                    throw new Error('No se pudo cargar la información del cliente');
+                }
+                
+                // Actualizar información del modal
+                document.getElementById('modalAvatar').textContent = getInitials(client.nombre);
+                document.getElementById('modalAvatar').style.background = getAvatarColor(client.nombre);
+                document.getElementById('modalName').textContent = client.nombre;
+                document.getElementById('modalPhone').textContent = client.telefono || 'No especificado';
+                document.getElementById('modalEmail').textContent = client.email || 'No especificado';
+                document.getElementById('modalAddress').textContent = client.direccion || 'No especificada';
+                
+                // Actualizar estado
+                const modalStatus = document.getElementById('modalStatus');
+                let statusText = 'Inactivo';
+                let statusClass = 'status-expired';
+                
+                if (client.subscription) {
+                    if (client.subscription.estado === 'activo') {
+                        statusText = 'Activo';
+                        statusClass = 'status-active';
+                    } else if (client.subscription.estado === 'advertencia') {
+                        statusText = 'Próximo a vencer';
+                        statusClass = 'status-warning';
+                    } else if (client.subscription.estado === 'vencido') {
+                        statusText = 'Vencido';
+                        statusClass = 'status-expired';
+                    }
+                }
+                
+                modalStatus.textContent = statusText;
+                modalStatus.className = `status-badge ${statusClass}`;
+                
+                // Información personal
+                const personalInfo = document.getElementById('personalInfo');
+                personalInfo.innerHTML = `
+                    <li class="info-item">
+                        <span class="info-label">Nombre completo:</span>
+                        <span class="info-value">${client.nombre}</span>
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Identidad:</span>
+                        <span class="info-value">${client.identidad || 'No especificada'}</span>
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Fecha de registro:</span>
+                        <span class="info-value">${formatDate(client.created_at)}</span>
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Referido por:</span>
+                        <span class="info-value">${client.referido_por || 'Ninguno'}</span>
+                    </li>
+                `;
+                
+                // Información del plan
+                const planInfo = document.getElementById('planInfo');
+                if (client.plan) {
+                    planInfo.innerHTML = `
+                        <li class="info-item">
+                            <span class="info-label">Plan contratado:</span>
+                            <span class="info-value">${client.plan.nombre}</span>
+                        </li>
+                        <li class="info-item">
+                            <span class="info-label">Mensualidad:</span>
+                            <span class="info-value">${formatCurrency(client.plan.precio)}</span>
+                        </li>
+                        <li class="info-item">
+                            <span class="info-label">Próximo pago:</span>
+                            <span class="info-value">${formatDate(client.subscription?.fecha_proximo_pago)}</span>
+                        </li>
+                        <li class="info-item">
+                            <span class="info-label">Fecha de inicio:</span>
+                            <span class="info-value">${formatDate(client.subscription?.fecha_inicio)}</span>
+                        </li>
+                    `;
+                } else {
+                    planInfo.innerHTML = `
+                        <li class="info-item">
+                            <span class="info-label">Estado:</span>
+                            <span class="info-value" style="color: var(--color-danger);">Sin plan activo</span>
+                        </li>
+                        <li class="info-item">
+                            <span class="info-label">Mensualidad:</span>
+                            <span class="info-value">L 0.00</span>
+                        </li>
+                        <li class="info-item">
+                            <span class="info-label">Próximo pago:</span>
+                            <span class="info-value">No aplica</span>
+                        </li>
+                        <li class="info-item">
+                            <span class="info-label">Fecha de inicio:</span>
+                            <span class="info-value">No aplica</span>
+                        </li>
+                    `;
+                }
+                
+                // Información de pagos
+                const paymentInfo = document.getElementById('paymentInfo');
+                paymentInfo.innerHTML = `
+                    <li class="info-item">
+                        <span class="info-label">Meses pagados:</span>
+                        <span class="info-value">${client.meses_pagados} mes${client.meses_pagados !== 1 ? 'es' : ''}</span>
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Meses atrasados:</span>
+                        <span class="info-value">${client.meses_atrasados} mes${client.meses_atrasados !== 1 ? 'es' : ''}</span>
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Días restantes:</span>
+                        <span class="info-value">${client.dias_restantes > 0 ? `${client.dias_restantes} días` : 'Vencido'}</span>
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Último pago:</span>
+                        <span class="info-value">${client.payments && client.payments.length > 0 ? formatDate(client.payments[0].fecha_pago) : 'Sin pagos'}</span>
+                    </li>
+                `;
+                
+                // Notas
+                document.getElementById('modalNotes').textContent = client.notas || 'No hay notas adicionales para este cliente.';
+                
+                // Configurar botones del modal
+                document.getElementById('editClient').onclick = () => {
+                    window.location.href = `editar-cliente.html?id=${clientId}`;
+                };
+                
+                document.getElementById('processPayment').onclick = () => {
+                    window.location.href = `pagos.html?cliente=${clientId}`;
+                };
+                
+            } catch (error) {
+                console.error('Error showing client modal:', error);
+                document.getElementById('modalBody').innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--color-danger); margin-bottom: 20px;"></i>
+                        <p style="color: var(--color-danger);">Error al cargar la información del cliente</p>
+                        <p style="font-size: 14px; color: var(--color-text-light); margin-top: 10px;">
+                            ${error.message || 'Intenta nuevamente más tarde'}
+                        </p>
+                    </div>
+                `;
+            }
         }
         
         // Cerrar modal
@@ -2199,114 +2558,196 @@
             }
         });
         
-        // Botones del modal
-        document.getElementById('editClient').addEventListener('click', () => {
-            const clientName = document.getElementById('modalName').textContent;
-            alert(`Editar cliente: ${clientName}`);
-            // En una implementación real, redirigir a página de edición
-        });
+        // Función para mostrar notificaciones
+        function showNotification(message, type = 'info') {
+            // Crear elemento de notificación
+            const notification = document.createElement('div');
+            notification.className = 'notification-toast';
+            
+            let icon = 'fa-bell';
+            let bgColor = 'var(--gradient-admin)';
+            
+            if (type === 'success') {
+                icon = 'fa-check-circle';
+                bgColor = 'var(--gradient-success)';
+            } else if (type === 'warning') {
+                icon = 'fa-exclamation-triangle';
+                bgColor = 'var(--gradient-warning)';
+            } else if (type === 'error') {
+                icon = 'fa-times-circle';
+                bgColor = 'var(--gradient-danger)';
+            }
+            
+            notification.innerHTML = `
+                <div style="
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: ${bgColor};
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 12px;
+                    box-shadow: var(--shadow-card);
+                    z-index: 10000;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    animation: slideInUp 0.3s ease;
+                    max-width: 350px;
+                ">
+                    <i class="fas ${icon}"></i>
+                    <span>${message}</span>
+                    <button class="notification-close" style="
+                        background: none;
+                        border: none;
+                        color: white;
+                        cursor: pointer;
+                        margin-left: auto;
+                    ">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Botón para cerrar
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.style.animation = 'slideOutDown 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            });
+            
+            // Auto cerrar después de 5 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOutDown 0.3s ease';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 5000);
+            
+            // Añadir keyframes si no existen
+            if (!document.querySelector('#toast-styles')) {
+                const style = document.createElement('style');
+                style.id = 'toast-styles';
+                style.textContent = `
+                    @keyframes slideInUp {
+                        from { transform: translateY(100%); opacity: 0; }
+                        to { transform: translateY(0); opacity: 1; }
+                    }
+                    @keyframes slideOutDown {
+                        from { transform: translateY(0); opacity: 1; }
+                        to { transform: translateY(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
         
-        document.getElementById('processPayment').addEventListener('click', () => {
-            const clientName = document.getElementById('modalName').textContent;
-            const amount = document.getElementById('modalMonthly').textContent;
-            alert(`Procesar pago para ${clientName} - Monto: ${amount}`);
-            // En una implementación real, abrir modal de pago
-        });
+        // Función para aplicar filtros
+        async function applyFilters() {
+            await loadClients(1);
+        }
         
-        // Event listeners para filtros
-        document.getElementById('searchInput').addEventListener('input', filterClients);
-        document.getElementById('statusFilter').addEventListener('change', filterClients);
-        document.getElementById('planFilter').addEventListener('change', filterClients);
-        document.getElementById('sortFilter').addEventListener('change', filterClients);
-        document.getElementById('limitFilter').addEventListener('change', filterClients);
-        
-        // Botón para limpiar filtros
-        document.getElementById('resetFilters').addEventListener('click', () => {
+        // Función para limpiar filtros
+        function clearFilters() {
             document.getElementById('searchInput').value = '';
             document.getElementById('statusFilter').value = '';
             document.getElementById('planFilter').value = '';
             document.getElementById('sortFilter').value = 'name';
             document.getElementById('limitFilter').value = '25';
-            filterClients();
-        });
+            applyFilters();
+        }
         
-        // Paginación
-        document.getElementById('prevPage').addEventListener('click', () => {
-            alert('Página anterior');
-            // En una implementación real, cargar página anterior
-        });
-        
-        document.getElementById('nextPage').addEventListener('click', () => {
-            alert('Página siguiente');
-            // En una implementación real, cargar página siguiente
-        });
-        
-        // Botones de paginación numéricos
-        document.querySelectorAll('.pagination-btn:not(#prevPage):not(#nextPage)').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Remover clase active de todos los botones
-                document.querySelectorAll('.pagination-btn').forEach(b => {
-                    b.classList.remove('active');
-                });
-                // Agregar clase active al botón clickeado
-                this.classList.add('active');
+        // Función para actualizar información del usuario
+        async function updateUserInfo() {
+            try {
+                const userInfo = await fetchUserInfo();
+                document.getElementById('userName').textContent = userInfo.name;
+                document.getElementById('userRole').textContent = userInfo.role;
+                document.getElementById('userAvatar').textContent = userInfo.initials;
                 
-                const pageNum = this.textContent;
-                alert(`Cargar página ${pageNum}`);
-                // En una implementación real, cargar la página correspondiente
-            });
-        });
-        
-        // Inicializar
-        document.addEventListener('DOMContentLoaded', () => {
-            // Renderizar clientes iniciales
-            renderClients(sampleClients.slice(0, 15));
-            
-            // Añadir animaciones
-            const animatedElements = document.querySelectorAll('.animate-fade-in');
-            animatedElements.forEach((el, index) => {
-                el.style.animationDelay = `${index * 0.05}s`;
-            });
-            
-            // Detectar cambios en el tamaño de la ventana
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 992) {
-                    sidebar.classList.remove('active');
-                    sidebarOverlay.classList.remove('active');
-                }
-            });
-        });
-        
-        // Notificaciones
-        document.getElementById('notificationsBtn').addEventListener('click', () => {
-            alert('Tienes 3 clientes vencidos y 5 próximos a vencer');
-        });
-        
-        // Simular actualizaciones en tiempo real
-        setInterval(() => {
-            // Simular cambio de estado aleatorio para un cliente
-            if (Math.random() > 0.7) { // 30% de probabilidad cada minuto
-                const randomClient = sampleClients[Math.floor(Math.random() * sampleClients.length)];
-                const oldStatus = randomClient.status;
-                
-                // Cambiar estado
-                const statuses = ['active', 'warning', 'expired'];
-                const newStatus = statuses[Math.floor(Math.random() * statuses.length)];
-                randomClient.status = newStatus;
-                randomClient.statusText = newStatus === 'active' ? 'Activo' : 
-                                          newStatus === 'warning' ? 'Próximo a vencer' : 'Vencido';
-                
-                // Solo mostrar notificación si el estado cambió
-                if (oldStatus !== newStatus) {
-                    console.log(`Cliente ${randomClient.name} cambió a ${randomClient.statusText}`);
-                    
-                    // Actualizar tabla si está visible
-                    if (document.querySelector('.clients-table')) {
-                        filterClients();
-                    }
-                }
+                // Actualizar mensaje de bienvenida
+                const welcomeMessages = [
+                    `Administra y visualiza toda la información de tus clientes`,
+                    `Sistema de gestión de clientes • ${userInfo.name}`,
+                    `Control total sobre tu cartera de clientes`
+                ];
+                document.getElementById('welcomeMessage').textContent = 
+                    welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
+            } catch (error) {
+                console.error('Error updating user info:', error);
             }
-        }, 60000); // Cada minuto
+        }
+        
+        // Función para inicializar todo
+        async function initialize() {
+            try {
+                // Actualizar información del usuario
+                await updateUserInfo();
+                
+                // Cargar estadísticas
+                await updateStats();
+                
+                // Cargar clientes
+                await loadClients(1);
+                
+                // Configurar event listeners para filtros
+                document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
+                document.getElementById('statusFilter').addEventListener('change', applyFilters);
+                document.getElementById('planFilter').addEventListener('change', applyFilters);
+                document.getElementById('sortFilter').addEventListener('change', applyFilters);
+                document.getElementById('limitFilter').addEventListener('change', applyFilters);
+                
+                // Configurar botón de limpiar filtros
+                document.getElementById('resetFilters').addEventListener('click', clearFilters);
+                
+                // Configurar notificaciones
+                document.getElementById('notificationsBtn').addEventListener('click', () => {
+                    showNotification('Sistema de gestión de clientes cargado correctamente', 'success');
+                });
+                
+                // Añadir animaciones
+                const animatedElements = document.querySelectorAll('.animate-fade-in');
+                animatedElements.forEach((el, index) => {
+                    el.style.animationDelay = `${index * 0.05}s`;
+                });
+                
+                // Configurar actualización automática cada 30 segundos
+                setInterval(async () => {
+                    await updateStats();
+                }, 30000);
+                
+                showNotification('Clientes cargados correctamente desde Supabase', 'success');
+                
+            } catch (error) {
+                console.error('Error initializing:', error);
+                showNotification('Error al inicializar el sistema. Verifica la conexión a Supabase.', 'error');
+            }
+        }
+        
+        // Función debounce para búsqueda
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', initialize);
+        
+        // Detectar cambios en el tamaño de la ventana
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 992) {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            }
+        });
     </script>
 </body>
 </html>
