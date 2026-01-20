@@ -1080,6 +1080,21 @@
             letter-spacing: 1px;
         }
 
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(124, 58, 237, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--color-admin);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .modal-grid {
@@ -1250,6 +1265,56 @@
             animation: fadeIn 0.5s ease forwards;
         }
 
+        /* Notificaciones */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 20px 25px;
+            border-radius: 15px;
+            box-shadow: var(--shadow-card);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideInRight 0.3s ease;
+            max-width: 400px;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification.success {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .notification.error {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        .notification.warning {
+            background: var(--gradient-warning);
+            color: white;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            margin-left: auto;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
         /* Scroll personalizado */
         ::-webkit-scrollbar {
             width: 8px;
@@ -1304,14 +1369,14 @@
                     <a href="#" class="menu-link active">
                         <i class="fas fa-users menu-icon"></i>
                         <span class="menu-text">Clientes</span>
-                        <span class="menu-badge">24</span>
+                        <span class="menu-badge" id="clientsBadge">0</span>
                     </a>
                 </li>
                 <li class="menu-item">
                     <a href="pagos.html" class="menu-link">
                         <i class="fas fa-credit-card menu-icon"></i>
                         <span class="menu-text">Pagos</span>
-                        <span class="menu-badge">5</span>
+                        <span class="menu-badge">0</span>
                     </a>
                 </li>
                 <li class="menu-item">
@@ -1330,7 +1395,7 @@
                     <a href="soporte.html" class="menu-link">
                         <i class="fas fa-headset menu-icon"></i>
                         <span class="menu-text">Soporte</span>
-                        <span class="menu-badge">3</span>
+                        <span class="menu-badge">0</span>
                     </a>
                 </li>
                 <li class="menu-item">
@@ -1391,7 +1456,7 @@
                         <div class="stat-icon total">
                             <i class="fas fa-users"></i>
                         </div>
-                        <div class="stat-value">1,248</div>
+                        <div class="stat-value" id="totalClients">0</div>
                         <div class="stat-label">Total Clientes</div>
                     </div>
                     
@@ -1399,7 +1464,7 @@
                         <div class="stat-icon active">
                             <i class="fas fa-check-circle"></i>
                         </div>
-                        <div class="stat-value">1,176</div>
+                        <div class="stat-value" id="activeClients">0</div>
                         <div class="stat-label">Activos</div>
                     </div>
                     
@@ -1407,7 +1472,7 @@
                         <div class="stat-icon warning">
                             <i class="fas fa-clock"></i>
                         </div>
-                        <div class="stat-value">48</div>
+                        <div class="stat-value" id="warningClients">0</div>
                         <div class="stat-label">Por Vencer</div>
                     </div>
                     
@@ -1415,7 +1480,7 @@
                         <div class="stat-icon expired">
                             <i class="fas fa-times-circle"></i>
                         </div>
-                        <div class="stat-value">24</div>
+                        <div class="stat-value" id="expiredClients">0</div>
                         <div class="stat-label">Vencidos</div>
                     </div>
                 </div>
@@ -1445,19 +1510,18 @@
                             <label class="filter-label">Plan</label>
                             <select class="filter-select" id="planFilter">
                                 <option value="">Todos los planes</option>
-                                <option value="basic">Básico (L 699)</option>
-                                <option value="family">Familiar Pro (L 1,199)</option>
-                                <option value="premium">Premium Ultra (L 1,999)</option>
+                                <option value="basic">Básico</option>
+                                <option value="family">Familiar Pro</option>
+                                <option value="premium">Premium Ultra</option>
                             </select>
                         </div>
                         
                         <div class="filter-group">
                             <label class="filter-label">Ordenar por</label>
                             <select class="filter-select" id="sortFilter">
-                                <option value="name">Nombre A-Z</option>
-                                <option value="date">Fecha de registro</option>
-                                <option value="due">Próximo vencimiento</option>
-                                <option value="plan">Plan (mayor a menor)</option>
+                                <option value="nombre">Nombre A-Z</option>
+                                <option value="fecha_registro">Fecha de registro</option>
+                                <option value="fecha_vencimiento">Próximo vencimiento</option>
                             </select>
                         </div>
                         
@@ -1485,7 +1549,7 @@
                 <section class="clients-section animate-fade-in">
                     <div class="section-header">
                         <h2><i class="fas fa-list"></i> Lista de Clientes</h2>
-                        <div class="clients-count">Mostrando 1-25 de 1,248 clientes</div>
+                        <div class="clients-count" id="clientsCount">Cargando clientes...</div>
                     </div>
                     
                     <div class="table-container">
@@ -1500,28 +1564,26 @@
                                 </tr>
                             </thead>
                             <tbody id="clientsTableBody">
-                                <!-- Los clientes se cargan dinámicamente con JavaScript -->
+                                <!-- Los clientes se cargan dinámicamente desde la base de datos -->
+                                <tr id="loadingRow">
+                                    <td colspan="5" style="text-align: center; padding: 50px;">
+                                        <div class="loading" style="margin: 0 auto 15px;"></div>
+                                        <div style="color: var(--color-text-light);">Cargando clientes...</div>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                     
                     <!-- Paginación -->
-                    <div class="pagination">
-                        <button class="pagination-btn" id="prevPage">
+                    <div class="pagination" id="paginationContainer" style="display: none;">
+                        <button class="pagination-btn" id="prevPage" disabled>
                             <i class="fas fa-chevron-left"></i>
                         </button>
                         
                         <button class="pagination-btn active">1</button>
-                        <button class="pagination-btn">2</button>
-                        <button class="pagination-btn">3</button>
-                        <button class="pagination-btn">4</button>
-                        <button class="pagination-btn">5</button>
                         
-                        <span class="pagination-info">...</span>
-                        
-                        <button class="pagination-btn">50</button>
-                        
-                        <button class="pagination-btn" id="nextPage">
+                        <button class="pagination-btn" id="nextPage" disabled>
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
@@ -1542,22 +1604,22 @@
             
             <div class="modal-body">
                 <div class="client-profile">
-                    <div class="profile-avatar" id="modalAvatar">MR</div>
+                    <div class="profile-avatar" id="modalAvatar">NC</div>
                     <div class="profile-info">
-                        <h4 id="modalName">María Rodríguez</h4>
+                        <h4 id="modalName">Cargando...</h4>
                         <div class="status-badge status-active" id="modalStatus">Activo</div>
                         <div class="profile-contact">
                             <div class="contact-detail">
                                 <i class="fas fa-phone"></i>
-                                <span id="modalPhone">+504 9999-8888</span>
+                                <span id="modalPhone">Cargando...</span>
                             </div>
                             <div class="contact-detail">
                                 <i class="fas fa-envelope"></i>
-                                <span id="modalEmail">maria@email.com</span>
+                                <span id="modalEmail">Cargando...</span>
                             </div>
                             <div class="contact-detail">
                                 <i class="fas fa-map-marker-alt"></i>
-                                <span id="modalAddress">Colonia Los Robles, Tegucigalpa</span>
+                                <span id="modalAddress">Cargando...</span>
                             </div>
                         </div>
                     </div>
@@ -1569,19 +1631,19 @@
                         <ul class="info-list">
                             <li class="info-item">
                                 <span class="info-label">Nombre completo:</span>
-                                <span class="info-value" id="modalFullName">María Gabriela Rodríguez López</span>
+                                <span class="info-value" id="modalFullName">Cargando...</span>
                             </li>
                             <li class="info-item">
-                                <span class="info-label">Identidad:</span>
-                                <span class="info-value" id="modalId">0801-1990-12345</span>
+                                <span class="info-label">Teléfono:</span>
+                                <span class="info-value" id="modalPhoneFull">Cargando...</span>
                             </li>
                             <li class="info-item">
                                 <span class="info-label">Fecha de registro:</span>
-                                <span class="info-value" id="modalRegDate">15/10/2023</span>
+                                <span class="info-value" id="modalRegDate">Cargando...</span>
                             </li>
                             <li class="info-item">
-                                <span class="info-label">Referido por:</span>
-                                <span class="info-value" id="modalReferred">Carlos Martínez</span>
+                                <span class="info-label">Dirección:</span>
+                                <span class="info-value" id="modalAddressFull">Cargando...</span>
                             </li>
                         </ul>
                     </div>
@@ -1591,19 +1653,19 @@
                         <ul class="info-list">
                             <li class="info-item">
                                 <span class="info-label">Plan contratado:</span>
-                                <span class="info-value" id="modalPlan">Familiar Pro</span>
+                                <span class="info-value" id="modalPlan">Cargando...</span>
                             </li>
                             <li class="info-item">
                                 <span class="info-label">Mensualidad:</span>
-                                <span class="info-value" id="modalMonthly">L 1,199.00</span>
-                            </li>
-                            <li class="info-item">
-                                <span class="info-label">Próximo pago:</span>
-                                <span class="info-value" id="modalNextPayment">15/12/2023</span>
+                                <span class="info-value" id="modalMonthly">Cargando...</span>
                             </li>
                             <li class="info-item">
                                 <span class="info-label">Fecha de inicio:</span>
-                                <span class="info-value" id="modalStartDate">15/11/2023</span>
+                                <span class="info-value" id="modalStartDate">Cargando...</span>
+                            </li>
+                            <li class="info-item">
+                                <span class="info-label">Fecha de vencimiento:</span>
+                                <span class="info-value" id="modalDueDate">Cargando...</span>
                             </li>
                         </ul>
                     </div>
@@ -1613,19 +1675,19 @@
                         <ul class="info-list">
                             <li class="info-item">
                                 <span class="info-label">Meses pagados:</span>
-                                <span class="info-value" id="modalPaid">1 mes</span>
+                                <span class="info-value" id="modalPaid">Cargando...</span>
                             </li>
                             <li class="info-item">
-                                <span class="info-label">Meses atrasados:</span>
-                                <span class="info-value" id="modalOverdue">0 meses</span>
+                                <span class="info-label">Último pago:</span>
+                                <span class="info-value" id="modalLastPayment">Cargando...</span>
                             </li>
                             <li class="info-item">
-                                <span class="info-label">Días restantes:</span>
-                                <span class="info-value" id="modalDaysLeft">15 días</span>
+                                <span class="info-label">Próximo pago:</span>
+                                <span class="info-value" id="modalNextPayment">Cargando...</span>
                             </li>
                             <li class="info-item">
-                                <span class="info-label">Fecha de vencimiento:</span>
-                                <span class="info-value" id="modalDueDate">30/12/2023</span>
+                                <span class="info-label">Estado de pago:</span>
+                                <span class="info-value" id="modalPaymentStatus">Cargando...</span>
                             </li>
                         </ul>
                     </div>
@@ -1633,9 +1695,7 @@
                     <div class="info-section notes-section">
                         <h4 class="section-title"><i class="fas fa-sticky-note"></i> Notas Adicionales</h4>
                         <div class="notes-content" id="modalNotes">
-                            Cliente referido por Carlos Martínez. Prefiere ser contactado en las tardes. 
-                            Instalación realizada sin inconvenientes. Muy satisfecho con la velocidad del servicio.
-                            Solicita factura electrónica a su correo.
+                            Cargando notas...
                         </div>
                     </div>
                 </div>
@@ -1653,6 +1713,174 @@
     </div>
 
     <script>
+        // =============================================
+        // CONFIGURACIÓN DE LA BASE DE DATOS NOCODB
+        // =============================================
+        // Reemplaza estos valores con los de tu instancia de NocoDB
+        const NOCODB_CONFIG = {
+            // URL base de tu API de NocoDB
+            BASE_URL: 'https://app.nocodb.com/api/v2/meta/bases/plaa1e43hb02rwi/swagger',
+            
+            // Nombre de tu proyecto en NocoDB
+            PROJECT_NAME: 'NetConnectPro',
+            
+            // Token de acceso (API Token de NocoDB)
+            API_TOKEN: 'kkwcfnQhokq8OcCzf_0e1LTN4feqiNXSwfrGz0kB',
+            
+            // Nombres de las tablas
+            TABLES: {
+                CLIENTES: 'Clientes',
+                PAGOS: 'Pagos'
+            }
+        };
+
+        // =============================================
+        // FUNCIONES PARA CONECTAR CON NOCODB
+        // =============================================
+        
+        // Función para obtener los headers de autenticación
+        function getHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'xc-auth': NOCODB_CONFIG.API_TOKEN
+            };
+        }
+
+        // Función para construir la URL de la API
+        function getTableUrl(tableName) {
+            return `${NOCODB_CONFIG.BASE_URL}${NOCODB_CONFIG.PROJECT_NAME}/${tableName}`;
+        }
+
+        // Función para obtener todos los clientes
+        async function fetchClientes(filters = {}) {
+            try {
+                const url = getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES);
+                const response = await fetch(url, {
+                    headers: getHeaders()
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al obtener clientes');
+                }
+                
+                const data = await response.json();
+                return data.list || [];
+            } catch (error) {
+                console.error('Error fetching clientes:', error);
+                showNotification('Error al cargar clientes', 'error');
+                return [];
+            }
+        }
+
+        // Función para obtener un cliente por ID
+        async function fetchClienteById(id) {
+            try {
+                const url = `${getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES)}/${id}`;
+                const response = await fetch(url, {
+                    headers: getHeaders()
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al obtener cliente');
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching cliente:', error);
+                showNotification('Error al cargar cliente', 'error');
+                return null;
+            }
+        }
+
+        // Función para crear un nuevo cliente
+        async function createCliente(clienteData) {
+            try {
+                const url = getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify(clienteData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al crear cliente');
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Error creating cliente:', error);
+                showNotification('Error al crear cliente', 'error');
+                return null;
+            }
+        }
+
+        // Función para actualizar un cliente
+        async function updateCliente(id, clienteData) {
+            try {
+                const url = `${getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES)}/${id}`;
+                const response = await fetch(url, {
+                    method: 'PATCH',
+                    headers: getHeaders(),
+                    body: JSON.stringify(clienteData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al actualizar cliente');
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Error updating cliente:', error);
+                showNotification('Error al actualizar cliente', 'error');
+                return null;
+            }
+        }
+
+        // Función para eliminar un cliente
+        async function deleteCliente(id) {
+            try {
+                const url = `${getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES)}/${id}`;
+                const response = await fetch(url, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al eliminar cliente');
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error deleting cliente:', error);
+                showNotification('Error al eliminar cliente', 'error');
+                return false;
+            }
+        }
+
+        // Función para obtener pagos de un cliente
+        async function fetchPagosByClienteId(clienteId) {
+            try {
+                const url = getTableUrl(NOCODB_CONFIG.TABLES.PAGOS);
+                const response = await fetch(`${url}?where=(cliente_id,eq,${clienteId})`, {
+                    headers: getHeaders()
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al obtener pagos');
+                }
+                
+                const data = await response.json();
+                return data.list || [];
+            } catch (error) {
+                console.error('Error fetching pagos:', error);
+                return [];
+            }
+        }
+
+        // =============================================
+        // FUNCIONES DE LA INTERFAZ
+        // =============================================
+
         // Sistema de cambio de tema
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
@@ -1670,7 +1898,6 @@
             localStorage.setItem('theme', newTheme);
             updateThemeIcon(newTheme);
             
-            // Efecto de transición
             themeToggle.style.transform = 'rotate(180deg) scale(1.1)';
             setTimeout(() => {
                 themeToggle.style.transform = 'rotate(0) scale(1)';
@@ -1697,7 +1924,6 @@
         sidebarToggle.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
             
-            // Cambiar icono
             const icon = sidebarToggle.querySelector('i');
             if (sidebar.classList.contains('collapsed')) {
                 icon.classList.remove('fa-chevron-left');
@@ -1728,221 +1954,7 @@
                 }
             });
         });
-        
-        // Datos de ejemplo para clientes
-        const sampleClients = [
-            {
-                id: 1,
-                name: "María Rodríguez",
-                initials: "MR",
-                phone: "+504 9999-8888",
-                email: "maria@email.com",
-                address: "Colonia Los Robles, Tegucigalpa",
-                plan: "Familiar Pro",
-                price: "L 1,199.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "15/10/2023",
-                nextPayment: "15/12/2023"
-            },
-            {
-                id: 2,
-                name: "Carlos Martínez",
-                initials: "CM",
-                phone: "+504 8888-7777",
-                email: "carlos@email.com",
-                address: "Residencial Los Pinos, San Pedro Sula",
-                plan: "Premium Ultra",
-                price: "L 1,999.00",
-                status: "warning",
-                statusText: "Próximo a vencer",
-                registrationDate: "01/09/2023",
-                nextPayment: "01/12/2023"
-            },
-            {
-                id: 3,
-                name: "Ana García",
-                initials: "AG",
-                phone: "+504 7777-6666",
-                email: "ana@email.com",
-                address: "Barrio La Isla, La Ceiba",
-                plan: "Básico",
-                price: "L 699.00",
-                status: "expired",
-                statusText: "Vencido",
-                registrationDate: "20/08/2023",
-                nextPayment: "20/11/2023"
-            },
-            {
-                id: 4,
-                name: "Juan Pérez",
-                initials: "JP",
-                phone: "+504 6666-5555",
-                email: "juan@email.com",
-                address: "Colonia Florencia, Tegucigalpa",
-                plan: "Familiar Pro",
-                price: "L 1,199.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "05/11/2023",
-                nextPayment: "05/01/2024"
-            },
-            {
-                id: 5,
-                name: "Laura Hernández",
-                initials: "LH",
-                phone: "+504 5555-4444",
-                email: "laura@email.com",
-                address: "Residencial Las Lomas, San Pedro Sula",
-                plan: "Premium Ultra",
-                price: "L 1,999.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "10/10/2023",
-                nextPayment: "10/12/2023"
-            },
-            {
-                id: 6,
-                name: "Pedro López",
-                initials: "PL",
-                phone: "+504 4444-3333",
-                email: "pedro@email.com",
-                address: "Barrio El Centro, Comayagua",
-                plan: "Básico",
-                price: "L 699.00",
-                status: "warning",
-                statusText: "Próximo a vencer",
-                registrationDate: "15/09/2023",
-                nextPayment: "15/12/2023"
-            },
-            {
-                id: 7,
-                name: "Sofía Ramírez",
-                initials: "SR",
-                phone: "+504 3333-2222",
-                email: "sofia@email.com",
-                address: "Colonia El Carmen, Tegucigalpa",
-                plan: "Familiar Pro",
-                price: "L 1,199.00",
-                status: "expired",
-                statusText: "Vencido",
-                registrationDate: "01/08/2023",
-                nextPayment: "01/11/2023"
-            },
-            {
-                id: 8,
-                name: "Miguel Torres",
-                initials: "MT",
-                phone: "+504 2222-1111",
-                email: "miguel@email.com",
-                address: "Residencial Las Colinas, San Pedro Sula",
-                plan: "Premium Ultra",
-                price: "L 1,999.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "20/11/2023",
-                nextPayment: "20/01/2024"
-            },
-            {
-                id: 9,
-                name: "Elena Castro",
-                initials: "EC",
-                phone: "+504 1111-0000",
-                email: "elena@email.com",
-                address: "Barrio San José, La Ceiba",
-                plan: "Básico",
-                price: "L 699.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "05/10/2023",
-                nextPayment: "05/12/2023"
-            },
-            {
-                id: 10,
-                name: "Roberto Vargas",
-                initials: "RV",
-                phone: "+504 0000-9999",
-                email: "roberto@email.com",
-                address: "Colonia Miraflores, Tegucigalpa",
-                plan: "Familiar Pro",
-                price: "L 1,199.00",
-                status: "warning",
-                statusText: "Próximo a vencer",
-                registrationDate: "10/09/2023",
-                nextPayment: "10/12/2023"
-            },
-            {
-                id: 11,
-                name: "Carmen Ríos",
-                initials: "CR",
-                phone: "+504 1212-3434",
-                email: "carmen@email.com",
-                address: "Residencial Las Acacias, San Pedro Sula",
-                plan: "Premium Ultra",
-                price: "L 1,999.00",
-                status: "expired",
-                statusText: "Vencido",
-                registrationDate: "15/08/2023",
-                nextPayment: "15/11/2023"
-            },
-            {
-                id: 12,
-                name: "Javier Morales",
-                initials: "JM",
-                phone: "+504 2323-4545",
-                email: "javier@email.com",
-                address: "Barrio El Calvario, Comayagua",
-                plan: "Básico",
-                price: "L 699.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "20/11/2023",
-                nextPayment: "20/01/2024"
-            },
-            {
-                id: 13,
-                name: "Isabel Duarte",
-                initials: "ID",
-                phone: "+504 3434-5656",
-                email: "isabel@email.com",
-                address: "Colonia Las Mercedes, Tegucigalpa",
-                plan: "Familiar Pro",
-                price: "L 1,199.00",
-                status: "active",
-                statusText: "Activo",
-                registrationDate: "25/10/2023",
-                nextPayment: "25/12/2023"
-            },
-            {
-                id: 14,
-                name: "Fernando Soto",
-                initials: "FS",
-                phone: "+504 4545-6767",
-                email: "fernando@email.com",
-                address: "Residencial Los Alpes, San Pedro Sula",
-                plan: "Premium Ultra",
-                price: "L 1,999.00",
-                status: "warning",
-                statusText: "Próximo a vencer",
-                registrationDate: "30/09/2023",
-                nextPayment: "30/12/2023"
-            },
-            {
-                id: 15,
-                name: "Patricia Núñez",
-                initials: "PN",
-                phone: "+504 5656-7878",
-                email: "patricia@email.com",
-                address: "Barrio La Esperanza, La Ceiba",
-                plan: "Básico",
-                price: "L 699.00",
-                status: "expired",
-                statusText: "Vencido",
-                registrationDate: "05/08/2023",
-                nextPayment: "05/11/2023"
-            }
-        ];
-        
+
         // Función para generar avatar color
         function getAvatarColor(name) {
             const colors = [
@@ -1954,32 +1966,84 @@
                 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
                 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
             ];
+            if (!name) return colors[0];
             const index = name.charCodeAt(0) % colors.length;
             return colors[index];
         }
-        
+
+        // Variables globales
+        let allClients = [];
+        let currentPage = 1;
+        let itemsPerPage = 25;
+
         // Función para renderizar clientes en la tabla
         function renderClients(clients) {
             const tableBody = document.getElementById('clientsTableBody');
+            
+            if (clients.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 50px;">
+                            <i class="fas fa-users" style="font-size: 48px; color: var(--color-text-lighter); margin-bottom: 15px;"></i>
+                            <div style="color: var(--color-text-light); font-size: 16px;">No se encontraron clientes</div>
+                            <a href="nuevo-cliente.html" class="btn btn-primary" style="margin-top: 20px;">
+                                <i class="fas fa-user-plus"></i> Agregar primer cliente
+                            </a>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
             tableBody.innerHTML = '';
             
             clients.forEach(client => {
                 const row = document.createElement('tr');
                 row.className = 'animate-fade-in';
                 
+                // Generar iniciales para el avatar
+                const initials = generateInitials(client.primer_nombre, client.primer_apellido);
+                
+                // Determinar precio del plan
+                const planPrices = {
+                    'basic': 'L 699.00',
+                    'family': 'L 1,199.00',
+                    'premium': 'L 1,999.00'
+                };
+                
+                const price = planPrices[client.plan] || 'L 0.00';
+                
+                // Determinar texto del plan
+                const planNames = {
+                    'basic': 'Básico',
+                    'family': 'Familiar Pro',
+                    'premium': 'Premium Ultra'
+                };
+                
+                const planName = planNames[client.plan] || 'Sin plan';
+                
                 // Determinar clase de estado
                 let statusClass = 'status-active';
-                if (client.status === 'warning') statusClass = 'status-warning';
-                if (client.status === 'expired') statusClass = 'status-expired';
+                if (client.estado === 'warning') statusClass = 'status-warning';
+                if (client.estado === 'expired') statusClass = 'status-expired';
+                
+                // Determinar texto del estado
+                const statusTexts = {
+                    'active': 'Activo',
+                    'warning': 'Próximo a vencer',
+                    'expired': 'Vencido'
+                };
+                
+                const statusText = statusTexts[client.estado] || 'Desconocido';
                 
                 row.innerHTML = `
                     <td>
                         <div class="client-info">
-                            <div class="client-avatar" style="background: ${getAvatarColor(client.name)};">
-                                ${client.initials}
+                            <div class="client-avatar" style="background: ${getAvatarColor(client.primer_nombre)};">
+                                ${initials}
                             </div>
                             <div class="client-details">
-                                <div class="client-name">${client.name}</div>
+                                <div class="client-name">${client.primer_nombre} ${client.primer_apellido}</div>
                                 <div class="client-id">ID: NC-${client.id.toString().padStart(4, '0')}</div>
                             </div>
                         </div>
@@ -1988,22 +2052,22 @@
                         <div class="client-contact">
                             <div class="contact-item">
                                 <i class="fas fa-phone"></i>
-                                ${client.phone}
+                                ${client.telefono || 'Sin teléfono'}
                             </div>
                             <div class="contact-item">
                                 <i class="fas fa-map-marker-alt"></i>
-                                ${client.address}
+                                ${client.direccion ? (client.direccion.length > 30 ? client.direccion.substring(0, 30) + '...' : client.direccion) : 'Sin dirección'}
                             </div>
                         </div>
                     </td>
                     <td>
                         <div class="client-plan">
-                            <div class="plan-name">${client.plan}</div>
-                            <div class="plan-price">${client.price}</div>
+                            <div class="plan-name">${planName}</div>
+                            <div class="plan-price">${price}</div>
                         </div>
                     </td>
                     <td>
-                        <span class="status-badge ${statusClass}">${client.statusText}</span>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
                     </td>
                     <td>
                         <div class="client-actions">
@@ -2026,7 +2090,15 @@
             // Agregar event listeners a los botones
             attachActionListeners();
         }
-        
+
+        // Función para generar iniciales
+        function generateInitials(firstName, lastName) {
+            if (!firstName && !lastName) return 'NC';
+            const first = firstName ? firstName.charAt(0).toUpperCase() : '';
+            const last = lastName ? lastName.charAt(0).toUpperCase() : '';
+            return first + last;
+        }
+
         // Función para filtrar clientes
         function filterClients() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -2034,21 +2106,19 @@
             const planFilter = document.getElementById('planFilter').value;
             const sortFilter = document.getElementById('sortFilter').value;
             
-            let filtered = sampleClients.filter(client => {
+            let filtered = allClients.filter(client => {
                 // Búsqueda
                 const matchesSearch = searchTerm === '' || 
-                    client.name.toLowerCase().includes(searchTerm) ||
-                    client.phone.includes(searchTerm) ||
-                    client.email.toLowerCase().includes(searchTerm);
+                    (client.primer_nombre && client.primer_nombre.toLowerCase().includes(searchTerm)) ||
+                    (client.primer_apellido && client.primer_apellido.toLowerCase().includes(searchTerm)) ||
+                    (client.telefono && client.telefono.includes(searchTerm)) ||
+                    (client.email && client.email.toLowerCase().includes(searchTerm));
                 
                 // Filtro de estado
-                const matchesStatus = statusFilter === '' || client.status === statusFilter;
+                const matchesStatus = statusFilter === '' || client.estado === statusFilter;
                 
                 // Filtro de plan
-                const matchesPlan = planFilter === '' || 
-                    (planFilter === 'basic' && client.plan === 'Básico') ||
-                    (planFilter === 'family' && client.plan === 'Familiar Pro') ||
-                    (planFilter === 'premium' && client.plan === 'Premium Ultra');
+                const matchesPlan = planFilter === '' || client.plan === planFilter;
                 
                 return matchesSearch && matchesStatus && matchesPlan;
             });
@@ -2056,16 +2126,14 @@
             // Ordenar
             filtered.sort((a, b) => {
                 switch(sortFilter) {
-                    case 'name':
-                        return a.name.localeCompare(b.name);
-                    case 'date':
-                        return new Date(b.registrationDate) - new Date(a.registrationDate);
-                    case 'due':
-                        return new Date(a.nextPayment) - new Date(b.nextPayment);
-                    case 'plan':
-                        const priceA = parseInt(a.price.replace(/[^0-9]/g, ''));
-                        const priceB = parseInt(b.price.replace(/[^0-9]/g, ''));
-                        return priceB - priceA;
+                    case 'nombre':
+                        const nameA = `${a.primer_nombre} ${a.primer_apellido}`.toLowerCase();
+                        const nameB = `${b.primer_nombre} ${b.primer_apellido}`.toLowerCase();
+                        return nameA.localeCompare(nameB);
+                    case 'fecha_registro':
+                        return new Date(b.fecha_registro) - new Date(a.fecha_registro);
+                    case 'fecha_vencimiento':
+                        return new Date(a.fecha_vencimiento) - new Date(b.fecha_vencimiento);
                     default:
                         return 0;
                 }
@@ -2073,26 +2141,42 @@
             
             renderClients(filtered);
             updateClientCount(filtered.length);
+            updateStats(filtered);
         }
-        
+
         // Función para actualizar contador de clientes
         function updateClientCount(count) {
-            const countElement = document.querySelector('.clients-count');
+            const countElement = document.getElementById('clientsCount');
             if (countElement) {
-                countElement.textContent = `Mostrando 1-${Math.min(count, 25)} de ${count} clientes`;
+                const start = (currentPage - 1) * itemsPerPage + 1;
+                const end = Math.min(currentPage * itemsPerPage, count);
+                countElement.textContent = `Mostrando ${start}-${end} de ${count} clientes`;
             }
         }
-        
+
+        // Función para actualizar estadísticas
+        function updateStats(clients) {
+            const total = clients.length;
+            const active = clients.filter(c => c.estado === 'active').length;
+            const warning = clients.filter(c => c.estado === 'warning').length;
+            const expired = clients.filter(c => c.estado === 'expired').length;
+            
+            document.getElementById('totalClients').textContent = total;
+            document.getElementById('activeClients').textContent = active;
+            document.getElementById('warningClients').textContent = warning;
+            document.getElementById('expiredClients').textContent = expired;
+            
+            // Actualizar badge en sidebar
+            document.getElementById('clientsBadge').textContent = total;
+        }
+
         // Función para adjuntar event listeners a los botones de acción
         function attachActionListeners() {
             // Botones de ver
             document.querySelectorAll('.action-btn.view').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', async function() {
                     const clientId = parseInt(this.getAttribute('data-id'));
-                    const client = sampleClients.find(c => c.id === clientId);
-                    if (client) {
-                        showClientModal(client);
-                    }
+                    await showClientModal(clientId);
                 });
             });
             
@@ -2100,89 +2184,142 @@
             document.querySelectorAll('.action-btn.edit').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const clientId = parseInt(this.getAttribute('data-id'));
-                    alert(`Editar cliente ID: ${clientId}`);
-                    // En una implementación real, redirigir a página de edición
+                    window.location.href = `editar-cliente.html?id=${clientId}`;
                 });
             });
             
             // Botones de eliminar
             document.querySelectorAll('.action-btn.delete').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', async function() {
                     const clientId = parseInt(this.getAttribute('data-id'));
-                    const client = sampleClients.find(c => c.id === clientId);
+                    const client = allClients.find(c => c.id === clientId);
                     
-                    if (confirm(`¿Estás seguro de eliminar a ${client.name}?`)) {
-                        // En una implementación real, enviar solicitud al servidor
-                        alert(`${client.name} ha sido eliminado`);
-                        // Recargar la lista
-                        filterClients();
+                    if (client && confirm(`¿Estás seguro de eliminar a ${client.primer_nombre} ${client.primer_apellido}? Esta acción no se puede deshacer.`)) {
+                        const success = await deleteCliente(clientId);
+                        if (success) {
+                            showNotification('Cliente eliminado exitosamente', 'success');
+                            // Recargar la lista
+                            await loadClientes();
+                        }
                     }
                 });
             });
         }
-        
+
         // Modal de detalles del cliente
         const clientModal = document.getElementById('clientModal');
         const modalClose = document.getElementById('modalClose');
         
-        function showClientModal(client) {
+        async function showClientModal(clientId) {
+            const cliente = await fetchClienteById(clientId);
+            if (!cliente) return;
+            
+            // Obtener pagos del cliente
+            const pagos = await fetchPagosByClienteId(clientId);
+            
             // Actualizar información del modal
-            document.getElementById('modalAvatar').textContent = client.initials;
-            document.getElementById('modalAvatar').style.background = getAvatarColor(client.name);
-            document.getElementById('modalName').textContent = client.name;
-            document.getElementById('modalPhone').textContent = client.phone;
-            document.getElementById('modalEmail').textContent = client.email;
-            document.getElementById('modalAddress').textContent = client.address;
+            const initials = generateInitials(cliente.primer_nombre, cliente.primer_apellido);
+            document.getElementById('modalAvatar').textContent = initials;
+            document.getElementById('modalAvatar').style.background = getAvatarColor(cliente.primer_nombre);
+            
+            document.getElementById('modalName').textContent = `${cliente.primer_nombre} ${cliente.primer_apellido}`;
+            document.getElementById('modalPhone').textContent = cliente.telefono || 'No disponible';
+            document.getElementById('modalEmail').textContent = cliente.email || 'No disponible';
+            document.getElementById('modalAddress').textContent = cliente.direccion || 'No disponible';
             
             // Actualizar estado
             const modalStatus = document.getElementById('modalStatus');
-            modalStatus.textContent = client.statusText;
+            const statusTexts = {
+                'active': 'Activo',
+                'warning': 'Próximo a vencer',
+                'expired': 'Vencido'
+            };
+            modalStatus.textContent = statusTexts[cliente.estado] || 'Desconocido';
             modalStatus.className = 'status-badge ';
-            if (client.status === 'active') modalStatus.classList.add('status-active');
-            if (client.status === 'warning') modalStatus.classList.add('status-warning');
-            if (client.status === 'expired') modalStatus.classList.add('status-expired');
+            if (cliente.estado === 'active') modalStatus.classList.add('status-active');
+            if (cliente.estado === 'warning') modalStatus.classList.add('status-warning');
+            if (cliente.estado === 'expired') modalStatus.classList.add('status-expired');
             
-            // Información adicional (simulada)
-            document.getElementById('modalFullName').textContent = client.name + " " + (client.name.split(' ')[0] === 'María' ? 'Gabriela' : 'Antonio') + " " + (client.name.split(' ')[1] === 'Rodríguez' ? 'López' : 'García');
-            document.getElementById('modalId').textContent = `0801-${1980 + client.id}-${10000 + client.id}`;
-            document.getElementById('modalRegDate').textContent = client.registrationDate;
-            document.getElementById('modalReferred').textContent = client.id % 3 === 0 ? 'Carlos Martínez' : 'Referencia propia';
-            document.getElementById('modalPlan').textContent = client.plan;
-            document.getElementById('modalMonthly').textContent = client.price;
-            document.getElementById('modalNextPayment').textContent = client.nextPayment;
+            // Información personal
+            document.getElementById('modalFullName').textContent = 
+                `${cliente.primer_nombre} ${cliente.segundo_nombre || ''} ${cliente.primer_apellido} ${cliente.segundo_apellido || ''}`.trim();
             
-            // Calcular fechas (simuladas)
-            const startDate = new Date(client.registrationDate);
-            startDate.setDate(startDate.getDate() + 30);
-            document.getElementById('modalStartDate').textContent = client.registrationDate;
+            document.getElementById('modalPhoneFull').textContent = cliente.telefono || 'No disponible';
+            document.getElementById('modalRegDate').textContent = formatDate(cliente.fecha_registro);
+            document.getElementById('modalAddressFull').textContent = cliente.direccion || 'No disponible';
             
-            const dueDate = new Date(client.nextPayment);
-            dueDate.setDate(dueDate.getDate() + 15);
-            document.getElementById('modalDueDate').textContent = dueDate.toLocaleDateString('es-HN');
+            // Información del plan
+            const planNames = {
+                'basic': 'Plan Básico',
+                'family': 'Plan Familiar Pro',
+                'premium': 'Plan Premium Ultra'
+            };
             
-            // Calcular días restantes
+            const planPrices = {
+                'basic': 'L 699.00',
+                'family': 'L 1,199.00',
+                'premium': 'L 1,999.00'
+            };
+            
+            document.getElementById('modalPlan').textContent = planNames[cliente.plan] || 'Sin plan';
+            document.getElementById('modalMonthly').textContent = planPrices[cliente.plan] || 'L 0.00';
+            document.getElementById('modalStartDate').textContent = formatDate(cliente.fecha_inicio);
+            document.getElementById('modalDueDate').textContent = formatDate(cliente.fecha_vencimiento);
+            
+            // Información de pagos
+            const mesesPagados = pagos.filter(p => p.estado === 'completado').length;
+            const ultimoPago = pagos.filter(p => p.estado === 'completado')
+                .sort((a, b) => new Date(b.fecha_pago) - new Date(a.fecha_pago))[0];
+            
+            document.getElementById('modalPaid').textContent = `${mesesPagados} meses`;
+            document.getElementById('modalLastPayment').textContent = ultimoPago ? formatDate(ultimoPago.fecha_pago) : 'Ninguno';
+            document.getElementById('modalNextPayment').textContent = formatDate(cliente.fecha_vencimiento);
+            
+            // Determinar estado de pago basado en la fecha de vencimiento
             const today = new Date();
-            const nextPayment = new Date(client.nextPayment);
-            const daysLeft = Math.ceil((nextPayment - today) / (1000 * 60 * 60 * 24));
-            document.getElementById('modalDaysLeft').textContent = daysLeft > 0 ? `${daysLeft} días` : `${-daysLeft} días vencidos`;
+            const dueDate = new Date(cliente.fecha_vencimiento);
+            const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
             
-            // Información de pagos (simulada)
-            document.getElementById('modalPaid').textContent = `${Math.floor(client.id / 2) + 1} meses`;
-            document.getElementById('modalOverdue').textContent = client.status === 'expired' ? '1 mes' : '0 meses';
+            let paymentStatus = 'Al día';
+            if (daysUntilDue < 0) paymentStatus = 'Vencido';
+            else if (daysUntilDue <= 7) paymentStatus = 'Por vencer';
             
-            // Notas (simuladas)
-            const notes = [
-                "Cliente muy satisfecho con el servicio. Paga puntualmente.",
-                "Prefiere ser contactado por WhatsApp. Solicita factura electrónica.",
-                "Tuvo problemas de conexión el mes pasado, pero ya resueltos.",
-                "Interesado en actualizar a plan superior el próximo mes.",
-                "Cliente referido. Muy contento con la velocidad de internet."
-            ];
-            document.getElementById('modalNotes').textContent = notes[client.id % notes.length];
+            document.getElementById('modalPaymentStatus').textContent = paymentStatus;
+            
+            // Notas
+            document.getElementById('modalNotes').textContent = cliente.notas || 'No hay notas adicionales.';
+            
+            // Actualizar botones del modal
+            document.getElementById('editClient').onclick = () => {
+                window.location.href = `editar-cliente.html?id=${cliente.id}`;
+            };
+            
+            document.getElementById('processPayment').onclick = () => {
+                window.location.href = `nuevo-pago.html?cliente_id=${cliente.id}`;
+            };
             
             // Mostrar modal
             clientModal.classList.add('active');
             document.body.style.overflow = 'hidden';
+        }
+        
+        // Función para formatear fecha
+        function formatDate(dateString) {
+            if (!dateString) return 'No disponible';
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return 'Fecha inválida';
+                
+                const options = { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric'
+                };
+                
+                return date.toLocaleDateString('es-HN', options);
+            } catch (error) {
+                return 'Fecha inválida';
+            }
         }
         
         // Cerrar modal
@@ -2199,74 +2336,99 @@
             }
         });
         
-        // Botones del modal
-        document.getElementById('editClient').addEventListener('click', () => {
-            const clientName = document.getElementById('modalName').textContent;
-            alert(`Editar cliente: ${clientName}`);
-            // En una implementación real, redirigir a página de edición
-        });
-        
-        document.getElementById('processPayment').addEventListener('click', () => {
-            const clientName = document.getElementById('modalName').textContent;
-            const amount = document.getElementById('modalMonthly').textContent;
-            alert(`Procesar pago para ${clientName} - Monto: ${amount}`);
-            // En una implementación real, abrir modal de pago
-        });
+        // Función para cargar todos los clientes
+        async function loadClientes() {
+            try {
+                const loadingRow = document.getElementById('loadingRow');
+                if (loadingRow) {
+                    loadingRow.innerHTML = `
+                        <td colspan="5" style="text-align: center; padding: 50px;">
+                            <div class="loading" style="margin: 0 auto 15px;"></div>
+                            <div style="color: var(--color-text-light);">Cargando clientes desde la base de datos...</div>
+                        </td>
+                    `;
+                }
+                
+                allClients = await fetchClientes();
+                filterClients();
+                
+            } catch (error) {
+                console.error('Error loading clientes:', error);
+                showNotification('Error al cargar clientes desde la base de datos', 'error');
+            }
+        }
         
         // Event listeners para filtros
         document.getElementById('searchInput').addEventListener('input', filterClients);
         document.getElementById('statusFilter').addEventListener('change', filterClients);
         document.getElementById('planFilter').addEventListener('change', filterClients);
         document.getElementById('sortFilter').addEventListener('change', filterClients);
-        document.getElementById('limitFilter').addEventListener('change', filterClients);
+        
+        document.getElementById('limitFilter').addEventListener('change', function() {
+            itemsPerPage = parseInt(this.value);
+            filterClients();
+        });
         
         // Botón para limpiar filtros
         document.getElementById('resetFilters').addEventListener('click', () => {
             document.getElementById('searchInput').value = '';
             document.getElementById('statusFilter').value = '';
             document.getElementById('planFilter').value = '';
-            document.getElementById('sortFilter').value = 'name';
+            document.getElementById('sortFilter').value = 'nombre';
             document.getElementById('limitFilter').value = '25';
+            itemsPerPage = 25;
             filterClients();
         });
         
-        // Paginación
-        document.getElementById('prevPage').addEventListener('click', () => {
-            alert('Página anterior');
-            // En una implementación real, cargar página anterior
-        });
-        
-        document.getElementById('nextPage').addEventListener('click', () => {
-            alert('Página siguiente');
-            // En una implementación real, cargar página siguiente
-        });
-        
-        // Botones de paginación numéricos
-        document.querySelectorAll('.pagination-btn:not(#prevPage):not(#nextPage)').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Remover clase active de todos los botones
-                document.querySelectorAll('.pagination-btn').forEach(b => {
-                    b.classList.remove('active');
-                });
-                // Agregar clase active al botón clickeado
-                this.classList.add('active');
-                
-                const pageNum = this.textContent;
-                alert(`Cargar página ${pageNum}`);
-                // En una implementación real, cargar la página correspondiente
+        // Función para mostrar notificaciones
+        function showNotification(message, type = 'info') {
+            // Remover notificaciones existentes
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => {
+                notification.remove();
             });
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+                <button class="notification-close"><i class="fas fa-times"></i></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Botón para cerrar
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.remove();
+            });
+            
+            // Auto cerrar después de 5 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+        
+        // Notificaciones
+        document.getElementById('notificationsBtn').addEventListener('click', () => {
+            const expiredCount = allClients.filter(c => c.estado === 'expired').length;
+            const warningCount = allClients.filter(c => c.estado === 'warning').length;
+            
+            showNotification(`Tienes ${expiredCount} clientes vencidos y ${warningCount} próximos a vencer`, 'warning');
         });
         
-        // Inicializar
-        document.addEventListener('DOMContentLoaded', () => {
-            // Renderizar clientes iniciales
-            renderClients(sampleClients.slice(0, 15));
-            
+        // Inicializar cuando se carga la página
+        document.addEventListener('DOMContentLoaded', async () => {
             // Añadir animaciones
             const animatedElements = document.querySelectorAll('.animate-fade-in');
             animatedElements.forEach((el, index) => {
                 el.style.animationDelay = `${index * 0.05}s`;
             });
+            
+            // Cargar clientes desde la base de datos
+            await loadClientes();
             
             // Detectar cambios en el tamaño de la ventana
             window.addEventListener('resize', () => {
@@ -2276,37 +2438,6 @@
                 }
             });
         });
-        
-        // Notificaciones
-        document.getElementById('notificationsBtn').addEventListener('click', () => {
-            alert('Tienes 3 clientes vencidos y 5 próximos a vencer');
-        });
-        
-        // Simular actualizaciones en tiempo real
-        setInterval(() => {
-            // Simular cambio de estado aleatorio para un cliente
-            if (Math.random() > 0.7) { // 30% de probabilidad cada minuto
-                const randomClient = sampleClients[Math.floor(Math.random() * sampleClients.length)];
-                const oldStatus = randomClient.status;
-                
-                // Cambiar estado
-                const statuses = ['active', 'warning', 'expired'];
-                const newStatus = statuses[Math.floor(Math.random() * statuses.length)];
-                randomClient.status = newStatus;
-                randomClient.statusText = newStatus === 'active' ? 'Activo' : 
-                                          newStatus === 'warning' ? 'Próximo a vencer' : 'Vencido';
-                
-                // Solo mostrar notificación si el estado cambió
-                if (oldStatus !== newStatus) {
-                    console.log(`Cliente ${randomClient.name} cambió a ${randomClient.statusText}`);
-                    
-                    // Actualizar tabla si está visible
-                    if (document.querySelector('.clients-table')) {
-                        filterClients();
-                    }
-                }
-            }
-        }, 60000); // Cada minuto
     </script>
 </body>
 </html>
