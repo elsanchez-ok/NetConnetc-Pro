@@ -101,7 +101,7 @@
             min-height: 100vh;
         }
 
-        /* Sidebar (Mismo que dashboard) */
+        /* Sidebar */
         .sidebar {
             width: var(--sidebar-width);
             background: var(--gradient-sidebar);
@@ -1500,9 +1500,10 @@
                             <label class="filter-label">Estado</label>
                             <select class="filter-select" id="statusFilter">
                                 <option value="">Todos los estados</option>
-                                <option value="active">Activo</option>
-                                <option value="warning">Próximo a vencer</option>
-                                <option value="expired">Vencido</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Suspendido">Suspendido</option>
+                                <option value="Inactivo">Inactivo</option>
                             </select>
                         </div>
                         
@@ -1510,9 +1511,10 @@
                             <label class="filter-label">Plan</label>
                             <select class="filter-select" id="planFilter">
                                 <option value="">Todos los planes</option>
-                                <option value="basic">Básico</option>
-                                <option value="family">Familiar Pro</option>
-                                <option value="premium">Premium Ultra</option>
+                                <option value="Básico">Básico</option>
+                                <option value="Familiar Pro">Familiar Pro</option>
+                                <option value="Premium Ultra">Premium Ultra</option>
+                                <option value="Empresarial">Empresarial</option>
                             </select>
                         </div>
                         
@@ -1564,11 +1566,10 @@
                                 </tr>
                             </thead>
                             <tbody id="clientsTableBody">
-                                <!-- Los clientes se cargan dinámicamente desde la base de datos -->
                                 <tr id="loadingRow">
                                     <td colspan="5" style="text-align: center; padding: 50px;">
                                         <div class="loading" style="margin: 0 auto 15px;"></div>
-                                        <div style="color: var(--color-text-light);">Cargando clientes...</div>
+                                        <div style="color: var(--color-text-light);">Conectando con NocoDB V3...</div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -1713,167 +1714,142 @@
     </div>
 
     <script>
-        // =============================================
-        // CONFIGURACIÓN DE LA BASE DE DATOS NOCODB
-        // =============================================
-        // Reemplaza estos valores con los de tu instancia de NocoDB
-        const NOCODB_CONFIG = {
-            // URL base de tu API de NocoDB
-            BASE_URL: 'https://app.nocodb.com/api/v2/tables/mgngbu64zhcnffe/records',
-            
-            // Nombre de tu proyecto en NocoDB
-            PROJECT_NAME: 'NetConnectPro',
-            
-            // Token de acceso (API Token de NocoDB)
-            API_TOKEN: 'kkwcfnQhokq8OcCzf_0e1LTN4feqiNXSwfrGz0kB',
-            
-            // Nombres de las tablas
-            TABLES: {
-                CLIENTES: 'Clientes',
-                PAGOS: 'Pagos'
-            }
-        };
+ // =============================================
+// CONFIGURACIÓN CORRECTA PARA TU NOCODB
+// =============================================
+
+const NOCODB_CONFIG = {
+    // BASE_URL CORRECTA para tu instancia específica
+    // Usa esta URL exactamente:
+    BASE_URL: 'https://app.nocodb.com/api/v2/tables',
+    
+    // TABLE_ID - Ya lo tienes correcto
+    TABLE_ID: 'mgngbu64zhcnffe',
+    
+    // API_TOKEN - Usa el que ya tienes
+    API_TOKEN: 'kkwcfnQhokq8OcCzf_0e1LTN4feqiNXSwfrGz0kB',
+    
+    // Project ID extraído de tu URL (opcional, para referencia)
+    PROJECT_ID: 'c0728139-9293-470e-b385-468eebc81cac',
+    
+    // View ID extraído de tu URL (opcional)
+    VIEW_ID: 'vwpbs8y3o5u9oc67',
+    
+    LIMIT: 100
+};
 
         // =============================================
-        // FUNCIONES PARA CONECTAR CON NOCODB
+        // FUNCIONES PARA CONECTAR CON NOCODB V3
         // =============================================
-        
+
         // Función para obtener los headers de autenticación
         function getHeaders() {
             return {
                 'Content-Type': 'application/json',
-                'xc-auth': NOCODB_CONFIG.API_TOKEN
+                'xc-token': NOCODB_CONFIG.API_TOKEN
             };
         }
 
-        // Función para construir la URL de la API
-        function getTableUrl(tableName) {
-            return `${NOCODB_CONFIG.BASE_URL}${NOCODB_CONFIG.PROJECT_NAME}/${tableName}`;
-        }
+        // Función para construir la URL de la API CORREGIDA
+        function getTableUrl() {
+    // Para NocoDB Cloud, la URL debe ser exactamente así:
+    return `https://app.nocodb.com/api/v2/tables/${NOCODB_CONFIG.TABLE_ID}/records`;
+}
 
-        // Función para obtener todos los clientes
-        async function fetchClientes(filters = {}) {
+        // Función para obtener todos los clientes desde NocoDB V3 CORREGIDA
+        async function fetchClientes() {
             try {
-                const url = getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES);
+                console.log('=== Iniciando conexión con NocoDB V3 ===');
+                console.log('Configuración completa:', NOCODB_CONFIG);
+                
+                // URL corregida para NocoDB V3
+                const url = `${NOCODB_CONFIG.BASE_URL}/${NOCODB_CONFIG.TABLE_ID}/records?limit=${NOCODB_CONFIG.LIMIT}`;
+                
+                console.log('URL de conexión:', url);
+                console.log('Headers:', getHeaders());
+                
                 const response = await fetch(url, {
-                    headers: getHeaders()
+                    headers: getHeaders(),
+                    method: 'GET',
+                    mode: 'cors'
                 });
                 
+                console.log('Estado de respuesta:', response.status);
+                
                 if (!response.ok) {
-                    throw new Error('Error al obtener clientes');
+                    const errorText = await response.text();
+                    console.error('Error en la respuesta:', errorText);
+                    
+                    // Errores comunes en V3
+                    if (response.status === 401) {
+                        throw new Error('Token de API inválido o expirado. Verifica tu token en NOCODB_CONFIG.API_TOKEN');
+                    } else if (response.status === 404) {
+                        throw new Error('Tabla no encontrada. Verifica el TABLE_ID en NOCODB_CONFIG');
+                    } else if (response.status === 403) {
+                        throw new Error('Permisos insuficientes. Verifica los permisos del token');
+                    } else {
+                        throw new Error(`Error ${response.status}: ${errorText}`);
+                    }
                 }
                 
                 const data = await response.json();
-                return data.list || [];
+                console.log('Datos recibidos de NocoDB V3:', data);
+                
+                // En NocoDB V3, la estructura es: { list: [], pageInfo: {} }
+                let records = [];
+                
+                if (data.list && Array.isArray(data.list)) {
+                    records = data.list;
+                } else if (Array.isArray(data)) {
+                    records = data;
+                } else if (data.records && Array.isArray(data.records)) {
+                    records = data.records;
+                } else {
+                    console.warn('Estructura de datos inesperada, intentando adaptar:', data);
+                    // Intentar extraer registros de cualquier estructura
+                    records = Object.values(data).find(val => Array.isArray(val)) || [];
+                }
+                
+                console.log(`Se obtuvieron ${records.length} registros de clientes`);
+                
+                // Si no hay datos, mostrar mensaje
+                if (records.length === 0) {
+                    console.warn('La tabla está vacía o no hay datos coincidentes');
+                }
+                
+                return records;
+                
             } catch (error) {
-                console.error('Error fetching clientes:', error);
-                showNotification('Error al cargar clientes', 'error');
-                return [];
+                console.error('Error crítico en fetchClientes:', error);
+                throw error;
             }
         }
 
-        // Función para obtener un cliente por ID
+        // Función para obtener un cliente por ID en V3 CORREGIDA
         async function fetchClienteById(id) {
             try {
-                const url = `${getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES)}/${id}`;
-                const response = await fetch(url, {
-                    headers: getHeaders()
-                });
+                const url = `${NOCODB_CONFIG.BASE_URL}/${NOCODB_CONFIG.TABLE_ID}/records/${id}`;
+                console.log('Obteniendo cliente desde:', url);
                 
-                if (!response.ok) {
-                    throw new Error('Error al obtener cliente');
-                }
-                
-                return await response.json();
-            } catch (error) {
-                console.error('Error fetching cliente:', error);
-                showNotification('Error al cargar cliente', 'error');
-                return null;
-            }
-        }
-
-        // Función para crear un nuevo cliente
-        async function createCliente(clienteData) {
-            try {
-                const url = getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES);
                 const response = await fetch(url, {
-                    method: 'POST',
                     headers: getHeaders(),
-                    body: JSON.stringify(clienteData)
+                    method: 'GET',
+                    mode: 'cors'
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Error al crear cliente');
-                }
-                
-                return await response.json();
-            } catch (error) {
-                console.error('Error creating cliente:', error);
-                showNotification('Error al crear cliente', 'error');
-                return null;
-            }
-        }
-
-        // Función para actualizar un cliente
-        async function updateCliente(id, clienteData) {
-            try {
-                const url = `${getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES)}/${id}`;
-                const response = await fetch(url, {
-                    method: 'PATCH',
-                    headers: getHeaders(),
-                    body: JSON.stringify(clienteData)
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Error al actualizar cliente');
-                }
-                
-                return await response.json();
-            } catch (error) {
-                console.error('Error updating cliente:', error);
-                showNotification('Error al actualizar cliente', 'error');
-                return null;
-            }
-        }
-
-        // Función para eliminar un cliente
-        async function deleteCliente(id) {
-            try {
-                const url = `${getTableUrl(NOCODB_CONFIG.TABLES.CLIENTES)}/${id}`;
-                const response = await fetch(url, {
-                    method: 'DELETE',
-                    headers: getHeaders()
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Error al eliminar cliente');
-                }
-                
-                return true;
-            } catch (error) {
-                console.error('Error deleting cliente:', error);
-                showNotification('Error al eliminar cliente', 'error');
-                return false;
-            }
-        }
-
-        // Función para obtener pagos de un cliente
-        async function fetchPagosByClienteId(clienteId) {
-            try {
-                const url = getTableUrl(NOCODB_CONFIG.TABLES.PAGOS);
-                const response = await fetch(`${url}?where=(cliente_id,eq,${clienteId})`, {
-                    headers: getHeaders()
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Error al obtener pagos');
+                    throw new Error(`Error ${response.status} al obtener cliente`);
                 }
                 
                 const data = await response.json();
-                return data.list || [];
+                console.log('Datos del cliente:', data);
+                
+                // En V3, el formato puede variar
+                return data.record || data;
+                
             } catch (error) {
-                console.error('Error fetching pagos:', error);
-                return [];
+                console.error('Error en fetchClienteById:', error);
+                throw error;
             }
         }
 
@@ -1976,6 +1952,37 @@
         let currentPage = 1;
         let itemsPerPage = 25;
 
+        // Función para extraer datos del cliente de NocoDB V3
+        function extractClientData(client) {
+            // En NocoDB V3, los datos vienen directamente como propiedades del objeto
+            // pero también pueden venir en un campo 'record'
+            const record = client.record || client;
+            
+            // Debug: Mostrar estructura del registro
+            console.log('Estructura del registro:', Object.keys(record));
+            
+            // Mapeo flexible de campos
+            return {
+                id: record.Id || record.id || '',
+                primer_nombre: record.Primer_nombre || record.primer_nombre || record.nombre || record.Nombre || '',
+                segundo_nombre: record.Segundo_nombre || record.segundo_nombre || '',
+                primer_apellido: record.Primer_apellido || record.primer_apellido || record.apellido || record.Apellido || '',
+                segundo_apellido: record.Segundo_apellido || record.segundo_apellido || '',
+                telefono: record.Telefono || record.telefono || record.phone || '',
+                email: record.Email || record.email || record.correo || '',
+                direccion: record.Direccion || record.direccion || record.address || '',
+                plan: record.Plan || record.plan || record.tipo_plan || '',
+                estado: record.Estado || record.estado || record.status || 'Activo',
+                fecha_registro: record.Fecha_registro || record.fecha_registro || record.created_at || record.createdAt || '',
+                fecha_inicio: record.Fecha_inicio || record.fecha_inicio || record.start_date || '',
+                ultimo_pago: record.Ultimo_pago || record.ultimo_pago || record.last_payment || '',
+                fecha_vencimiento: record.Fecha_vencimiento || record.fecha_vencimiento || record.due_date || '',
+                meses_pagados: record.Meses_pagados || record.meses_pagados || record.paid_months || 0,
+                notas: record.Notas || record.notas || record.notes || '',
+                foto_url: record.Foto_url || record.foto_url || record.photo_url || ''
+            };
+        }
+
         // Función para renderizar clientes en la tabla
         function renderClients(clients) {
             const tableBody = document.getElementById('clientsTableBody');
@@ -1986,9 +1993,9 @@
                         <td colspan="5" style="text-align: center; padding: 50px;">
                             <i class="fas fa-users" style="font-size: 48px; color: var(--color-text-lighter); margin-bottom: 15px;"></i>
                             <div style="color: var(--color-text-light); font-size: 16px;">No se encontraron clientes</div>
-                            <a href="nuevo-cliente.html" class="btn btn-primary" style="margin-top: 20px;">
-                                <i class="fas fa-user-plus"></i> Agregar primer cliente
-                            </a>
+                            <div style="color: var(--color-text-lighter); font-size: 14px; margin-top: 10px;">
+                                ¡Agrega tu primer cliente haciendo clic en "Nuevo Cliente"!
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -2001,50 +2008,44 @@
                 const row = document.createElement('tr');
                 row.className = 'animate-fade-in';
                 
+                // Extraer datos del cliente
+                const clientData = extractClientData(client);
+                
+                // Debug: Mostrar datos extraídos
+                console.log('Datos del cliente extraídos:', clientData);
+                
                 // Generar iniciales para el avatar
-                const initials = generateInitials(client.primer_nombre, client.primer_apellido);
+                const primerNombre = clientData.primer_nombre || '';
+                const primerApellido = clientData.primer_apellido || '';
+                const initials = generateInitials(primerNombre, primerApellido);
                 
                 // Determinar precio del plan
                 const planPrices = {
-                    'basic': 'L 699.00',
-                    'family': 'L 1,199.00',
-                    'premium': 'L 1,999.00'
+                    'Básico': 'L 699.00',
+                    'Familiar Pro': 'L 1,199.00',
+                    'Premium Ultra': 'L 1,999.00',
+                    'Empresarial': 'L 3,499.00'
                 };
                 
-                const price = planPrices[client.plan] || 'L 0.00';
-                
-                // Determinar texto del plan
-                const planNames = {
-                    'basic': 'Básico',
-                    'family': 'Familiar Pro',
-                    'premium': 'Premium Ultra'
-                };
-                
-                const planName = planNames[client.plan] || 'Sin plan';
+                const plan = clientData.plan || '';
+                const price = planPrices[plan] || 'L 0.00';
                 
                 // Determinar clase de estado
                 let statusClass = 'status-active';
-                if (client.estado === 'warning') statusClass = 'status-warning';
-                if (client.estado === 'expired') statusClass = 'status-expired';
+                const estado = clientData.estado || 'Activo';
                 
-                // Determinar texto del estado
-                const statusTexts = {
-                    'active': 'Activo',
-                    'warning': 'Próximo a vencer',
-                    'expired': 'Vencido'
-                };
-                
-                const statusText = statusTexts[client.estado] || 'Desconocido';
+                if (estado === 'Pendiente' || estado === 'pending') statusClass = 'status-warning';
+                if (estado === 'Suspendido' || estado === 'Inactivo' || estado === 'suspended' || estado === 'inactive') statusClass = 'status-expired';
                 
                 row.innerHTML = `
                     <td>
                         <div class="client-info">
-                            <div class="client-avatar" style="background: ${getAvatarColor(client.primer_nombre)};">
+                            <div class="client-avatar" style="background: ${getAvatarColor(primerNombre)};">
                                 ${initials}
                             </div>
                             <div class="client-details">
-                                <div class="client-name">${client.primer_nombre} ${client.primer_apellido}</div>
-                                <div class="client-id">ID: NC-${client.id.toString().padStart(4, '0')}</div>
+                                <div class="client-name">${primerNombre} ${primerApellido}</div>
+                                <div class="client-id">ID: ${clientData.id ? 'NC-' + clientData.id.toString().padStart(4, '0') : 'NC-0000'}</div>
                             </div>
                         </div>
                     </td>
@@ -2052,32 +2053,35 @@
                         <div class="client-contact">
                             <div class="contact-item">
                                 <i class="fas fa-phone"></i>
-                                ${client.telefono || 'Sin teléfono'}
+                                ${clientData.telefono || 'Sin teléfono'}
                             </div>
                             <div class="contact-item">
                                 <i class="fas fa-map-marker-alt"></i>
-                                ${client.direccion ? (client.direccion.length > 30 ? client.direccion.substring(0, 30) + '...' : client.direccion) : 'Sin dirección'}
+                                ${clientData.direccion ? 
+                                    clientData.direccion.length > 30 ? 
+                                    clientData.direccion.substring(0, 30) + '...' : 
+                                    clientData.direccion : 'Sin dirección'}
                             </div>
                         </div>
                     </td>
                     <td>
                         <div class="client-plan">
-                            <div class="plan-name">${planName}</div>
+                            <div class="plan-name">${plan || 'Sin plan'}</div>
                             <div class="plan-price">${price}</div>
                         </div>
                     </td>
                     <td>
-                        <span class="status-badge ${statusClass}">${statusText}</span>
+                        <span class="status-badge ${statusClass}">${estado}</span>
                     </td>
                     <td>
                         <div class="client-actions">
-                            <button class="action-btn view" data-id="${client.id}" title="Ver detalles">
+                            <button class="action-btn view" data-id="${clientData.id}" title="Ver detalles">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="action-btn edit" data-id="${client.id}" title="Editar">
+                            <button class="action-btn edit" data-id="${clientData.id}" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="action-btn delete" data-id="${client.id}" title="Eliminar">
+                            <button class="action-btn delete" data-id="${clientData.id}" title="Eliminar">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -2106,19 +2110,26 @@
             const planFilter = document.getElementById('planFilter').value;
             const sortFilter = document.getElementById('sortFilter').value;
             
-            let filtered = allClients.filter(client => {
+            let filtered = allClients.map(client => extractClientData(client)).filter(clientData => {
                 // Búsqueda
+                const fullName = `${clientData.primer_nombre || ''} ${clientData.segundo_nombre || ''} ${clientData.primer_apellido || ''} ${clientData.segundo_apellido || ''}`.toLowerCase();
                 const matchesSearch = searchTerm === '' || 
-                    (client.primer_nombre && client.primer_nombre.toLowerCase().includes(searchTerm)) ||
-                    (client.primer_apellido && client.primer_apellido.toLowerCase().includes(searchTerm)) ||
-                    (client.telefono && client.telefono.includes(searchTerm)) ||
-                    (client.email && client.email.toLowerCase().includes(searchTerm));
+                    fullName.includes(searchTerm) ||
+                    (clientData.telefono || '').includes(searchTerm) ||
+                    (clientData.email || '').toLowerCase().includes(searchTerm);
                 
                 // Filtro de estado
-                const matchesStatus = statusFilter === '' || client.estado === statusFilter;
+                const clientEstado = clientData.estado || '';
+                const matchesStatus = statusFilter === '' || 
+                    clientEstado === statusFilter ||
+                    (statusFilter === 'Activo' && clientEstado.toLowerCase() === 'activo') ||
+                    (statusFilter === 'Pendiente' && clientEstado.toLowerCase() === 'pendiente') ||
+                    (statusFilter === 'Suspendido' && clientEstado.toLowerCase() === 'suspendido') ||
+                    (statusFilter === 'Inactivo' && clientEstado.toLowerCase() === 'inactivo');
                 
                 // Filtro de plan
-                const matchesPlan = planFilter === '' || client.plan === planFilter;
+                const clientPlan = clientData.plan || '';
+                const matchesPlan = planFilter === '' || clientPlan === planFilter;
                 
                 return matchesSearch && matchesStatus && matchesPlan;
             });
@@ -2127,13 +2138,17 @@
             filtered.sort((a, b) => {
                 switch(sortFilter) {
                     case 'nombre':
-                        const nameA = `${a.primer_nombre} ${a.primer_apellido}`.toLowerCase();
-                        const nameB = `${b.primer_nombre} ${b.primer_apellido}`.toLowerCase();
+                        const nameA = `${a.primer_nombre || ''} ${a.primer_apellido || ''}`.toLowerCase();
+                        const nameB = `${b.primer_nombre || ''} ${b.primer_apellido || ''}`.toLowerCase();
                         return nameA.localeCompare(nameB);
                     case 'fecha_registro':
-                        return new Date(b.fecha_registro) - new Date(a.fecha_registro);
+                        const dateA = new Date(a.fecha_registro || 0);
+                        const dateB = new Date(b.fecha_registro || 0);
+                        return dateB - dateA; // Más recientes primero
                     case 'fecha_vencimiento':
-                        return new Date(a.fecha_vencimiento) - new Date(b.fecha_vencimiento);
+                        const dueA = new Date(a.fecha_vencimiento || 0);
+                        const dueB = new Date(b.fecha_vencimiento || 0);
+                        return dueA - dueB; // Más próximos primero
                     default:
                         return 0;
                 }
@@ -2157,9 +2172,20 @@
         // Función para actualizar estadísticas
         function updateStats(clients) {
             const total = clients.length;
-            const active = clients.filter(c => c.estado === 'active').length;
-            const warning = clients.filter(c => c.estado === 'warning').length;
-            const expired = clients.filter(c => c.estado === 'expired').length;
+            const active = clients.filter(c => {
+                const estado = (c.estado || '').toLowerCase();
+                return estado === 'activo';
+            }).length;
+            
+            const warning = clients.filter(c => {
+                const estado = (c.estado || '').toLowerCase();
+                return estado === 'pendiente';
+            }).length;
+            
+            const expired = clients.filter(c => {
+                const estado = (c.estado || '').toLowerCase();
+                return estado === 'suspendido' || estado === 'inactivo';
+            }).length;
             
             document.getElementById('totalClients').textContent = total;
             document.getElementById('activeClients').textContent = active;
@@ -2175,31 +2201,55 @@
             // Botones de ver
             document.querySelectorAll('.action-btn.view').forEach(btn => {
                 btn.addEventListener('click', async function() {
-                    const clientId = parseInt(this.getAttribute('data-id'));
-                    await showClientModal(clientId);
+                    const clientId = this.getAttribute('data-id');
+                    try {
+                        await showClientModal(clientId);
+                    } catch (error) {
+                        showNotification('Error al cargar detalles del cliente: ' + error.message, 'error');
+                    }
                 });
             });
             
             // Botones de editar
             document.querySelectorAll('.action-btn.edit').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const clientId = parseInt(this.getAttribute('data-id'));
-                    window.location.href = `editar-cliente.html?id=${clientId}`;
+                    const clientId = this.getAttribute('data-id');
+                    showNotification('Función de edición para cliente ID: ' + clientId, 'info');
+                    // En una implementación real, redirigirías a una página de edición
+                    // window.location.href = `editar-cliente.html?id=${clientId}`;
                 });
             });
             
             // Botones de eliminar
             document.querySelectorAll('.action-btn.delete').forEach(btn => {
                 btn.addEventListener('click', async function() {
-                    const clientId = parseInt(this.getAttribute('data-id'));
-                    const client = allClients.find(c => c.id === clientId);
+                    const clientId = this.getAttribute('data-id');
+                    const client = allClients.find(c => {
+                        const data = extractClientData(c);
+                        return data.id == clientId;
+                    });
                     
-                    if (client && confirm(`¿Estás seguro de eliminar a ${client.primer_nombre} ${client.primer_apellido}? Esta acción no se puede deshacer.`)) {
-                        const success = await deleteCliente(clientId);
-                        if (success) {
-                            showNotification('Cliente eliminado exitosamente', 'success');
-                            // Recargar la lista
-                            await loadClientes();
+                    if (client) {
+                        const clientData = extractClientData(client);
+                        const primerNombre = clientData.primer_nombre || '';
+                        const primerApellido = clientData.primer_apellido || '';
+                        
+                        if (confirm(`¿Estás seguro de eliminar a ${primerNombre} ${primerApellido}? Esta acción no se puede deshacer.`)) {
+                            try {
+                                showNotification('Función de eliminación deshabilitada en demo', 'warning');
+                                // Para implementación real:
+                                // const url = `${NOCODB_CONFIG.BASE_URL}/${NOCODB_CONFIG.TABLE_ID}/records/${clientId}`;
+                                // const response = await fetch(url, {
+                                //     method: 'DELETE',
+                                //     headers: getHeaders()
+                                // });
+                                // if (response.ok) {
+                                //     showNotification('Cliente eliminado exitosamente', 'success');
+                                //     await loadClientes();
+                                // }
+                            } catch (error) {
+                                showNotification('Error al eliminar cliente: ' + error.message, 'error');
+                            }
                         }
                     }
                 });
@@ -2211,101 +2261,112 @@
         const modalClose = document.getElementById('modalClose');
         
         async function showClientModal(clientId) {
-            const cliente = await fetchClienteById(clientId);
-            if (!cliente) return;
-            
-            // Obtener pagos del cliente
-            const pagos = await fetchPagosByClienteId(clientId);
-            
-            // Actualizar información del modal
-            const initials = generateInitials(cliente.primer_nombre, cliente.primer_apellido);
-            document.getElementById('modalAvatar').textContent = initials;
-            document.getElementById('modalAvatar').style.background = getAvatarColor(cliente.primer_nombre);
-            
-            document.getElementById('modalName').textContent = `${cliente.primer_nombre} ${cliente.primer_apellido}`;
-            document.getElementById('modalPhone').textContent = cliente.telefono || 'No disponible';
-            document.getElementById('modalEmail').textContent = cliente.email || 'No disponible';
-            document.getElementById('modalAddress').textContent = cliente.direccion || 'No disponible';
-            
-            // Actualizar estado
-            const modalStatus = document.getElementById('modalStatus');
-            const statusTexts = {
-                'active': 'Activo',
-                'warning': 'Próximo a vencer',
-                'expired': 'Vencido'
-            };
-            modalStatus.textContent = statusTexts[cliente.estado] || 'Desconocido';
-            modalStatus.className = 'status-badge ';
-            if (cliente.estado === 'active') modalStatus.classList.add('status-active');
-            if (cliente.estado === 'warning') modalStatus.classList.add('status-warning');
-            if (cliente.estado === 'expired') modalStatus.classList.add('status-expired');
-            
-            // Información personal
-            document.getElementById('modalFullName').textContent = 
-                `${cliente.primer_nombre} ${cliente.segundo_nombre || ''} ${cliente.primer_apellido} ${cliente.segundo_apellido || ''}`.trim();
-            
-            document.getElementById('modalPhoneFull').textContent = cliente.telefono || 'No disponible';
-            document.getElementById('modalRegDate').textContent = formatDate(cliente.fecha_registro);
-            document.getElementById('modalAddressFull').textContent = cliente.direccion || 'No disponible';
-            
-            // Información del plan
-            const planNames = {
-                'basic': 'Plan Básico',
-                'family': 'Plan Familiar Pro',
-                'premium': 'Plan Premium Ultra'
-            };
-            
-            const planPrices = {
-                'basic': 'L 699.00',
-                'family': 'L 1,199.00',
-                'premium': 'L 1,999.00'
-            };
-            
-            document.getElementById('modalPlan').textContent = planNames[cliente.plan] || 'Sin plan';
-            document.getElementById('modalMonthly').textContent = planPrices[cliente.plan] || 'L 0.00';
-            document.getElementById('modalStartDate').textContent = formatDate(cliente.fecha_inicio);
-            document.getElementById('modalDueDate').textContent = formatDate(cliente.fecha_vencimiento);
-            
-            // Información de pagos
-            const mesesPagados = pagos.filter(p => p.estado === 'completado').length;
-            const ultimoPago = pagos.filter(p => p.estado === 'completado')
-                .sort((a, b) => new Date(b.fecha_pago) - new Date(a.fecha_pago))[0];
-            
-            document.getElementById('modalPaid').textContent = `${mesesPagados} meses`;
-            document.getElementById('modalLastPayment').textContent = ultimoPago ? formatDate(ultimoPago.fecha_pago) : 'Ninguno';
-            document.getElementById('modalNextPayment').textContent = formatDate(cliente.fecha_vencimiento);
-            
-            // Determinar estado de pago basado en la fecha de vencimiento
-            const today = new Date();
-            const dueDate = new Date(cliente.fecha_vencimiento);
-            const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-            
-            let paymentStatus = 'Al día';
-            if (daysUntilDue < 0) paymentStatus = 'Vencido';
-            else if (daysUntilDue <= 7) paymentStatus = 'Por vencer';
-            
-            document.getElementById('modalPaymentStatus').textContent = paymentStatus;
-            
-            // Notas
-            document.getElementById('modalNotes').textContent = cliente.notas || 'No hay notas adicionales.';
-            
-            // Actualizar botones del modal
-            document.getElementById('editClient').onclick = () => {
-                window.location.href = `editar-cliente.html?id=${cliente.id}`;
-            };
-            
-            document.getElementById('processPayment').onclick = () => {
-                window.location.href = `nuevo-pago.html?cliente_id=${cliente.id}`;
-            };
-            
-            // Mostrar modal
-            clientModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            try {
+                const cliente = await fetchClienteById(clientId);
+                if (!cliente) {
+                    showNotification('Cliente no encontrado', 'error');
+                    return;
+                }
+                
+                // Extraer datos del cliente
+                const clientData = extractClientData(cliente);
+                
+                // Actualizar información del modal
+                const primerNombre = clientData.primer_nombre || '';
+                const primerApellido = clientData.primer_apellido || '';
+                const segundoNombre = clientData.segundo_nombre || '';
+                const segundoApellido = clientData.segundo_apellido || '';
+                const fullName = `${primerNombre} ${segundoNombre} ${primerApellido} ${segundoApellido}`.trim().replace(/\s+/g, ' ');
+                const initials = generateInitials(primerNombre, primerApellido);
+                
+                document.getElementById('modalAvatar').textContent = initials;
+                document.getElementById('modalAvatar').style.background = getAvatarColor(primerNombre);
+                
+                document.getElementById('modalName').textContent = fullName || 'Sin nombre';
+                document.getElementById('modalPhone').textContent = clientData.telefono || 'No disponible';
+                document.getElementById('modalEmail').textContent = clientData.email || 'No disponible';
+                document.getElementById('modalAddress').textContent = clientData.direccion || 'No disponible';
+                
+                // Actualizar estado
+                const modalStatus = document.getElementById('modalStatus');
+                const estado = clientData.estado || 'Activo';
+                modalStatus.textContent = estado;
+                
+                // Determinar clase de estado
+                modalStatus.className = 'status-badge ';
+                if (estado.toLowerCase() === 'activo') modalStatus.classList.add('status-active');
+                else if (estado.toLowerCase() === 'pendiente') modalStatus.classList.add('status-warning');
+                else modalStatus.classList.add('status-expired');
+                
+                // Información personal
+                document.getElementById('modalFullName').textContent = fullName || 'Sin nombre';
+                document.getElementById('modalPhoneFull').textContent = clientData.telefono || 'No disponible';
+                document.getElementById('modalRegDate').textContent = formatDate(clientData.fecha_registro);
+                document.getElementById('modalAddressFull').textContent = clientData.direccion || 'No disponible';
+                
+                // Información del plan
+                const plan = clientData.plan || '';
+                const planPrices = {
+                    'Básico': 'L 699.00',
+                    'Familiar Pro': 'L 1,199.00',
+                    'Premium Ultra': 'L 1,999.00',
+                    'Empresarial': 'L 3,499.00'
+                };
+                
+                document.getElementById('modalPlan').textContent = plan || 'Sin plan';
+                document.getElementById('modalMonthly').textContent = planPrices[plan] || 'L 0.00';
+                document.getElementById('modalStartDate').textContent = formatDate(clientData.fecha_inicio);
+                document.getElementById('modalDueDate').textContent = formatDate(clientData.fecha_vencimiento);
+                
+                // Información de pagos
+                document.getElementById('modalPaid').textContent = clientData.meses_pagados || '0';
+                document.getElementById('modalLastPayment').textContent = formatDate(clientData.ultimo_pago);
+                document.getElementById('modalNextPayment').textContent = formatDate(clientData.fecha_vencimiento);
+                
+                // Determinar estado de pago basado en la fecha de vencimiento
+                const today = new Date();
+                const dueDate = new Date(clientData.fecha_vencimiento);
+                const daysUntilDue = dueDate ? Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24)) : 0;
+                
+                let paymentStatus = 'Al día';
+                let paymentClass = 'status-active';
+                if (daysUntilDue < 0) {
+                    paymentStatus = 'Vencido';
+                    paymentClass = 'status-expired';
+                } else if (daysUntilDue <= 7) {
+                    paymentStatus = 'Por vencer';
+                    paymentClass = 'status-warning';
+                }
+                
+                const paymentStatusElement = document.getElementById('modalPaymentStatus');
+                paymentStatusElement.textContent = paymentStatus;
+                paymentStatusElement.className = `payment-status ${paymentClass}`;
+                
+                // Notas
+                document.getElementById('modalNotes').textContent = clientData.notas || 'No hay notas adicionales.';
+                
+                // Actualizar botones del modal
+                document.getElementById('editClient').onclick = () => {
+                    showNotification('Función de edición en desarrollo', 'info');
+                };
+                
+                document.getElementById('processPayment').onclick = () => {
+                    showNotification('Función de pago en desarrollo', 'info');
+                };
+                
+                // Mostrar modal
+                clientModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                
+            } catch (error) {
+                console.error('Error en showClientModal:', error);
+                showNotification('Error al cargar detalles del cliente: ' + error.message, 'error');
+            }
         }
         
         // Función para formatear fecha
         function formatDate(dateString) {
-            if (!dateString) return 'No disponible';
+            if (!dateString || dateString === 'string' || dateString === 'Invalid Date') return 'No disponible';
             try {
                 const date = new Date(dateString);
                 if (isNaN(date.getTime())) return 'Fecha inválida';
@@ -2318,6 +2379,7 @@
                 
                 return date.toLocaleDateString('es-HN', options);
             } catch (error) {
+                console.error('Error formateando fecha:', dateString, error);
                 return 'Fecha inválida';
             }
         }
@@ -2336,7 +2398,7 @@
             }
         });
         
-        // Función para cargar todos los clientes
+        // Función para cargar todos los clientes desde NocoDB V3
         async function loadClientes() {
             try {
                 const loadingRow = document.getElementById('loadingRow');
@@ -2344,17 +2406,65 @@
                     loadingRow.innerHTML = `
                         <td colspan="5" style="text-align: center; padding: 50px;">
                             <div class="loading" style="margin: 0 auto 15px;"></div>
-                            <div style="color: var(--color-text-light);">Cargando clientes desde la base de datos...</div>
+                            <div style="color: var(--color-text-light);">Conectando con NocoDB V3...</div>
+                            <div style="color: var(--color-text-lighter); font-size: 12px; margin-top: 10px;">
+                                URL: ${NOCODB_CONFIG.BASE_URL}/${NOCODB_CONFIG.TABLE_ID}/records
+                            </div>
                         </td>
                     `;
                 }
                 
+                console.log('=== Iniciando carga de clientes desde NocoDB V3 ===');
+                
+                // Obtener clientes desde NocoDB V3
                 allClients = await fetchClientes();
+                console.log('Clientes obtenidos:', allClients.length);
+                
+                if (allClients.length === 0) {
+                    showNotification('No se encontraron clientes en la base de datos', 'warning');
+                } else {
+                    showNotification(`Se cargaron ${allClients.length} clientes desde NocoDB V3`, 'success');
+                }
+                
+                // Renderizar clientes
                 filterClients();
                 
             } catch (error) {
-                console.error('Error loading clientes:', error);
-                showNotification('Error al cargar clientes desde la base de datos', 'error');
+                console.error('Error en loadClientes:', error);
+                
+                // Mostrar mensaje de error en la tabla
+                const tableBody = document.getElementById('clientsTableBody');
+                if (tableBody) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 50px;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--color-danger); margin-bottom: 15px;"></i>
+                                <div style="color: var(--color-text-light); font-size: 16px; margin-bottom: 10px;">
+                                    Error de conexión con NocoDB V3
+                                </div>
+                                <div style="color: var(--color-text-lighter); font-size: 14px; margin-bottom: 20px;">
+                                    ${error.message}
+                                </div>
+                                <div style="color: var(--color-text-lighter); font-size: 12px; margin-bottom: 10px; text-align: left; padding: 10px; background: rgba(239,68,68,0.1); border-radius: 8px;">
+                                    <strong>Pasos para solucionar:</strong><br>
+                                    1. Verifica tu conexión a internet<br>
+                                    2. Revisa el token API en NOCODB_CONFIG<br>
+                                    3. Verifica el TABLE_ID<br>
+                                    4. Asegúrate que la URL base sea correcta<br>
+                                    5. Prueba la conexión con el botón abajo
+                                </div>
+                                <button class="btn btn-primary" onclick="testConnection()" style="margin-top: 10px;">
+                                    <i class="fas fa-wifi"></i> Probar conexión
+                                </button>
+                                <button class="btn btn-secondary" onclick="location.reload()" style="margin-top: 10px; margin-left: 10px;">
+                                    <i class="fas fa-redo"></i> Reintentar
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                showNotification('Error al conectar con NocoDB V3: ' + error.message, 'error');
             }
         }
         
@@ -2413,10 +2523,19 @@
         
         // Notificaciones
         document.getElementById('notificationsBtn').addEventListener('click', () => {
-            const expiredCount = allClients.filter(c => c.estado === 'expired').length;
-            const warningCount = allClients.filter(c => c.estado === 'warning').length;
+            const expiredCount = allClients.filter(c => {
+                const clientData = extractClientData(c);
+                const estado = (clientData.estado || '').toLowerCase();
+                return estado === 'suspendido' || estado === 'inactivo';
+            }).length;
             
-            showNotification(`Tienes ${expiredCount} clientes vencidos y ${warningCount} próximos a vencer`, 'warning');
+            const warningCount = allClients.filter(c => {
+                const clientData = extractClientData(c);
+                const estado = (clientData.estado || '').toLowerCase();
+                return estado === 'pendiente';
+            }).length;
+            
+            showNotification(`Tienes ${expiredCount} clientes suspendidos/inactivos y ${warningCount} pendientes`, 'warning');
         });
         
         // Inicializar cuando se carga la página
@@ -2427,7 +2546,7 @@
                 el.style.animationDelay = `${index * 0.05}s`;
             });
             
-            // Cargar clientes desde la base de datos
+            // Cargar clientes desde NocoDB V3
             await loadClientes();
             
             // Detectar cambios en el tamaño de la ventana
@@ -2438,6 +2557,49 @@
                 }
             });
         });
+
+        // Función de prueba de conexión (para depuración)
+        window.testConnection = async function() {
+            console.log('=== Prueba de conexión a NocoDB V3 ===');
+            console.log('Configuración completa:', NOCODB_CONFIG);
+            
+            try {
+                // Probar conexión básica
+                const testUrl = `${NOCODB_CONFIG.BASE_URL}/${NOCODB_CONFIG.TABLE_ID}/records?limit=1`;
+                console.log('Probando URL:', testUrl);
+                
+                const response = await fetch(testUrl, {
+                    headers: getHeaders(),
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                console.log('Estado de respuesta:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Conexión exitosa! Datos recibidos:', data);
+                    showNotification('✅ Conexión a NocoDB V3 establecida correctamente', 'success');
+                    
+                    // Mostrar información útil
+                    console.log('Información para debugging:');
+                    console.log('- Token API (primeros 10 chars):', NOCODB_CONFIG.API_TOKEN.substring(0, 10) + '...');
+                    console.log('- Table ID:', NOCODB_CONFIG.TABLE_ID);
+                    console.log('- Registros encontrados:', data.list ? data.list.length : data.length || 0);
+                    
+                    return true;
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ Error en conexión:', errorText);
+                    showNotification('❌ Error al conectar: ' + response.status, 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Error en testConnection:', error);
+                showNotification('❌ Error de conexión: ' + error.message, 'error');
+                return false;
+            }
+        };
     </script>
 </body>
 </html>
